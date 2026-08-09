@@ -64,7 +64,7 @@ export class GasBox {
     this.partitionOpen = false;
     this.showHole = !!opts.showHole;
     this.holeOpen = false;
-    this.holeRadius = 0.42;
+    this.holeRadius = opts.holeRadius ?? 0.42;
     this._dragging = false;
     this._raf = null;
     this._lastCenterX = 0; // controls.target.x=0 ile eşleşir; kutu merkezini kamera takibi için

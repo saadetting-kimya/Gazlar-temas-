@@ -265,12 +265,12 @@
     const gasB = selectedGas();
     document.getElementById("effB-title").textContent = `Gaz B · ${gasB.label}`;
     effA = new GasBox(document.getElementById("stage-effA"), {
-      species: [{ key: "a", name: "Gaz A (He)", color: "#5b8dff", molarMass: 4, n: 0.55 }],
-      volumeL: 6, temperatureK: raceT, showPiston: false, showHole: true, speedScale: 0.18,
+      species: [{ key: "a", name: "Gaz A (He)", color: "#5b8dff", molarMass: 4, n: 0.85 }],
+      volumeL: 4, temperatureK: raceT, showPiston: false, showHole: true, holeRadius: 1.05, speedScale: 0.42,
     });
     effB = new GasBox(document.getElementById("stage-effB"), {
-      species: [{ key: "b", name: "Gaz B", color: "#ff5b7f", molarMass: gasB.mass, n: 0.55 }],
-      volumeL: 6, temperatureK: raceT, showPiston: false, showHole: true, speedScale: 0.18,
+      species: [{ key: "b", name: "Gaz B", color: "#ff5b7f", molarMass: gasB.mass, n: 0.85 }],
+      volumeL: 4, temperatureK: raceT, showPiston: false, showHole: true, holeRadius: 1.05, speedScale: 0.42,
     });
     totalA = effA.species[0].particles.length;
     totalB = effB.species[0].particles.length;
