@@ -41,7 +41,7 @@
     </div>
     <div class="callout model">
       <h5>Model Notu</h5>
-      <p>Bu simülasyonda Gaz A her zaman helyumdur (M = 4 g/mol) — hafif referans gazımız. Gaz B'yi aşağıdan seçerek mol kütlesinin yayılma hızına etkisini gözlemleyebilirsin. Tanecik hızları KMT'ye uygun olarak v ∝ √(T/M) ile ölçeklenir; bu nedenle hafif tanecikler ekranda da gözle görülür şekilde daha hızlı hareket eder.</p>
+      <p>Bu simülasyonda Gaz A her zaman helyumdur (M = 4 g/mol) — hafif referans gazımız. Gaz B'yi aşağıdan seçerek mol kütlesinin yayılma hızına etkisini gözlemleyebilirsin. Tanecik hızları KMT'ye uygun olarak v ∝ √(T/M) ile ölçeklenir; bu nedenle hafif tanecikler ekranda da gözle görülür şekilde daha hızlı hareket eder. Kap, "yarışı" adım adım izleyebilmen için bilerek geniş tutuldu ve tanecik hareketi yavaş çekimde oynatılıyor — gazlar arasındaki hız <strong>oranı</strong> gerçek Graham Yasası oranıyla birebir aynıdır, yalnızca mutlak hız izlenebilir olacak şekilde ölçeklendi.</p>
     </div>
   </div>
 </section>
@@ -211,10 +211,10 @@
     const gasB = selectedGas();
     diffBox = new GasBox(document.getElementById("stage-diff"), {
       species: [
-        { key: "a", name: "Gaz A (He)", color: "#5b8dff", molarMass: 4, n: 0.45 },
-        { key: "b", name: `Gaz B (${gasB.label})`, color: "#ff5b7f", molarMass: gasB.mass, n: 0.45 },
+        { key: "a", name: "Gaz A (He)", color: "#5b8dff", molarMass: 4, n: 0.6 },
+        { key: "b", name: `Gaz B (${gasB.label})`, color: "#ff5b7f", molarMass: gasB.mass, n: 0.6 },
       ],
-      volumeL: 7, temperatureK: raceT, showPiston: false, showPartition: true,
+      volumeL: 16, temperatureK: raceT, showPiston: false, showPartition: true, speedScale: 0.18,
     });
     diffBox.start();
     diffStarted = false;
@@ -265,12 +265,12 @@
     const gasB = selectedGas();
     document.getElementById("effB-title").textContent = `Gaz B · ${gasB.label}`;
     effA = new GasBox(document.getElementById("stage-effA"), {
-      species: [{ key: "a", name: "Gaz A (He)", color: "#5b8dff", molarMass: 4, n: 0.4 }],
-      volumeL: 5, temperatureK: raceT, showPiston: false, showHole: true,
+      species: [{ key: "a", name: "Gaz A (He)", color: "#5b8dff", molarMass: 4, n: 0.55 }],
+      volumeL: 6, temperatureK: raceT, showPiston: false, showHole: true, speedScale: 0.18,
     });
     effB = new GasBox(document.getElementById("stage-effB"), {
-      species: [{ key: "b", name: "Gaz B", color: "#ff5b7f", molarMass: gasB.mass, n: 0.4 }],
-      volumeL: 5, temperatureK: raceT, showPiston: false, showHole: true,
+      species: [{ key: "b", name: "Gaz B", color: "#ff5b7f", molarMass: gasB.mass, n: 0.55 }],
+      volumeL: 6, temperatureK: raceT, showPiston: false, showHole: true, speedScale: 0.18,
     });
     totalA = effA.species[0].particles.length;
     totalB = effB.species[0].particles.length;

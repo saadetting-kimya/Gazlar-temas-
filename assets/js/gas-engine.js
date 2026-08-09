@@ -56,6 +56,9 @@ export class GasBox {
     this.volumeL = opts.volumeL ?? 5;
     this.temperatureK = opts.temperatureK ?? 300;
     this.phase = opts.phase || "gas";
+    // Sahneye özel "izlenebilirlik" hız çarpanı (fiziksel oranları — hafif gaz her zaman
+    // ağırdan hızlı — bozmadan mutlak hızı insan gözünün takip edebileceği tempoya indirir).
+    this.speedScale = opts.speedScale ?? 1;
     this.showPiston = opts.showPiston !== false;
     this.showPartition = !!opts.showPartition;
     this.partitionOpen = false;
@@ -89,8 +92,14 @@ export class GasBox {
     const scene = new THREE.Scene();
     this.scene = scene;
 
-    const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
-    camera.position.set(6.2, 4.6, 8.4);
+    // Büyük kaplar (ör. difüzyon "yarış pisti") için kamerayı başlangıçta orantılı
+    // olarak uzaklaştır — aksi hâlde uzun bir kap kadraja hiç sığmaz.
+    const refLx = 3.4; // V=5 L referans kap genişliği
+    const lx0 = volumeToLx(this.volumeL);
+    const distScale = Math.max(1, Math.sqrt(lx0 / refLx));
+
+    const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 200);
+    camera.position.set(6.2 * distScale, 4.6 * distScale, 8.4 * distScale);
     this.camera = camera;
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -105,7 +114,7 @@ export class GasBox {
     controls.enableDamping = true;
     controls.dampingFactor = 0.08;
     controls.minDistance = 5;
-    controls.maxDistance = 20;
+    controls.maxDistance = 30 * distScale;
     controls.target.set(0, 0.4, 0);
     controls.maxPolarAngle = Math.PI * 0.49;
     this.controls = controls;
@@ -397,7 +406,7 @@ export class GasBox {
 
   currentSpeed(sp) {
     const M = sp.molarMass || 20;
-    return SPEED_K * Math.sqrt(this.temperatureK / M);
+    return SPEED_K * this.speedScale * Math.sqrt(this.temperatureK / M);
   }
 
   /* ---------------- fizik adımı: serbest gaz ---------------- */
