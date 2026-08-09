@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Graham Difüzyon ve Efüzyon Yasası — GazLab 10</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2246%22 fill=%22%232fb8c6%22/></svg>">
+<link rel="stylesheet" href="../assets/css/style.css" />
+<script type="importmap">
+{ "imports": {
+  "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+}}
+</script>
+</head>
+<body>
+<div id="nav-root"></div>
+
+<header class="hero">
+  <div class="container">
+    <span class="eyebrow">Modül 4 · KİM.10.1.11</span>
+    <h1 style="max-width:760px">Graham Difüzyon ve Efüzyon Yasası</h1>
+    <p class="lead" style="max-width:680px">Hafif gazlar neden ağır gazlardan daha hızlı yayılır? Helyum (He) ile seçtiğin başka bir gazı önce aynı kapta yarıştır (difüzyon), sonra küçük bir delikten kaçırt (efüzyon) — sonucu Graham Yasası'nın öngörüsüyle karşılaştır.</p>
+  </div>
+</header>
+
+<section class="section tight">
+  <div class="container two-col prose">
+    <div>
+      <h4>Difüzyon mu, efüzyon mu?</h4>
+      <ul>
+        <li><strong>Difüzyon:</strong> Bir gazın başka bir gaz (ya da ortam) içine kendiliğinden karışarak yayılması. Örnek: parfüm kokusunun odaya yayılması.</li>
+        <li><strong>Efüzyon:</strong> Gaz taneciklerinin küçük bir delik/gözenekten tek tek kaçarak boşluğa geçmesi. Örnek: bir araba lastiğinin yavaşça sönmesi.</li>
+      </ul>
+      <p>Thomas Graham'ın 1840'larda keşfettiği yasaya göre, aynı sıcaklıktaki iki gazın yayılma hızlarının oranı, mol kütleleriyle ters ilişkilidir:</p>
+      <div class="callout concept">
+        <h5>Graham Yasası</h5>
+        <p style="font-family:var(--mono); font-size:17px; color:var(--ink); font-weight:800;">r₁ / r₂ = √(M₂ / M₁)</p>
+        <p>Mol kütlesi küçük olan gaz, her zaman daha hızlı difüze/efüze olur.</p>
+      </div>
+    </div>
+    <div class="callout model">
+      <h5>Model Notu</h5>
+      <p>Bu simülasyonda Gaz A her zaman helyumdur (M = 4 g/mol) — hafif referans gazımız. Gaz B'yi aşağıdan seçerek mol kütlesinin yayılma hızına etkisini gözlemleyebilirsin. Tanecik hızları KMT'ye uygun olarak v ∝ √(T/M) ile ölçeklenir; bu nedenle hafif tanecikler ekranda da gözle görülür şekilde daha hızlı hareket eder.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section tight">
+  <div class="container">
+    <div class="btnbar" id="race-tabs">
+      <button class="btn primary" data-tab="diffusion">🌫️ Difüzyon Yarışı</button>
+      <button class="btn" data-tab="effusion">💨 Efüzyon Yarışı</button>
+    </div>
+  </div>
+</section>
+
+<section class="section tight">
+  <div class="container">
+    <div class="controls" style="grid-template-columns:repeat(2,1fr); gap:16px; margin-bottom:22px;">
+      <div class="control-row" style="grid-template-columns:120px 1fr 90px">
+        <label for="gasB">Gaz B</label>
+        <select id="gasB" style="background:#0a1120;color:#e9f2ff;border:1px solid var(--lab-line);border-radius:8px;padding:8px;">
+        </select>
+        <span></span>
+      </div>
+      <div class="control-row" style="grid-template-columns:120px 1fr 90px">
+        <label for="raceT">Sıcaklık</label>
+        <input type="range" id="raceT" min="200" max="500" step="10" value="300" />
+        <output id="raceT-out">300 K</output>
+      </div>
+    </div>
+
+    <!-- DİFÜZYON PANELİ -->
+    <div id="panel-diffusion">
+      <div class="two-col">
+        <div class="lab-panel">
+          <div class="lab-head">
+            <div class="lab-title"><span class="dot"></span> Difüzyon Odası</div>
+            <span class="lab-hint">bölme kalkınca gazlar karışır</span>
+          </div>
+          <div class="stage" id="stage-diff"><span class="orbit-hint">🖱 sürükle = döndür</span></div>
+          <div class="btnbar">
+            <button class="btn on-dark active" id="btn-diff-start">▶ Bölmeyi Kaldır</button>
+            <button class="btn on-dark" id="btn-diff-reset">↺ Sıfırla</button>
+          </div>
+        </div>
+        <div>
+          <div class="chart-wrap">
+            <div class="chart-label"><span>Karşıya Geçiş Oranı</span><span id="diff-elapsed">0,0 sn</span></div>
+            <canvas id="diff-race" height="110"></canvas>
+          </div>
+          <div class="callout real" style="margin-top:16px">
+            <h5>Graham Öngörüsü ile Karşılaştır</h5>
+            <p>Beklenen hız oranı (r<sub>He</sub>/r<sub>B</sub>) = <strong id="diff-predicted">–</strong><br/>
+            Gözlenen geçiş oranı (A%/B%) = <strong id="diff-observed">–</strong></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EFÜZYON PANELİ -->
+    <div id="panel-effusion" style="display:none">
+      <div class="two-col">
+        <div class="lab-panel">
+          <div class="lab-head"><div class="lab-title"><span class="dot"></span> Gaz A · Helyum (M=4)</div></div>
+          <div class="stage" id="stage-effA" style="aspect-ratio:16/11"><span class="orbit-hint">🖱 döndür</span></div>
+        </div>
+        <div class="lab-panel">
+          <div class="lab-head"><div class="lab-title"><span class="dot" style="background:var(--mol-b)"></span> <span id="effB-title">Gaz B</span></div></div>
+          <div class="stage" id="stage-effB" style="aspect-ratio:16/11"><span class="orbit-hint">🖱 döndür</span></div>
+        </div>
+      </div>
+      <div class="btnbar" style="margin-top:14px">
+        <button class="btn on-dark active" id="btn-eff-start">▶ Delikleri Aç</button>
+        <button class="btn on-dark" id="btn-eff-reset">↺ Sıfırla</button>
+      </div>
+      <div class="chart-wrap" style="margin-top:14px">
+        <div class="chart-label"><span>Kaçan Tanecik Oranı</span><span id="eff-elapsed">0,0 sn</span></div>
+        <canvas id="eff-race" height="110"></canvas>
+      </div>
+      <div class="callout real" style="margin-top:16px">
+        <h5>Graham Öngörüsü ile Karşılaştır</h5>
+        <p>Beklenen hız oranı (r<sub>He</sub>/r<sub>B</sub>) = <strong id="eff-predicted">–</strong><br/>
+        Gözlenen kaçış oranı (A%/B%) = <strong id="eff-observed">–</strong></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="discover">
+      <h3><span class="ico">🔍</span> Keşfet: Hangi Gaz Kazanır?</h3>
+      <div class="mission">
+        <div class="m-title">Görev 1 — Tahmin Et, Sonra Doğrula</div>
+        <ol>
+          <li>Gaz B'yi SF₆ (M=146) olarak seç. He'nin kaç kat hızlı kaçacağını Graham Yasası'yla önceden hesapla.</li>
+          <li>Efüzyon sekmesinde delikleri aç, gözlemle. Tahminin doğru çıktı mı?</li>
+        </ol>
+      </div>
+      <div class="mission">
+        <div class="m-title">Görev 2 — Sıcaklığın Etkisi</div>
+        <ol>
+          <li>Aynı gaz çiftiyle sıcaklığı önce 200 K'ye, sonra 500 K'ye ayarlayıp difüzyon deneyini tekrarla.</li>
+          <li>Sıcaklık, iki gaz arasındaki hız FARKINI mı yoksa ORANINI mı değiştiriyor? Grahame formülüne bakarak tartış.</li>
+        </ol>
+      </div>
+      <div class="journal">
+        <label>📓 Keşif Günlüğü — gözlemlerin (otomatik kaydedilir)</label>
+        <textarea id="journal4" placeholder="Örn: SF6 ile He yarıştırdığımda..."></textarea>
+        <div class="save-state"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Değerlendirme</span>
+      <h2>Bağlam Temelli Sorular</h2>
+    </div>
+    <div id="quiz-host"></div>
+  </div>
+</section>
+
+<div id="footer-root"></div>
+
+<script type="module">
+  import { mountNav, mountFooter } from "../assets/js/nav.js";
+  import { GasBox } from "../assets/js/gas-engine.js";
+  import { RaceMeter } from "../assets/js/charts.js";
+  import { renderQuiz, markVisited, bindJournal } from "../assets/js/quiz-engine.js";
+  import { QUIZ } from "../assets/js/quiz-data.js";
+
+  mountNav("difuzyon");
+  mountFooter();
+  markVisited("difuzyon");
+  bindJournal(document.getElementById("journal4"), "difuzyon");
+  renderQuiz(document.getElementById("quiz-host"), QUIZ.difuzyon, "difuzyon");
+
+  const GAS_PRESETS = [
+    { label: "H₂ · Hidrojen (M=2)", mass: 2 },
+    { label: "CH₄ · Metan (M=16)", mass: 16 },
+    { label: "NH₃ · Amonyak (M=17)", mass: 17 },
+    { label: "O₂ · Oksijen (M=32)", mass: 32 },
+    { label: "CO₂ · Karbondioksit (M=44)", mass: 44 },
+    { label: "SF₆ · Kükürt Hekzaflorür (M=146)", mass: 146 },
+  ];
+  const gasBSelect = document.getElementById("gasB");
+  gasBSelect.innerHTML = GAS_PRESETS.map((g, i) => `<option value="${i}" ${i===1?"selected":""}>${g.label}</option>`).join("");
+  function selectedGas() { return GAS_PRESETS[+gasBSelect.value]; }
+
+  let raceT = 300;
+  const raceTSlider = document.getElementById("raceT");
+  raceTSlider.addEventListener("input", () => {
+    raceT = +raceTSlider.value;
+    document.getElementById("raceT-out").textContent = `${raceT} K`;
+    if (diffBox) diffBox.setTemperature(raceT);
+    if (effA) effA.setTemperature(raceT);
+    if (effB) effB.setTemperature(raceT);
+  });
+
+  /* ---------------- DİFÜZYON ---------------- */
+  let diffBox = null, diffStarted = false, diffStartTime = 0, diffTimer = null;
+  const diffRace = new RaceMeter(document.getElementById("diff-race"));
+
+  function buildDiffBox() {
+    if (diffBox) diffBox.dispose();
+    const gasB = selectedGas();
+    diffBox = new GasBox(document.getElementById("stage-diff"), {
+      species: [
+        { key: "a", name: "Gaz A (He)", color: "#5b8dff", molarMass: 4, n: 0.35 },
+        { key: "b", name: `Gaz B (${gasB.label})`, color: "#ff5b7f", molarMass: gasB.mass, n: 0.35 },
+      ],
+      volumeL: 9, temperatureK: raceT, showPiston: false, showPartition: true,
+    });
+    diffBox.start();
+    diffStarted = false;
+    document.getElementById("diff-predicted").textContent = Math.sqrt(gasB.mass / 4).toFixed(2) + "×";
+    updateDiffMeter();
+  }
+
+  function updateDiffMeter() {
+    if (!diffBox) return;
+    const { mid } = diffBox.getBounds();
+    const spA = diffBox.species.find(s => s.key === "a");
+    const spB = diffBox.species.find(s => s.key === "b");
+    const crossedA = spA.particles.filter(p => p.pos.x > mid).length / spA.particles.length;
+    const crossedB = spB.particles.filter(p => p.pos.x < mid).length / spB.particles.length;
+    diffRace.setRows([
+      { label: "Gaz A (He)", value: crossedA * 100, max: 100, color: "#5b8dff", valueLabel: (crossedA * 100).toFixed(0) + "%" },
+      { label: "Gaz B", value: crossedB * 100, max: 100, color: "#ff5b7f", valueLabel: (crossedB * 100).toFixed(0) + "%" },
+    ]);
+    const ratio = crossedB > 0.02 ? (crossedA / crossedB) : 0;
+    document.getElementById("diff-observed").textContent = ratio > 0 ? ratio.toFixed(2) + "×" : "henüz erken…";
+    if (diffStarted) {
+      const el = (performance.now() - diffStartTime) / 1000;
+      document.getElementById("diff-elapsed").textContent = el.toFixed(1) + " sn";
+    }
+  }
+  diffTimer = setInterval(() => { if (activeTab === "diffusion") updateDiffMeter(); }, 300);
+
+  document.getElementById("btn-diff-start").addEventListener("click", () => {
+    diffBox.openPartition();
+    diffStarted = true;
+    diffStartTime = performance.now();
+  });
+  document.getElementById("btn-diff-reset").addEventListener("click", () => {
+    diffBox.reset();
+    diffStarted = false;
+    document.getElementById("diff-elapsed").textContent = "0,0 sn";
+    updateDiffMeter();
+  });
+
+  /* ---------------- EFÜZYON ---------------- */
+  let effA = null, effB = null, effStarted = false, effStartTime = 0;
+  let escapedA = 0, escapedB = 0, totalA = 1, totalB = 1;
+  const effRace = new RaceMeter(document.getElementById("eff-race"));
+
+  function buildEffBoxes() {
+    if (effA) effA.dispose();
+    if (effB) effB.dispose();
+    const gasB = selectedGas();
+    document.getElementById("effB-title").textContent = `Gaz B · ${gasB.label}`;
+    effA = new GasBox(document.getElementById("stage-effA"), {
+      species: [{ key: "a", name: "Gaz A (He)", color: "#5b8dff", molarMass: 4, n: 0.3 }],
+      volumeL: 6, temperatureK: raceT, showPiston: false, showHole: true,
+    });
+    effB = new GasBox(document.getElementById("stage-effB"), {
+      species: [{ key: "b", name: "Gaz B", color: "#ff5b7f", molarMass: gasB.mass, n: 0.3 }],
+      volumeL: 6, temperatureK: raceT, showPiston: false, showHole: true,
+    });
+    totalA = effA.species[0].particles.length;
+    totalB = effB.species[0].particles.length;
+    escapedA = 0; escapedB = 0; effStarted = false;
+    effA.on("escape", () => { escapedA++; updateEffMeter(); });
+    effB.on("escape", () => { escapedB++; updateEffMeter(); });
+    effA.start(); effB.start();
+    document.getElementById("eff-predicted").textContent = Math.sqrt(gasB.mass / 4).toFixed(2) + "×";
+    updateEffMeter();
+  }
+
+  function updateEffMeter() {
+    const pA = (escapedA / totalA) * 100, pB = (escapedB / totalB) * 100;
+    effRace.setRows([
+      { label: "Gaz A (He)", value: pA, max: 100, color: "#5b8dff", valueLabel: pA.toFixed(0) + "%" },
+      { label: "Gaz B", value: pB, max: 100, color: "#ff5b7f", valueLabel: pB.toFixed(0) + "%" },
+    ]);
+    const ratio = pB > 2 ? (pA / pB) : 0;
+    document.getElementById("eff-observed").textContent = ratio > 0 ? ratio.toFixed(2) + "×" : "henüz erken…";
+    if (effStarted) {
+      const el = (performance.now() - effStartTime) / 1000;
+      document.getElementById("eff-elapsed").textContent = el.toFixed(1) + " sn";
+    }
+  }
+  setInterval(() => { if (activeTab === "effusion" && effStarted) updateEffMeter(); }, 300);
+
+  document.getElementById("btn-eff-start").addEventListener("click", () => {
+    effA.setHoleOpen(true); effB.setHoleOpen(true);
+    effStarted = true; effStartTime = performance.now();
+  });
+  document.getElementById("btn-eff-reset").addEventListener("click", () => {
+    effA.reset(); effB.reset();
+    escapedA = 0; escapedB = 0; effStarted = false;
+    document.getElementById("eff-elapsed").textContent = "0,0 sn";
+    updateEffMeter();
+  });
+
+  /* ---------------- Sekme yönetimi ---------------- */
+  let activeTab = "diffusion";
+  function showTab(tab) {
+    activeTab = tab;
+    document.querySelectorAll("#race-tabs [data-tab]").forEach(b => b.classList.toggle("primary", b.dataset.tab === tab));
+    document.getElementById("panel-diffusion").style.display = tab === "diffusion" ? "block" : "none";
+    document.getElementById("panel-effusion").style.display = tab === "effusion" ? "block" : "none";
+    if (tab === "diffusion") {
+      if (!diffBox) buildDiffBox(); else diffBox.start();
+      if (effA) { effA.stop(); effB.stop(); }
+      diffRace.resize();
+    } else {
+      if (!effA) buildEffBoxes(); else { effA.start(); effB.start(); }
+      if (diffBox) diffBox.stop();
+      effRace.resize();
+    }
+  }
+  document.querySelectorAll("#race-tabs [data-tab]").forEach(btn => btn.addEventListener("click", () => showTab(btn.dataset.tab)));
+
+  gasBSelect.addEventListener("change", () => {
+    if (diffBox) buildDiffBox();
+    if (effA) buildEffBoxes();
+    if (activeTab === "effusion" && diffBox) diffBox.stop();
+    if (activeTab === "diffusion" && effA) { effA.stop(); effB.stop(); }
+  });
+
+  showTab("diffusion");
+</script>
+</body>
+</html>

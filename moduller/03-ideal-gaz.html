@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>İdeal Gaz Yasası — GazLab 10</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2246%22 fill=%22%232fb8c6%22/></svg>">
+<link rel="stylesheet" href="../assets/css/style.css" />
+<script type="importmap">
+{ "imports": {
+  "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+}}
+</script>
+</head>
+<body>
+<div id="nav-root"></div>
+
+<header class="hero">
+  <div class="container">
+    <span class="eyebrow">Modül 3 · KİM.10.1.10</span>
+    <h1 style="max-width:760px">İdeal Gaz Yasası</h1>
+    <p class="lead" style="max-width:680px">Boyle, Charles ve Avogadro yasalarının her biri, dört değişkenden (P, V, T, n) sadece ikisi arasındaki ilişkiyi anlatır. Peki hepsini TEK bir eşitlikte birleştirirsek ne elde ederiz? Kontrol panelindeki üç ölçüm aletini kullanarak kendi "ideal gaz sabitini" keşfet.</p>
+  </div>
+</header>
+
+<section class="section tight">
+  <div class="container two-col prose">
+    <div>
+      <h4>Üç yasadan bir örüntüye</h4>
+      <p>Modül 2'de üç ayrı ilişki bulmuştun:</p>
+      <ul>
+        <li>Boyle: <strong>P·V = sabit</strong> (n, T sabitken)</li>
+        <li>Charles: <strong>V/T = sabit</strong> (n, P sabitken)</li>
+        <li>Avogadro: <strong>V/n = sabit</strong> (P, T sabitken)</li>
+      </ul>
+      <p>Bu üç örüntüyü tek bir eşitlikte birleştirdiğimizde <strong>ideal gaz denklemi</strong> ortaya çıkar:</p>
+      <div class="callout concept">
+        <h5>İdeal Gaz Denklemi</h5>
+        <p style="font-family:var(--mono); font-size:18px; color:var(--ink); font-weight:800;">P·V = n·R·T</p>
+        <p>Buradaki <strong>R</strong>, tüm ideal gazlar için aynı olan evrensel bir orantı sabitidir (ideal gaz sabiti). Bu simülasyonda sadelik için R ≈ 0,0821 L·atm/(mol·K) alınır.</p>
+      </div>
+    </div>
+    <div>
+      <div class="callout real">
+        <h5>Anahtar Kavram · Standart-Normal Şartlar (NŞ)</h5>
+        <p>Gazları karşılaştırabilmek için tanımlanan referans koşuldur (≈1 atm, 273 K). Bu koşulda 1 mol ideal gazın kapladığı hacim her zaman aynıdır. Aşağıdaki panelde "NŞ'ye Ayarla" düğmesiyle bunu bizzat doğrulayabilirsin.</p>
+      </div>
+      <div class="callout model">
+        <h5>Model Notu</h5>
+        <p>İdeal gaz denklemi, gaz türünden (mol kütlesinden) bağımsızdır — denklemde M yer almaz. Bu yüzden aynı n, P, T değerlerinde hangi gazı simüle ettiğinin bir önemi yoktur.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Sanal Deney</span>
+      <h2>Kontrol Paneli: P · V · T · n</h2>
+      <p>Dört değişkenden birini "kilitleyerek" onu diğer üçünden otomatik hesaplat; kalan üçünü serbestçe değiştir. Sağdaki üç ölçüm aleti (manometre, termometre, mol sayacı) değerleri anlık gösterir.</p>
+    </div>
+    <div class="two-col">
+      <div class="lab-panel">
+        <div class="lab-head">
+          <div class="lab-title"><span class="dot"></span> İdeal Gaz Odası</div>
+          <span class="lab-hint">sürükle = döndür</span>
+        </div>
+        <div class="stage" id="stage3">
+          <span class="stage-badge" id="badge3">n=0,50 mol</span>
+          <span class="orbit-hint">🖱 sürükle = döndür</span>
+        </div>
+        <div class="readouts">
+          <div class="readout p"><div class="k">Basınç</div><div class="v" id="ro-p">–<span class="u">atm</span></div></div>
+          <div class="readout v2"><div class="k">Hacim</div><div class="v" id="ro-v">–<span class="u">L</span></div></div>
+          <div class="readout t"><div class="k">Sıcaklık</div><div class="v" id="ro-t">–<span class="u">K</span></div></div>
+          <div class="readout n"><div class="k">Madde Miktarı</div><div class="v" id="ro-n">–<span class="u">mol</span></div></div>
+        </div>
+      </div>
+      <div>
+        <div class="controls" id="panel"></div>
+        <div class="btnbar">
+          <button class="btn primary" id="btn-nsart">🧊 NŞ'ye Ayarla (1 atm, 273 K, 1 mol)</button>
+          <button class="btn" id="btn-reset">↺ Sıfırla</button>
+        </div>
+        <div class="callout concept" style="margin-top:16px">
+          <h5>Deneysel R</h5>
+          <p style="font-family:var(--mono); font-size:16px; color:var(--ink)">R = P·V / (n·T) = <span id="r-value" style="font-weight:800">–</span> L·atm/(mol·K)</p>
+          <p>Hangi üç değişkeni seçersen seç, dördüncüsü ideal gaz eşitliğinden hesaplanıyor. Bu oranın <strong>her kombinasyonda aynı çıkması</strong>, R'nin gazın türünden ve seçtiğin değerlerden bağımsız evrensel bir sabit olduğunu gösterir.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="discover">
+      <h3><span class="ico">🔍</span> Keşfet: R Sabitini Avla</h3>
+      <div class="mission">
+        <div class="m-title">Görev 1 — Değişmezliği Doğrula</div>
+        <ol>
+          <li>Kilidi <strong>V</strong> üzerinde bırak. P, T, n değerlerini rastgele beş kez değiştir.</li>
+          <li>Her seferinde "Deneysel R" kutusundaki sayıyı oku. Değişiyor mu?</li>
+          <li>Kilidi sırasıyla P, T ve n'ye taşıyarak aynı testi tekrarla.</li>
+        </ol>
+      </div>
+      <div class="mission">
+        <div class="m-title">Görev 2 — Standart Şartlar</div>
+        <ol>
+          <li>"NŞ'ye Ayarla" düğmesine bas.</li>
+          <li>Okuduğun hacim değeri, kimya kitaplarında sıkça geçen 22,4 L/mol değerine ne kadar yakın?</li>
+          <li>n'yi 2 mol'e çıkarırsan (P, T sabit) hacim nasıl değişir? Bu, Avogadro Yasası ile tutarlı mı?</li>
+        </ol>
+      </div>
+      <div class="journal">
+        <label>📓 Keşif Günlüğü — R sabitiyle ilgili çıkarımların (otomatik kaydedilir)</label>
+        <textarea id="journal3" placeholder="Örn: Hangi değişkeni değiştirirsem değiştireyim R sabit kaldı çünkü..."></textarea>
+        <div class="save-state"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Değerlendirme</span>
+      <h2>Bağlam Temelli Sorular</h2>
+    </div>
+    <div id="quiz-host"></div>
+  </div>
+</section>
+
+<div id="footer-root"></div>
+
+<script type="module">
+  import { mountNav, mountFooter } from "../assets/js/nav.js";
+  import { GasBox, R_CONST, SCENE_BOUNDS } from "../assets/js/gas-engine.js";
+  import { createManometer, createThermometer, createMolBalance } from "../assets/js/instruments.js";
+  import { renderQuiz, markVisited, bindJournal } from "../assets/js/quiz-engine.js";
+  import { QUIZ } from "../assets/js/quiz-data.js";
+
+  mountNav("ideal");
+  mountFooter();
+  markVisited("ideal");
+  bindJournal(document.getElementById("journal3"), "ideal");
+  renderQuiz(document.getElementById("quiz-host"), QUIZ.ideal, "ideal");
+
+  const VARS = {
+    P: { label: "Basınç (P)", min: 0.2, max: 6, step: 0.1, unit: "atm" },
+    V: { label: "Hacim (V)", min: 0.5, max: 25, step: 0.1, unit: "L" },
+    T: { label: "Sıcaklık (T)", min: 150, max: 600, step: 5, unit: "K" },
+    n: { label: "Madde Miktarı (n)", min: 0.1, max: 3, step: 0.05, unit: "mol" },
+  };
+  const state = { P: 1.2, V: 10.2, T: 298, n: 0.5 };
+  let locked = "V";
+
+  function recompute() {
+    const { P, V, T, n } = state;
+    if (locked === "P") state.P = (n * R_CONST * T) / V;
+    else if (locked === "V") state.V = (n * R_CONST * T) / P;
+    else if (locked === "T") state.T = (P * V) / (n * R_CONST);
+    else if (locked === "n") state.n = (P * V) / (R_CONST * T);
+    const cfg = VARS[locked];
+    state[locked] = Math.min(cfg.max, Math.max(cfg.min, state[locked]));
+  }
+
+  const stage = document.getElementById("stage3");
+  const box = new GasBox(stage, {
+    species: [{ key: "a", name: "Gaz", color: "#2fb8c6", molarMass: 29, n: state.n }],
+    volumeL: state.V, temperatureK: state.T, showPiston: true,
+  });
+  box.start();
+
+  const manometer = createManometer({ maxAtm: 6 });
+  const thermometer = createThermometer({ minK: 150, maxK: 600 });
+  const balance = createMolBalance({ maxMol: 3 });
+  manometer.group.scale.setScalar(0.85);
+  thermometer.group.scale.setScalar(0.85);
+  balance.group.scale.setScalar(0.85);
+  manometer.group.position.set(SCENE_BOUNDS.x0 - 0.95, 0.7, -1.5);
+  thermometer.group.position.set(SCENE_BOUNDS.x0 - 0.95, -2.0, -0.2);
+  balance.group.position.set(SCENE_BOUNDS.x0 - 0.95, -2.0, 1.7);
+  box.scene.add(manometer.group, thermometer.group, balance.group);
+
+  const panel = document.getElementById("panel");
+  const varEls = {};
+  Object.entries(VARS).forEach(([key, cfg]) => {
+    const row = document.createElement("div");
+    row.className = "control-row";
+    row.innerHTML = `
+      <label>${cfg.label}</label>
+      <input type="range" min="${cfg.min}" max="${cfg.max}" step="${cfg.step}" value="${state[key]}" />
+      <output></output>
+    `;
+    const slider = row.querySelector("input");
+    const output = row.querySelector("output");
+    const lockWrap = document.createElement("button");
+    lockWrap.className = "lock-btn";
+    lockWrap.textContent = "KİLİT";
+    lockWrap.title = "Bu değişkeni diğer üçünden hesapla";
+    row.appendChild(lockWrap);
+    panel.appendChild(row);
+
+    slider.addEventListener("input", () => {
+      state[key] = +slider.value;
+      recomputeAndSync();
+    });
+    lockWrap.addEventListener("click", () => {
+      locked = key;
+      recomputeAndSync();
+    });
+    varEls[key] = { row, slider, output, lockWrap };
+  });
+
+  function fmt(v, unit) {
+    return `${v.toFixed(2).replace(/0$/,'').replace(/\.$/,'')} ${unit}`;
+  }
+
+  function syncUI() {
+    Object.entries(VARS).forEach(([key, cfg]) => {
+      const el = varEls[key];
+      const isLocked = key === locked;
+      el.row.classList.toggle("locked", isLocked);
+      el.lockWrap.classList.toggle("on", isLocked);
+      el.slider.disabled = isLocked;
+      el.slider.value = state[key];
+      el.output.textContent = fmt(state[key], cfg.unit);
+    });
+    document.getElementById("ro-p").innerHTML = `${state.P.toFixed(2)}<span class="u">atm</span>`;
+    document.getElementById("ro-v").innerHTML = `${state.V.toFixed(2)}<span class="u">L</span>`;
+    document.getElementById("ro-t").innerHTML = `${state.T.toFixed(0)}<span class="u">K</span>`;
+    document.getElementById("ro-n").innerHTML = `${state.n.toFixed(2)}<span class="u">mol</span>`;
+    document.getElementById("badge3").textContent = `n=${state.n.toFixed(2)} mol · kilit: ${locked}`;
+    const R = (state.P * state.V) / (state.n * state.T);
+    document.getElementById("r-value").textContent = R.toFixed(4);
+  }
+
+  function recomputeAndSync() {
+    recompute();
+    box.setTemperature(state.T);
+    if (Math.abs(box.volumeL - state.V) > 1e-6) box.setVolume(state.V);
+    if (Math.abs((box.species[0].n ?? 0) - state.n) > 1e-6) box.setMolCount("a", state.n);
+    manometer.update(state.P);
+    thermometer.update(state.T);
+    balance.update(state.n);
+    syncUI();
+  }
+
+  document.getElementById("btn-nsart").addEventListener("click", () => {
+    locked = "V";
+    state.P = 1; state.T = 273; state.n = 1;
+    recomputeAndSync();
+  });
+  document.getElementById("btn-reset").addEventListener("click", () => {
+    locked = "V";
+    state.P = 1.2; state.T = 298; state.n = 0.5;
+    recomputeAndSync();
+  });
+
+  recomputeAndSync();
+</script>
+</body>
+</html>
