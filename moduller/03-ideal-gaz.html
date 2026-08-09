@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>İdeal Gaz Yasası — GazLab 10</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2246%22 fill=%22%232fb8c6%22/></svg>">
-<link rel="stylesheet" href="../assets/css/style.css" />
+<link rel="stylesheet" href="../assets/css/style.css?v=2" />
 <script type="importmap">
 { "imports": {
   "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
@@ -136,11 +136,11 @@
 <div id="footer-root"></div>
 
 <script type="module">
-  import { mountNav, mountFooter } from "../assets/js/nav.js";
-  import { GasBox, R_CONST, SCENE_BOUNDS } from "../assets/js/gas-engine.js";
-  import { createManometer, createThermometer, createMolBalance } from "../assets/js/instruments.js";
-  import { renderQuiz, markVisited, bindJournal } from "../assets/js/quiz-engine.js";
-  import { QUIZ } from "../assets/js/quiz-data.js";
+  import { mountNav, mountFooter } from "../assets/js/nav.js?v=2";
+  import { GasBox, R_CONST, SCENE_BOUNDS } from "../assets/js/gas-engine.js?v=2";
+  import { createManometer, createThermometer, createMolBalance } from "../assets/js/instruments.js?v=2";
+  import { renderQuiz, markVisited, bindJournal } from "../assets/js/quiz-engine.js?v=2";
+  import { QUIZ } from "../assets/js/quiz-data.js?v=2";
 
   mountNav("ideal");
   mountFooter();

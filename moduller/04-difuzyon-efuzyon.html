@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Graham Difüzyon ve Efüzyon Yasası — GazLab 10</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2246%22 fill=%22%232fb8c6%22/></svg>">
-<link rel="stylesheet" href="../assets/css/style.css" />
+<link rel="stylesheet" href="../assets/css/style.css?v=2" />
 <script type="importmap">
 { "imports": {
   "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
@@ -104,11 +104,11 @@
       <div class="two-col">
         <div class="lab-panel">
           <div class="lab-head"><div class="lab-title"><span class="dot"></span> Gaz A · Helyum (M=4)</div></div>
-          <div class="stage" id="stage-effA" style="aspect-ratio:16/11"><span class="orbit-hint">🖱 döndür</span></div>
+          <div class="stage" id="stage-effA"><span class="orbit-hint">🖱 döndür</span></div>
         </div>
         <div class="lab-panel">
           <div class="lab-head"><div class="lab-title"><span class="dot" style="background:var(--mol-b)"></span> <span id="effB-title">Gaz B</span></div></div>
-          <div class="stage" id="stage-effB" style="aspect-ratio:16/11"><span class="orbit-hint">🖱 döndür</span></div>
+          <div class="stage" id="stage-effB"><span class="orbit-hint">🖱 döndür</span></div>
         </div>
       </div>
       <div class="btnbar" style="margin-top:14px">
@@ -168,11 +168,11 @@
 <div id="footer-root"></div>
 
 <script type="module">
-  import { mountNav, mountFooter } from "../assets/js/nav.js";
-  import { GasBox } from "../assets/js/gas-engine.js";
-  import { RaceMeter } from "../assets/js/charts.js";
-  import { renderQuiz, markVisited, bindJournal } from "../assets/js/quiz-engine.js";
-  import { QUIZ } from "../assets/js/quiz-data.js";
+  import { mountNav, mountFooter } from "../assets/js/nav.js?v=2";
+  import { GasBox } from "../assets/js/gas-engine.js?v=2";
+  import { RaceMeter } from "../assets/js/charts.js?v=2";
+  import { renderQuiz, markVisited, bindJournal } from "../assets/js/quiz-engine.js?v=2";
+  import { QUIZ } from "../assets/js/quiz-data.js?v=2";
 
   mountNav("difuzyon");
   mountFooter();
@@ -211,10 +211,10 @@
     const gasB = selectedGas();
     diffBox = new GasBox(document.getElementById("stage-diff"), {
       species: [
-        { key: "a", name: "Gaz A (He)", color: "#5b8dff", molarMass: 4, n: 0.35 },
-        { key: "b", name: `Gaz B (${gasB.label})`, color: "#ff5b7f", molarMass: gasB.mass, n: 0.35 },
+        { key: "a", name: "Gaz A (He)", color: "#5b8dff", molarMass: 4, n: 0.45 },
+        { key: "b", name: `Gaz B (${gasB.label})`, color: "#ff5b7f", molarMass: gasB.mass, n: 0.45 },
       ],
-      volumeL: 9, temperatureK: raceT, showPiston: false, showPartition: true,
+      volumeL: 7, temperatureK: raceT, showPiston: false, showPartition: true,
     });
     diffBox.start();
     diffStarted = false;
@@ -265,12 +265,12 @@
     const gasB = selectedGas();
     document.getElementById("effB-title").textContent = `Gaz B · ${gasB.label}`;
     effA = new GasBox(document.getElementById("stage-effA"), {
-      species: [{ key: "a", name: "Gaz A (He)", color: "#5b8dff", molarMass: 4, n: 0.3 }],
-      volumeL: 6, temperatureK: raceT, showPiston: false, showHole: true,
+      species: [{ key: "a", name: "Gaz A (He)", color: "#5b8dff", molarMass: 4, n: 0.4 }],
+      volumeL: 5, temperatureK: raceT, showPiston: false, showHole: true,
     });
     effB = new GasBox(document.getElementById("stage-effB"), {
-      species: [{ key: "b", name: "Gaz B", color: "#ff5b7f", molarMass: gasB.mass, n: 0.3 }],
-      volumeL: 6, temperatureK: raceT, showPiston: false, showHole: true,
+      species: [{ key: "b", name: "Gaz B", color: "#ff5b7f", molarMass: gasB.mass, n: 0.4 }],
+      volumeL: 5, temperatureK: raceT, showPiston: false, showHole: true,
     });
     totalA = effA.species[0].particles.length;
     totalB = effB.species[0].particles.length;

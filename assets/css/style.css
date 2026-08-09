@@ -163,6 +163,11 @@ p{ margin:0 0 1em; color:var(--ink-soft); }
   overflow:hidden; background:radial-gradient(120% 140% at 30% 10%, #16233c, #0a1120 70%);
   border:1px solid var(--lab-line);
 }
+/* Mobilde daha dar ekranlarda 3B sahneye daha fazla dikey alan ver — sürükleyip
+   döndürmek/pistonu tutmak çok kısa bir şeritte zorlaşıyordu. */
+@media (max-width:640px){
+  .stage{ aspect-ratio:4/3.4; }
+}
 .stage canvas{ display:block; width:100%; height:100%; touch-action:none; }
 .stage .stage-badge{
   position:absolute; left:10px; top:10px; font-family:var(--mono); font-size:11px;

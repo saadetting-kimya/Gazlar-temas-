@@ -6,7 +6,7 @@
 <title>GazLab 10 — Gazlar Teması Sanal Laboratuvarı</title>
 <meta name="description" content="10. Sınıf Kimya, Gazlar Teması için üç boyutlu sanal laboratuvar: gazların özellikleri, gaz yasaları, ideal gaz yasası, Graham difüzyon-efüzyon yasası." />
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2246%22 fill=%22%232fb8c6%22/></svg>">
-<link rel="stylesheet" href="assets/css/style.css" />
+<link rel="stylesheet" href="assets/css/style.css?v=2" />
 <script type="importmap">
 { "imports": {
   "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
@@ -136,8 +136,8 @@
 <div id="footer-root"></div>
 
 <script type="module">
-  import { mountNav, mountFooter } from "./assets/js/nav.js";
-  import { GasBox } from "./assets/js/gas-engine.js";
+  import { mountNav, mountFooter } from "./assets/js/nav.js?v=2";
+  import { GasBox } from "./assets/js/gas-engine.js?v=2";
   mountNav("home");
   mountFooter();
 

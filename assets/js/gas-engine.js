@@ -64,6 +64,7 @@ export class GasBox {
     this.holeRadius = 0.42;
     this._dragging = false;
     this._raf = null;
+    this._lastCenterX = 0; // controls.target.x=0 ile eşleşir; kutu merkezini kamera takibi için
     this._listeners = { volumechange: [], escape: [], mix: [] };
     this._clock = new THREE.Clock();
 
@@ -150,6 +151,15 @@ export class GasBox {
     this._lx = Lx;
     const centerX = BOX_X0 + Lx / 2;
 
+    // Kamera, kabın merkezini takip eder (saf ötelenme — kullanıcının döndürme/yakınlaştırma
+    // durumunu bozmaz). Böylece hacim büyürken/küçülürken piston her zaman görünür kalır.
+    const dx = centerX - this._lastCenterX;
+    if (dx !== 0) {
+      this.camera.position.x += dx;
+      this.controls.target.x += dx;
+    }
+    this._lastCenterX = centerX;
+
     if (this._panelMesh) { this.boxGroup.remove(this._panelMesh); this._panelMesh.geometry.dispose(); }
     if (this._edges) { this.boxGroup.remove(this._edges); this._edges.geometry.dispose(); }
     if (this._ruler) { this.boxGroup.remove(this._ruler); }
@@ -213,8 +223,17 @@ export class GasBox {
     handle.position.x = 3.3;
     group.add(handle);
 
+    // Görünmez ama daha büyük bir "tutma alanı": parmakla dokunmatik cihazlarda küçük
+    // turuncu halkayı hassas şekilde yakalamak zor olduğundan raycast bu geniş küre
+    // üzerinden yapılır (görsel olarak sadece halka görünür).
+    const grabGeo = new THREE.SphereGeometry(0.62, 12, 12);
+    const grabMat = new THREE.MeshBasicMaterial({ visible: false });
+    const grabZone = new THREE.Mesh(grabGeo, grabMat);
+    grabZone.position.copy(handle.position);
+    group.add(grabZone);
+
     this._piston = group;
-    this._pistonHandle = handle;
+    this._pistonHandle = grabZone;
     this.boxGroup.add(group);
     this._positionPiston();
     this._setupDrag();
