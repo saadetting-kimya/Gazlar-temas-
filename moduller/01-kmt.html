@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Gazların Özellikleri & Kinetik Moleküler Teori — GazLab 10</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2246%22 fill=%22%232fb8c6%22/></svg>">
+<link rel="stylesheet" href="../assets/css/style.css" />
+<script type="importmap">
+{ "imports": {
+  "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+}}
+</script>
+</head>
+<body>
+<div id="nav-root"></div>
+
+<header class="hero">
+  <div class="container">
+    <span class="eyebrow">Modül 1 · KİM.10.1.8</span>
+    <h1 style="max-width:760px">Gazların Özellikleri ve Kinetik Moleküler Teori</h1>
+    <p class="lead" style="max-width:680px">Aynı sıcaklıkta bir küp buz, bir bardak su ve bir balon dolusu hava... Üçü de aynı tanecikli yapı modeliyle mi açıklanır? Piston, sıcaklık ve hâl kontrollerini kullanarak katı, sıvı ve gazın birbirinden nasıl ayrıldığını kendin keşfet.</p>
+  </div>
+</header>
+
+<section class="section tight">
+  <div class="container two-col prose">
+    <div>
+      <h4>Neden bazı maddeler sıkışır, bazıları sıkışmaz?</h4>
+      <p>Kinetik moleküler teoriye (KMT) göre bütün maddeler sürekli hareket eden taneciklerden oluşur. Bir maddenin katı, sıvı ya da gaz hâlde bulunması; taneciklerin birbirine olan uzaklığına ve hareket serbestliğine bağlıdır.</p>
+      <ul>
+        <li><strong>Katı:</strong> Tanecikler sabit noktalar etrafında sadece titreşir; aralarında boşluk yok denecek kadar azdır.</li>
+        <li><strong>Sıvı:</strong> Tanecikler birbirine yakın kalır ama yer değiştirebilir; kabın şeklini alır, hacmini korur.</li>
+        <li><strong>Gaz:</strong> Tanecikler birbirinden bağımsız, serbestçe hareket eder; bulunduğu kabın tamamını doldurur.</li>
+      </ul>
+      <h4>Gazlara özgü altı gözlemlenebilir özellik</h4>
+      <p>Hacim, basınç, genleşme, sıkıştırılabilirlik, karışabilirlik ve yoğunluk — bu özelliklerin tümü, taneciklerin arasındaki büyük boşluklardan ve serbest hareketinden kaynaklanır.</p>
+    </div>
+    <div>
+      <div class="callout model">
+        <h5>Model Notu</h5>
+        <p>Gerçek bir gaz örneğinde tanecik sayısı Avogadro sayısı (N<sub>A</sub> = 6,02×10²³) mertebesindedir. Bu simülasyonda kavramsal anlaşılırlık için tanecik sayısı ölçeklendirilmiştir (1 "nokta" ≈ gerçek tanecik topluluğunu temsil eder); oranlar ve eğilimler gerçek gaz davranışıyla birebir uyumludur.</p>
+      </div>
+      <div class="callout concept">
+        <h5>Anahtar Kavram · İdeal Gaz</h5>
+        <p>KMT varsayımına göre ideal bir gazda tanecikler arasında çekim kuvveti yoktur ve tanecik hacmi kap hacmine göre ihmal edilir. Bu simülasyondaki tanecikler bu varsayıma göre modellenmiştir.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Sanal Deney</span>
+      <h2>Hâl Karşılaştırma & Sıkıştırılabilirlik Odası</h2>
+      <p>Aynı madde örneğini üç farklı hâlde incele. Pistonu sürükleyerek sıkıştırmayı dene; sıcaklığı değiştirerek tanecik hareketindeki değişimi gözlemle.</p>
+    </div>
+    <div class="two-col">
+      <div class="lab-panel">
+        <div class="lab-head">
+          <div class="lab-title"><span class="dot"></span> Sıkıştırma Odası</div>
+          <span class="lab-hint">turuncu halkayı sürükle</span>
+        </div>
+        <div class="stage" id="stage1">
+          <span class="stage-badge" id="badge1">GAZ</span>
+          <span class="orbit-hint">🖱 sürükle = döndür</span>
+        </div>
+        <div class="readouts">
+          <div class="readout"><div class="k">Hâl</div><div class="v" id="r-phase">Gaz</div></div>
+          <div class="readout t"><div class="k">Sıcaklık</div><div class="v" id="r-temp">300<span class="u">K</span></div></div>
+          <div class="readout v2"><div class="k">Kap Hacmi</div><div class="v" id="r-vol">6,0<span class="u">L</span></div></div>
+          <div class="readout"><div class="k">Sıkıştırılabilirlik</div><div class="v" id="r-compress">Yüksek</div></div>
+        </div>
+      </div>
+      <div>
+        <div class="controls">
+          <div class="control-row">
+            <label>Hâl</label>
+            <div class="btnbar" style="margin:0">
+              <button class="btn on-dark active" data-phase="gas">Gaz</button>
+              <button class="btn on-dark" data-phase="liquid">Sıvı</button>
+              <button class="btn on-dark" data-phase="solid">Katı</button>
+            </div>
+            <span></span>
+          </div>
+          <div class="control-row">
+            <label for="temp1">Sıcaklık</label>
+            <input type="range" id="temp1" min="150" max="700" step="10" value="300" />
+            <output id="temp1-out">300 K</output>
+          </div>
+          <div class="control-row">
+            <label for="vol1">Kap Hacmi</label>
+            <input type="range" id="vol1" min="1" max="10" step="0.2" value="6" />
+            <output id="vol1-out">6,0 L</output>
+          </div>
+        </div>
+        <div class="btnbar">
+          <button class="btn" id="reset1">↺ Odayı Sıfırla</button>
+        </div>
+        <div class="callout real" style="margin-top:18px">
+          <h5>Gözlemle</h5>
+          <p>Hacmi 1 L'ye kadar düşürmeyi dene: <strong>Gaz</strong> hâlinde tanecikler kolayca sıkışır. <strong>Sıvı</strong> ve özellikle <strong>katı</strong> hâlde tanecik kümesi kabın küçülmesine neredeyse hiç aldırmaz — çünkü zaten çok daha küçük, sabit bir hacmi doldurur.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="discover">
+      <h3><span class="ico">🔍</span> Keşfet: Balonun İçinde Ne Oluyor?</h3>
+      <p>Yukarıdaki odayı kullanarak aşağıdaki görevleri sırayla tamamla. Her adımda ne gözlemlediğini not al.</p>
+      <div class="mission">
+        <div class="m-title">Görev 1 — Genleşme</div>
+        <ol>
+          <li>Hâli <strong>Gaz</strong>'a al, hacmi 6 L'de sabitle.</li>
+          <li>Sıcaklığı yavaşça 150 K'den 700 K'ye çıkar.</li>
+          <li>Taneciklerin hareketinde ne değişti? Bu değişim, sıcak hava balonunun neden şiştiğini nasıl açıklar?</li>
+        </ol>
+      </div>
+      <div class="mission">
+        <div class="m-title">Görev 2 — Sıkıştırılabilirlik Karşılaştırması</div>
+        <ol>
+          <li>Sırayla Gaz, Sıvı ve Katı hâllerinde hacmi 10 L'den 1 L'ye indir.</li>
+          <li>Her hâlde tanecik kümesinin kabın duvarlarına ne zaman "değdiğini" gözlemle.</li>
+          <li>Dalgıç tüplerine neden sıkıştırılmış hava doldurulduğunu, sıkıştırılmış su doldurulmadığını bu gözlemle ilişkilendir.</li>
+        </ol>
+      </div>
+      <div class="journal">
+        <label>📓 Keşif Günlüğü — gözlemlerini ve çıkarımlarını yaz (otomatik kaydedilir)</label>
+        <textarea id="journal1" placeholder="Örn: Sıcaklık arttıkça gaz taneciklerinin hareketi hızlandı çünkü..."></textarea>
+        <div class="save-state"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Değerlendirme</span>
+      <h2>Bağlam Temelli Sorular</h2>
+      <p>Her soru günlük hayattan bir durumla ilişkilidir. Cevabını seç, gerekçesini oku.</p>
+    </div>
+    <div id="quiz-host"></div>
+  </div>
+</section>
+
+<div id="footer-root"></div>
+
+<script type="module">
+  import { mountNav, mountFooter } from "../assets/js/nav.js";
+  import { GasBox, celsiusToKelvin } from "../assets/js/gas-engine.js";
+  import { renderQuiz, markVisited, bindJournal } from "../assets/js/quiz-engine.js";
+  import { QUIZ } from "../assets/js/quiz-data.js";
+
+  mountNav("kmt");
+  mountFooter();
+  markVisited("kmt");
+  bindJournal(document.getElementById("journal1"), "kmt-hal");
+  renderQuiz(document.getElementById("quiz-host"), QUIZ.kmt, "kmt");
+
+  const stage = document.getElementById("stage1");
+  const box = new GasBox(stage, {
+    species: [{ key: "a", name: "Örnek Madde", color: "#2fb8c6", molarMass: 24, n: 2.2 }],
+    volumeL: 6, temperatureK: 300, showPiston: true, phase: "gas",
+  });
+  box.start();
+
+  const compressLabel = { gas: "Yüksek", liquid: "Çok Düşük", solid: "Neredeyse Yok" };
+  const phaseLabel = { gas: "Gaz", liquid: "Sıvı", solid: "Katı" };
+
+  function refresh() {
+    document.getElementById("r-temp").innerHTML = `${box.temperatureK}<span class="u">K</span>`;
+    document.getElementById("r-vol").innerHTML = `${box.volumeL.toFixed(1)}<span class="u">L</span>`;
+    document.getElementById("r-phase").textContent = phaseLabel[box.phase];
+    document.getElementById("r-compress").textContent = compressLabel[box.phase];
+    document.getElementById("badge1").textContent = phaseLabel[box.phase].toUpperCase() + ` · ${(celsiusToKelvin(box.temperatureK-273.15)).toFixed(0)}K`;
+  }
+  refresh();
+
+  document.querySelectorAll("[data-phase]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("[data-phase]").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      box.setPhase(btn.dataset.phase);
+      refresh();
+    });
+  });
+  const temp1 = document.getElementById("temp1");
+  temp1.addEventListener("input", () => {
+    box.setTemperature(+temp1.value);
+    document.getElementById("temp1-out").textContent = `${temp1.value} K`;
+    refresh();
+  });
+  const vol1 = document.getElementById("vol1");
+  vol1.addEventListener("input", () => {
+    box.setVolume(+vol1.value);
+    document.getElementById("vol1-out").textContent = `${(+vol1.value).toFixed(1)} L`;
+    refresh();
+  });
+  box.on("volumechange", (v) => {
+    vol1.value = v.toFixed(1);
+    document.getElementById("vol1-out").textContent = `${v.toFixed(1)} L`;
+    refresh();
+  });
+  document.getElementById("reset1").addEventListener("click", () => {
+    box.setVolume(6); box.setTemperature(300); box.setPhase("gas");
+    vol1.value = 6; temp1.value = 300;
+    document.getElementById("vol1-out").textContent = "6,0 L";
+    document.getElementById("temp1-out").textContent = "300 K";
+    document.querySelectorAll("[data-phase]").forEach(b => b.classList.remove("active"));
+    document.querySelector('[data-phase="gas"]').classList.add("active");
+    refresh();
+  });
+</script>
+</body>
+</html>

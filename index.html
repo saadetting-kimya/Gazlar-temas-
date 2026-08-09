@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>GazLab 10 — Gazlar Teması Sanal Laboratuvarı</title>
+<meta name="description" content="10. Sınıf Kimya, Gazlar Teması için üç boyutlu sanal laboratuvar: gazların özellikleri, gaz yasaları, ideal gaz yasası, Graham difüzyon-efüzyon yasası." />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2246%22 fill=%22%232fb8c6%22/></svg>">
+<link rel="stylesheet" href="assets/css/style.css" />
+<script type="importmap">
+{ "imports": {
+  "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+}}
+</script>
+</head>
+<body>
+
+<div id="nav-root"></div>
+
+<header class="hero">
+  <div class="container hero-grid">
+    <div>
+      <span class="eyebrow">10. Sınıf Kimya · Gazlar Teması</span>
+      <h1>Gazları görmenin, dokunmanın ve keşfetmenin üç boyutlu yolu.</h1>
+      <p class="lead">GazLab 10; piston-silindir sistemleri, manometreler, termometreler ve mol terazileriyle donatılmış gerçek zamanlı bir sanal laboratuvardır. Sürükle, sıkıştır, ısıt — tanecikleri kendi gözlerinle izleyerek gaz yasalarını sen keşfet.</p>
+      <div class="chiprow">
+        <span class="chip"><span class="sw" style="background:var(--gas)"></span>Basınç (P)</span>
+        <span class="chip"><span class="sw" style="background:var(--mol-a)"></span>Hacim (V)</span>
+        <span class="chip"><span class="sw" style="background:var(--heat)"></span>Sıcaklık (T)</span>
+        <span class="chip"><span class="sw" style="background:var(--mol-b)"></span>Madde Miktarı (n)</span>
+      </div>
+      <div class="btnbar">
+        <a href="moduller/01-kmt.html" class="btn primary">Laboratuvara Başla →</a>
+        <a href="#moduller" class="btn">Modülleri Gör</a>
+      </div>
+    </div>
+    <div class="lab-panel">
+      <div class="lab-head">
+        <div class="lab-title"><span class="dot"></span> Canlı Önizleme</div>
+        <span class="lab-hint">sürükle · yakınlaştır</span>
+      </div>
+      <div class="stage" id="hero-stage">
+        <span class="stage-badge" id="hero-badge">n=1.5 mol · V=6 L · T=300 K</span>
+        <span class="orbit-hint">🖱 sürükle = döndür</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="section tight">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Bu temada neyi keşfedeceksin?</span>
+      <h2>Paylaşılan kazanımlar üzerine kurulu dört durak</h2>
+    </div>
+    <div class="kazanim-strip">
+      <div class="kchip"><b>KİM.10.1.8</b>Gazların özelliklerine (hacim, basınç, genleşme, sıkıştırılabilirlik, karışabilirlik, yoğunluk) ilişkin bilimsel gözlem yaparak örüntüleri tanecikli modelle açıklama.</div>
+      <div class="kchip"><b>KİM.10.1.9</b>Basınç, hacim, sıcaklık ve madde miktarı arasındaki ilişkileri bilimsel sorgulama; grafik ve matematiksel modeller önerme; gaz yasalarını kinetik moleküler teoriyle değerlendirme.</div>
+      <div class="kchip"><b>KİM.10.1.10</b>Boyle, Charles ve Avogadro yasaları arasında örüntü oluşturarak ideal gaz denklemini tümevarımsal akıl yürütmeyle oluşturma.</div>
+      <div class="kchip"><b>KİM.10.1.11</b>Efüzyon ve difüzyona ilişkin deney tasarlama; sonuçları günlük hayattaki durumları açıklamak için kullanma.</div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="moduller">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Modüller</span>
+      <h2>Konu anlatımı → Sanal deney → Keşfet → Değerlendirme</h2>
+      <p>Her modül aynı dört adımdan geçer: önce kısa ve öz bir konu anlatımı, ardından üç boyutlu etkileşimli bir deney, sonra seni yönlendiren açık uçlu bir keşif görevi ve son olarak bağlam temelli değerlendirme soruları.</p>
+    </div>
+    <div class="grid grid-3" id="module-cards"></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Ölçüm Aletleri</span>
+      <h2>Laboratuvarındaki üç boyutlu aletler</h2>
+      <p>Her deneyde aynı dört alet seni bekliyor — gerçek bir kimya laboratuvarındaki gibi.</p>
+    </div>
+    <div class="grid grid-4">
+      <div class="card">
+        <h3 style="font-size:16px">🌡️ Termometre</h3>
+        <p class="small">Sıvı sütunu sıcaklıkla yükselir/alçalır. Ölçek hem °C hem de mutlak sıcaklık birimi olan Kelvin (K) ile okunur.</p>
+      </div>
+      <div class="card">
+        <h3 style="font-size:16px">🧭 Manometre</h3>
+        <p class="small">İbre, kap içindeki gaz basıncını (atm) anlık olarak gösterir. Taneciklerin duvara çarpma sıklığındaki değişimi sayısallaştırır.</p>
+      </div>
+      <div class="card">
+        <h3 style="font-size:16px">📏 Hacim Cetveli</h3>
+        <p class="small">Pistonun konumuna göre kabın hacmini litre (L) cinsinden okuman için tabana kazınmış ölçek çizgileri.</p>
+      </div>
+      <div class="card">
+        <h3 style="font-size:16px">⚖️ Mol Sayacı</h3>
+        <p class="small">Kaptaki tanecik miktarını mol (n) cinsinden gösteren dijital terazi; kütle-mol kütlesi ilişkisini de görünür kılar.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Anahtar Kavramlar Sözlüğü</span>
+      <h2>Temaya özgü sözlük</h2>
+    </div>
+    <dl class="glossary">
+      <div class="gterm"><dt>Gaz Basıncı</dt><dd>Gaz taneciklerinin bulundukları kabın yüzeyine birim alanda uyguladığı çarpma etkisinin sonucu.</dd></div>
+      <div class="gterm"><dt>Hacim</dt><dd>Gaz örneğinin kapladığı üç boyutlu uzayın büyüklüğü; gazlar bulunduğu kabın tüm hacmini doldurur.</dd></div>
+      <div class="gterm"><dt>Mutlak Sıcaklık</dt><dd>Kelvin (K) cinsinden ifade edilen, taneciklerin ortalama kinetik enerjisiyle doğrudan orantılı sıcaklık ölçeği.</dd></div>
+      <div class="gterm"><dt>İdeal Gaz</dt><dd>Tanecikleri arasında çekim kuvveti bulunmadığı ve tanecik hacmi ihmal edildiği varsayılan kuramsal gaz modeli.</dd></div>
+      <div class="gterm"><dt>Standart-Normal Şartlar (NŞ)</dt><dd>Gazların karşılaştırılabilmesi için tanımlanmış referans basınç ve sıcaklık koşulu (≈1 atm, 273 K).</dd></div>
+      <div class="gterm"><dt>Difüzyon</dt><dd>Bir gazın, başka bir gaz ya da ortam içine kendiliğinden karışarak yayılması.</dd></div>
+      <div class="gterm"><dt>Efüzyon</dt><dd>Gaz taneciklerinin küçük bir delik ya da gözenekten tek tek kaçarak boşluğa geçmesi.</dd></div>
+      <div class="gterm"><dt>Mol</dt><dd>Madde miktarını tanecik sayısı üzerinden ifade eden temel ölçü birimi; ideal gaz denkleminde "n" ile gösterilir.</dd></div>
+    </dl>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="card" style="background:linear-gradient(135deg,#101826,#1c2b45); color:#fff; display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap;">
+      <div>
+        <h3 style="color:#fff; margin-bottom:6px;">İlerlemen bu tarayıcıda saklanır</h3>
+        <p style="color:#b7c6e6; margin-bottom:0; max-width:520px;">Tamamladığın modüller ve quiz puanların otomatik kaydedilir; menüde ✓ işaretiyle görebilirsin. Silmek istersen tarayıcı verilerini temizlemen yeterli.</p>
+      </div>
+      <a href="moduller/05-laboratuvar.html" class="btn on-dark active">Serbest Laboratuvara Git →</a>
+    </div>
+  </div>
+</section>
+
+<div id="footer-root"></div>
+
+<script type="module">
+  import { mountNav, mountFooter } from "./assets/js/nav.js";
+  import { GasBox } from "./assets/js/gas-engine.js";
+  mountNav("home");
+  mountFooter();
+
+  const cards = [
+    { n:"01", href:"moduller/01-kmt.html", title:"Gazların Özellikleri & Kinetik Moleküler Teori",
+      desc:"Katı-sıvı-gaz karşılaştırması, sıkıştırılabilirlik deneyi ve KMT varsayımlarının sınanması.",
+      tags:["Gözlem","Tanecik Modeli"] },
+    { n:"02", href:"moduller/02-gaz-yasalari.html", title:"Gaz Yasaları",
+      desc:"Boyle, Charles, Gay-Lussac ve Avogadro yasalarını piston-silindir deneyiyle keşfet; grafik çiz.",
+      tags:["P–V","V–T","P–T","V–n"] },
+    { n:"03", href:"moduller/03-ideal-gaz.html", title:"İdeal Gaz Yasası",
+      desc:"PV=nRT'yi tümevarımsal akıl yürütmeyle inşa et; R sabitini kendi verilerinle keşfet.",
+      tags:["PV=nRT","NŞ"] },
+    { n:"04", href:"moduller/04-difuzyon-efuzyon.html", title:"Graham Difüzyon ve Efüzyon Yasası",
+      desc:"Farklı mol kütleli iki gazın yayılma ve kaçış hızlarını yarıştırarak karşılaştır.",
+      tags:["Difüzyon","Efüzyon","Mol Kütlesi"] },
+    { n:"05", href:"moduller/05-laboratuvar.html", title:"Sanal Gaz Laboratuvarı (Bonus)",
+      desc:"Tüm değişkenleri ve iki farklı gazı serbestçe kontrol edebileceğin açık uçlu keşif alanı.",
+      tags:["Serbest Keşif"] },
+  ];
+  document.getElementById("module-cards").innerHTML = cards.map(c => `
+    <a class="card module-card" href="${c.href}">
+      <span class="idx">MODÜL ${c.n}</span>
+      <h3>${c.title}</h3>
+      <p>${c.desc}</p>
+      <div class="tag-row">${c.tags.map(t=>`<span class="tag">${t}</span>`).join("")}</div>
+    </a>
+  `).join("");
+
+  // Canlı önizleme sahnesi
+  const stage = document.getElementById("hero-stage");
+  const box = new GasBox(stage, {
+    species: [{ key:"a", name:"Örnek Gaz", color:"#2fb8c6", molarMass:29, n:1.5 }],
+    volumeL: 6, temperatureK: 300, showPiston: true,
+  });
+  box.start();
+  let t0 = performance.now();
+  setInterval(() => {
+    const tt = (performance.now()-t0)/1000;
+    const v = 4 + Math.sin(tt*0.3)*2.4 + 2.4;
+    box.setVolume(Math.max(1.5, v));
+    document.getElementById("hero-badge").textContent =
+      `n=1.5 mol · V=${box.volumeL.toFixed(1)} L · T=300 K`;
+  }, 120);
+</script>
+</body>
+</html>
