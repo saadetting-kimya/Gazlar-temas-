@@ -309,6 +309,10 @@
   });
 
   /* ---------------- Sekme yönetimi ---------------- */
+  // Aktif olmayan sekmenin 3B sahnesi(leri) tamamen kapatılır (dispose), sadece
+  // durdurulmaz — aksi hâlde difüzyon + efüzyon sahneleri toplamda 3 WebGL bağlamı
+  // aynı anda açık kalır ve mobil tarayıcılarda (özellikle iOS Safari) bağlam
+  // sınırı aşılınca render tamamen boş kalabilir.
   let activeTab = "diffusion";
   function showTab(tab) {
     activeTab = tab;
@@ -316,25 +320,30 @@
     document.getElementById("panel-diffusion").style.display = tab === "diffusion" ? "block" : "none";
     document.getElementById("panel-effusion").style.display = tab === "effusion" ? "block" : "none";
     if (tab === "diffusion") {
+      if (effA) { effA.dispose(); effB.dispose(); effA = null; effB = null; }
       if (!diffBox) buildDiffBox(); else diffBox.start();
-      if (effA) { effA.stop(); effB.stop(); }
       diffRace.resize();
     } else {
+      if (diffBox) { diffBox.dispose(); diffBox = null; }
       if (!effA) buildEffBoxes(); else { effA.start(); effB.start(); }
-      if (diffBox) diffBox.stop();
       effRace.resize();
     }
   }
   document.querySelectorAll("#race-tabs [data-tab]").forEach(btn => btn.addEventListener("click", () => showTab(btn.dataset.tab)));
 
   gasBSelect.addEventListener("change", () => {
-    if (diffBox) buildDiffBox();
-    if (effA) buildEffBoxes();
-    if (activeTab === "effusion" && diffBox) diffBox.stop();
-    if (activeTab === "diffusion" && effA) { effA.stop(); effB.stop(); }
+    if (activeTab === "diffusion") buildDiffBox();
+    else buildEffBoxes();
   });
 
   showTab("diffusion");
+
+  // Sayfadan ayrılırken açık WebGL bağlamlarını serbest bırak (bfcache/mobil tarayıcı uyumluluğu).
+  window.addEventListener("pagehide", () => {
+    if (diffBox) diffBox.dispose();
+    if (effA) effA.dispose();
+    if (effB) effB.dispose();
+  });
 </script>
 </body>
 </html>

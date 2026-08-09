@@ -204,8 +204,15 @@
     document.getElementById("law-formula").innerHTML = `<h5>Matematiksel Model</h5><p>${cfg.formula}</p>`;
     document.getElementById("chart-title").textContent = `${cfg.chart.xLabel} — ${cfg.chart.yLabel}`;
 
-    Object.values(stages).forEach(el => el.style.display = "none");
-    Object.values(boxes).forEach(b => b.stop());
+    // Aktif olmayan sekmelerin 3B sahnelerini tamamen kapat (dispose) — aksi hâlde
+    // birden fazla WebGL bağlamı aynı anda açık kalır ve mobil tarayıcılarda
+    // (özellikle iOS Safari) bağlam sınırı aşılınca yeni sahneler hiç render olmaz.
+    Object.keys(boxes).forEach(k => {
+      if (k === key) return;
+      boxes[k].dispose();
+      delete boxes[k];
+      if (stages[k]) { stages[k].remove(); delete stages[k]; }
+    });
     ensureBox(key);
     stages[key].style.display = "block";
     boxes[key].start();
@@ -261,6 +268,9 @@
 
   document.getElementById("stage-host").style.position = "relative";
   showLaw("boyle");
+
+  // Sayfadan ayrılırken açık WebGL bağlamını serbest bırak (bfcache/mobil tarayıcı uyumluluğu).
+  window.addEventListener("pagehide", () => Object.values(boxes).forEach(b => b.dispose()));
 </script>
 </body>
 </html>

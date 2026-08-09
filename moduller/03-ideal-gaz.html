@@ -173,6 +173,7 @@
     volumeL: state.V, temperatureK: state.T, showPiston: true,
   });
   box.start();
+  window.addEventListener("pagehide", () => box.dispose());
 
   const manometer = createManometer({ maxAtm: 6 });
   const thermometer = createThermometer({ minK: 150, maxK: 600 });
@@ -180,9 +181,9 @@
   manometer.group.scale.setScalar(0.85);
   thermometer.group.scale.setScalar(0.85);
   balance.group.scale.setScalar(0.85);
-  manometer.group.position.set(SCENE_BOUNDS.x0 - 0.95, 0.7, -1.5);
-  thermometer.group.position.set(SCENE_BOUNDS.x0 - 0.95, -2.0, -0.2);
-  balance.group.position.set(SCENE_BOUNDS.x0 - 0.95, -2.0, 1.7);
+  manometer.group.position.set(SCENE_BOUNDS.x0 + 1.4, 2.5, SCENE_BOUNDS.lz / 2 + 1.0);
+  thermometer.group.position.set(SCENE_BOUNDS.x0 + 0.5, -2.0, SCENE_BOUNDS.lz / 2 + 1.0);
+  balance.group.position.set(SCENE_BOUNDS.x0 + 2.3, -2.0, SCENE_BOUNDS.lz / 2 + 1.0);
   box.scene.add(manometer.group, thermometer.group, balance.group);
 
   const panel = document.getElementById("panel");

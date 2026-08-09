@@ -169,6 +169,7 @@
     volumeL: 6, temperatureK: 300, showPiston: true, phase: "gas",
   });
   box.start();
+  window.addEventListener("pagehide", () => box.dispose());
 
   const compressLabel = { gas: "Yüksek", liquid: "Çok Düşük", solid: "Neredeyse Yok" };
   const phaseLabel = { gas: "Gaz", liquid: "Sıvı", solid: "Katı" };
