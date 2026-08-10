@@ -214,17 +214,19 @@ export class GasBox {
     const cap = new THREE.Mesh(capGeo, capMat);
     group.add(cap);
 
-    const rodGeo = new THREE.CylinderGeometry(0.11, 0.11, 3.2, 16);
+    // Sap kısa tutulur: eskiden kabın çok dışına taşıp büyük hacimlerde kadraj
+    // dışına çıkıyor ve tutamağı bulmayı zorlaştırıyordu.
+    const rodGeo = new THREE.CylinderGeometry(0.11, 0.11, 1.3, 16);
     const rodMat = new THREE.MeshStandardMaterial({ color: 0x8792a3, metalness: 0.9, roughness: 0.35 });
     const rod = new THREE.Mesh(rodGeo, rodMat);
     rod.rotation.z = Math.PI / 2;
-    rod.position.x = 1.7;
+    rod.position.x = 0.76;
     group.add(rod);
 
     const handleGeo = new THREE.TorusGeometry(0.34, 0.09, 12, 24);
     const handleMat = new THREE.MeshStandardMaterial({ color: 0xff8a3d, metalness: 0.4, roughness: 0.4, emissive: 0x552200, emissiveIntensity: 0.25 });
     const handle = new THREE.Mesh(handleGeo, handleMat);
-    handle.position.x = 3.3;
+    handle.position.x = 1.42;
     group.add(handle);
 
     // Görünmez ama daha büyük bir "tutma alanı": dokunmatik cihazlarda küçük halkayı
