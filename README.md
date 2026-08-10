@@ -15,7 +15,7 @@ türleri) bilinçli olarak kapsam dışı bırakılmıştır. İçerik şu dört
 |---|---|---|
 | KİM.10.1.8 | Gazların özelliklerine (hacim, basınç, genleşme, sıkıştırılabilirlik, karışabilirlik, yoğunluk) ilişkin bilimsel gözlem; tanecikli modelle açıklama | Modül 1 |
 | KİM.10.1.9 | P, V, T, n arasındaki ilişkileri bilimsel sorgulama; grafik/matematiksel model önerme; kinetik moleküler teoriyle değerlendirme | Modül 2 |
-| KİM.10.1.10 | Boyle, Charles, Avogadro yasaları arasında örüntü oluşturarak ideal gaz denklemini tümevarımsal akıl yürütmeyle oluşturma | Modül 3 |
+| KİM.10.1.10 | Boyle, Charles, Avogadro yasaları arasında örüntü oluşturarak ideal gaz denklemini tümevarımsal akıl yürütmeyle oluşturma | Modül 3 (+ Serbest Mod) |
 | KİM.10.1.11 | Efüzyon ve difüzyona ilişkin deney tasarlama; sonuçları günlük hayatla ilişkilendirme | Modül 4 |
 
 Kullanılan anahtar kavramlar da aynı şekilde sınırlıdır: **gaz basıncı, hacim, ideal gaz,
@@ -29,13 +29,12 @@ index.html                          Ana sayfa: tema tanıtımı, kazanım özeti
 moduller/
   01-kmt.html                       Gazların Özellikleri & Kinetik Moleküler Teori
   02-gaz-yasalari.html              Boyle · Charles · Gay-Lussac · Avogadro (sekmeli)
-  03-ideal-gaz.html                 PV=nRT — P/V/T/n kilit paneli + R sabitini keşfetme
+  03-ideal-gaz.html                 PV=nRT — P/V/T/n kilit paneli + R sabitini keşfetme + ★ Serbest Mod (iki gazlı sandbox)
   04-difuzyon-efuzyon.html          Graham Yasası — difüzyon ve efüzyon "yarışları"
-  05-laboratuvar.html               Bonus: serbest, iki gazlı sanal laboratuvar
 assets/
+  vendor/three/                     Yerel olarak vendor edilmiş Three.js (CDN bağımlılığı yok)
   css/style.css                     Ortak tasarım sistemi
-  js/gas-engine.js                  3B "kap + piston + tanecik" fizik/render motoru (GasBox)
-  js/instruments.js                 3B ölçüm aletleri: manometre, termometre, mol terazisi
+  js/gas-engine.js                  3B "kap + piston + tanecik" fizik/render motoru (GasBox) — kamera kuruluşta bir kez konumlanır, bir daha taşınmaz
   js/charts.js                      Bağımlılıksız canvas grafik yardımcıları (iz grafiği, yarış çubuğu)
   js/quiz-engine.js                 Bağlam temelli soru render motoru + ilerleme (localStorage)
   js/quiz-data.js                   Modül başına 6 bağlam temelli değerlendirme sorusu
@@ -48,6 +47,9 @@ assets/
   sürüklenebilir bir piston/pistonu olan gerçekçi bir kap üzerinde kurulur. Taneciklerin
   duvarlarla esnek çarpışması ve birbirleriyle basit esnek çarpışması gerçek zamanlı olarak
   hesaplanır.
+- **Kararlı kamera.** Kamera her sahnede kuruluşta bir kez, o sahnenin görebileceği en büyük
+  hacme göre konumlanır ve bir daha asla programatik olarak taşınmaz/yeniden ölçeklenmez —
+  kap yalnızca sabit sol duvardan sağa büyür, bu yüzden hiçbir hacimde kadraj dışına çıkmaz.
 - **Sadelik önce.** Basınç, sensör gürültüsünden değil doğrudan `P = nRT/V` (R ≈ 0,0821
   L·atm/(mol·K)) eşitliğinden hesaplanır. 3B sahne bu değeri niteliksel olarak (hız, yoğunluk,
   çarpışma sıklığı) görselleştirir; sayısal doğruluk ile görsel sezgi birbiriyle çelişmez.
@@ -72,8 +74,9 @@ python3 -m http.server 8000
 # veya: npx serve .
 ```
 
-Ardından `http://localhost:8000/index.html` adresini açın. Three.js, `unpkg.com` üzerinden
-bir import map ile CDN'den yüklenir; internet bağlantısı gerektirir.
+Ardından `http://localhost:8000/index.html` adresini açın. Three.js `assets/vendor/three/`
+altında yerel olarak paylaşılır (import map ile); internet bağlantısı ya da CDN gerekmez —
+okul ağlarında CDN engellense bile çalışır.
 
 ## Tarayıcı desteği
 

@@ -1,14 +1,21 @@
 /* =========================================================
    GazLab 10 — gas-engine.js
    Üç boyutlu "kap + piston + tanecikler" fizik/görsel motoru.
+
    Sadelik ilkesi: P, sayaç/çarpışma gürültüsünden değil,
    doğrudan ideal gaz yasasından (P = nRT/V) hesaplanır; 3B sahne
-   bu değeri NİTELİKSEL olarak görselleştirir (hız, yoğunluk,
-   çarpışma sıklığı parametrelerle birebir uyumludur).
+   bu değeri NİTELİKSEL olarak görselleştirir.
 
-   Koordinat düzeni: kabın SOL duvarı (BOX_X0) sabittir — gerçek
-   bir şırınga/piston-silindir sistemi gibi. Hacim değiştiğinde
-   yalnızca SAĞ duvar (piston) hareket eder.
+   Kararlılık ilkesi: kamera KURULUMDA BİR KEZ konumlandırılır ve
+   bir daha asla programatik olarak taşınmaz/yeniden ölçeklenmez.
+   Kap her zaman sabit sol duvardan (BOX_X0) başlar ve yalnızca
+   sağa doğru büyür; kamera, o sahne için olası en büyük hacme
+   (vMax) göre kuruluşta bir kez geniş çekilir — böylece hacim
+   ne olursa olsun kap (ve sahneye sabit noktalarda yerleştirilen
+   enstrümanlar) her zaman kadrajda kalır. Önceki sürümdeki
+   "kamera kutuyu takip etsin" ötelemesi kırılgandı ve kabın
+   kadraj dışına çıkmasına yol açıyordu — bu yaklaşım onun yerine
+   geçer.
    ========================================================= */
 
 import * as THREE from "three";
@@ -23,16 +30,7 @@ const BOX_LY = 4.0;
 const BOX_LZ = 4.0;
 const BOX_X0 = -3.0; // sabit sol duvar (silindir tabanı)
 export const SCENE_BOUNDS = { x0: BOX_X0, ly: BOX_LY, lz: BOX_LZ };
-const SOLID_HALF = 1.35; // katı örgünün doğal (sıkıştırılamaz) yarı boyutu
-const LIQUID_HALF = 1.7; // sıvı kümesinin doğal yarı boyutu
 
-const V_MIN = 0.5, V_MAX = 25; // NŞ'de 1 mol ideal gazın ≈22,4 L kapladığını gösterebilmek için üst sınır genişletildi
-function volumeToLx(V) {
-  return 1.4 + THREE.MathUtils.clamp(V, V_MIN, V_MAX) * 0.4;
-}
-function lxToVolume(Lx) {
-  return (Lx - 1.4) / 0.4;
-}
 function speciesColor(hex) { return new THREE.Color(hex); }
 
 export class GasBox {
@@ -40,8 +38,8 @@ export class GasBox {
    * @param {HTMLElement} host
    * @param {Object} opts
    *  species: [{key,name,color,molarMass,n}]
-   *  volumeL, temperatureK
-   *  showPiston, showPartition, showHole
+   *  volumeL, temperatureK, vMin, vMax
+   *  showPiston, showPartition, showHole, holeRadius
    *  phase: 'gas' | 'solid' | 'liquid' (varsayılan 'gas')
    */
   constructor(host, opts = {}) {
@@ -53,15 +51,19 @@ export class GasBox {
       particles: [],
       mesh: null,
     }));
+    this.vMin = opts.vMin ?? 0.5;
+    this.vMax = opts.vMax ?? 25;
     this.volumeL = opts.volumeL ?? 5;
+    this._lx = this._volumeToLx(this.volumeL); // taneciklerin ilk konumu için _buildParticles'tan önce gerekli
     this.temperatureK = opts.temperatureK ?? 300;
     this.phase = opts.phase || "gas";
+    this.speedScale = opts.speedScale ?? 1;
     this.showPiston = opts.showPiston !== false;
     this.showPartition = !!opts.showPartition;
     this.partitionOpen = false;
     this.showHole = !!opts.showHole;
     this.holeOpen = false;
-    this.holeRadius = 0.42;
+    this.holeRadius = opts.holeRadius ?? 0.42;
     this._dragging = false;
     this._raf = null;
     this._listeners = { volumechange: [], escape: [], mix: [] };
@@ -77,19 +79,31 @@ export class GasBox {
     this._ro = new ResizeObserver(this._onResize);
     this._ro.observe(host);
     this._onResize();
-    this._rebuildBoxGeometry(); // duvar/piston/delik/bölme konumlarını ilk kurulumla senkronla
+    this._syncGeometry();
   }
 
   on(evt, fn) { (this._listeners[evt] ||= []).push(fn); return this; }
   _emit(evt, payload) { (this._listeners[evt] || []).forEach(fn => fn(payload)); }
 
-  /* ---------------- scene / camera / renderer ---------------- */
+  /* ---------------- hacim <-> görsel genişlik ---------------- */
+  _volumeToLx(V) { return 1.4 + THREE.MathUtils.clamp(V, this.vMin, this.vMax) * 0.4; }
+  _lxToVolume(Lx) { return (Lx - 1.4) / 0.4; }
+  /** Bu sahnenin görebileceği en geniş kap genişliği — kamera bu değere göre BİR KEZ kurulur. */
+  get _lxMax() { return this._volumeToLx(this.vMax); }
+
+  /* ---------------- scene / camera / renderer (kalıcı, bir kez) ---------------- */
   _buildScene() {
     const scene = new THREE.Scene();
     this.scene = scene;
 
-    const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
-    camera.position.set(6.2, 4.6, 8.4);
+    // Kamera mesafesi, referans bir kap genişliğine (3.4 birim ≈ 5 L) göre bu
+    // sahnenin olası en büyük kabına (vMax) oranlanır — kuruluşta bir kez.
+    const refLx = 3.4;
+    const distScale = Math.max(1, Math.sqrt(this._lxMax / refLx));
+
+    const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 260);
+    const camCenter = BOX_X0 + this._lxMax * 0.42;
+    camera.position.set(camCenter + 6.2 * distScale, 4.6 * distScale, 8.4 * distScale);
     this.camera = camera;
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -103,23 +117,24 @@ export class GasBox {
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.08;
-    controls.minDistance = 5;
-    controls.maxDistance = 20;
-    controls.target.set(0, 0.4, 0);
+    controls.minDistance = 4;
+    controls.maxDistance = 34 * distScale;
+    controls.target.set(camCenter, 0.4, 0);
     controls.maxPolarAngle = Math.PI * 0.49;
     this.controls = controls;
+    this._camCenter = camCenter;
 
     const hemi = new THREE.HemisphereLight(0xbcd4ff, 0x0a1120, 0.9);
     scene.add(hemi);
     const dir = new THREE.DirectionalLight(0xffffff, 1.35);
-    dir.position.set(6, 9, 4);
+    dir.position.set(camCenter + 6, 9, 4);
     scene.add(dir);
-    const rim = new THREE.PointLight(0x2fb8c6, 6, 20);
-    rim.position.set(-5, 2, -4);
+    const rim = new THREE.PointLight(0x2fb8c6, 6, 24);
+    rim.position.set(camCenter - 5, 2, -4);
     scene.add(rim);
 
-    const grid = new THREE.GridHelper(30, 30, 0x1c2b45, 0x141f36);
-    grid.position.y = -2.02;
+    const grid = new THREE.GridHelper(Math.max(30, this._lxMax * 3), 30, 0x1c2b45, 0x141f36);
+    grid.position.set(camCenter, -2.02, 0);
     scene.add(grid);
   }
 
@@ -131,28 +146,65 @@ export class GasBox {
     this.camera.updateProjectionMatrix();
   }
 
-  /* ---------------- kap (kutu) ---------------- */
+  /* ---------------- kap (kutu) — sadece geometri güncellenir, kamera hiç dokunulmaz ---------------- */
   _buildBox() {
     this.boxGroup = new THREE.Group();
     this.scene.add(this.boxGroup);
-    this._lx = volumeToLx(this.volumeL);
-    this._rebuildBoxGeometry();
 
-    const baseGeo = new THREE.CylinderGeometry(6.4, 6.6, 0.35, 48);
+    const baseGeo = new THREE.CylinderGeometry(this._lxMax * 0.62 + 3, this._lxMax * 0.62 + 3.2, 0.35, 48);
     const baseMat = new THREE.MeshStandardMaterial({ color: 0x11192b, roughness: 0.7, metalness: 0.2 });
     const base = new THREE.Mesh(baseGeo, baseMat);
-    base.position.set(BOX_X0 + 3, -2.2, 0);
+    base.position.set(this._camCenter, -2.2, 0);
     this.scene.add(base);
+
+    // hacim cetveli: sabit taban üzerinde, litreye karşılık gelen gerçek duvar konumunda çentikler
+    const rulerGroup = new THREE.Group();
+    const tickMat = new THREE.LineBasicMaterial({ color: 0x4a6ea8 });
+    const step = this.vMax > 15 ? 2 : 1;
+    for (let v = Math.ceil(this.vMin); v <= this.vMax; v += step) {
+      const worldX = BOX_X0 + this._volumeToLx(v);
+      const isMajor = v % (step * 5) === 0;
+      const h = isMajor ? 0.22 : 0.11;
+      const g = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(worldX, -2.02, BOX_LZ / 2 + 0.15),
+        new THREE.Vector3(worldX, -2.02 + h, BOX_LZ / 2 + 0.15),
+      ]);
+      rulerGroup.add(new THREE.Line(g, tickMat));
+    }
+    this.scene.add(rulerGroup);
   }
 
-  _rebuildBoxGeometry() {
-    const Lx = volumeToLx(this.volumeL);
+  /** Katı/sıvı hâlde taneciklerin sıkı paketlenmiş (neredeyse boşluksuz) doğal
+      yarı-boyutu — piston bu sınırın ötesine geçemez (sıkıştırılamazlık). */
+  _phaseNaturalHalf() {
+    if (this.phase !== "solid" && this.phase !== "liquid") return 0;
+    const totalN = this.species.reduce((a, s) => a + s.particles.length, 0);
+    const r = this.species[0]?.radius ?? 0.15;
+    if (!totalN) return 0;
+    const cols = Math.max(2, Math.ceil(Math.cbrt(totalN)));
+    const spacing = r * 2.05; // tanecikler birbirine neredeyse değiyor
+    const packedHalf = (cols * spacing) / 2;
+    return this.phase === "liquid" ? packedHalf * 1.4 : packedHalf;
+  }
+  _phaseFloorLx() {
+    const half = this._phaseNaturalHalf();
+    return half ? half * 2 + 0.7 : 0;
+  }
+  /** Katı/sıvı küme, hareketli pistonun tam önünde kalıp perde gibi onu
+      kapatmasın diye HER ZAMAN sabit sol duvara yakın konumlanır — piston
+      hangi hacimde olursa olsun küme ile arasında pay kalır. */
+  _phaseClusterCenterX() {
+    return BOX_X0 + this._phaseNaturalHalf() + 0.35;
+  }
+
+  _syncGeometry() {
+    const rawLx = this._volumeToLx(this.volumeL);
+    const Lx = Math.max(rawLx, this._phaseFloorLx());
     this._lx = Lx;
     const centerX = BOX_X0 + Lx / 2;
 
     if (this._panelMesh) { this.boxGroup.remove(this._panelMesh); this._panelMesh.geometry.dispose(); }
     if (this._edges) { this.boxGroup.remove(this._edges); this._edges.geometry.dispose(); }
-    if (this._ruler) { this.boxGroup.remove(this._ruler); }
 
     const geo = new THREE.BoxGeometry(Lx, BOX_LY, BOX_LZ);
     const mat = new THREE.MeshPhysicalMaterial({
@@ -171,22 +223,6 @@ export class GasBox {
     this._edges = edges;
     this.boxGroup.add(edges);
 
-    // hacim cetveli: sabit taban üzerinde, litreye karşılık gelen gerçek duvar konumunda çentikler
-    const rulerGroup = new THREE.Group();
-    const tickMat = new THREE.LineBasicMaterial({ color: 0x4a6ea8 });
-    for (let v = 0; v <= V_MAX; v += 1) {
-      const worldX = BOX_X0 + volumeToLx(v);
-      const isMajor = v % 5 === 0;
-      const h = isMajor ? 0.22 : 0.11;
-      const g = new THREE.BufferGeometry().setFromPoints([
-        new THREE.Vector3(worldX, -2.02, BOX_LZ / 2 + 0.15),
-        new THREE.Vector3(worldX, -2.02 + h, BOX_LZ / 2 + 0.15),
-      ]);
-      rulerGroup.add(new THREE.Line(g, tickMat));
-    }
-    this._ruler = rulerGroup;
-    this.scene.add(rulerGroup);
-
     if (this._piston) this._positionPiston();
     if (this._holeMarker) this._positionHole();
     if (this._partition) this._partition.position.x = centerX;
@@ -195,26 +231,40 @@ export class GasBox {
   /* ---------------- piston (sağ, hareketli duvar) ---------------- */
   _buildPiston() {
     const group = new THREE.Group();
+    // Piston kapağı kabın neredeyse tüm Y/Z kesitini kapladığından, tam opak
+    // olursa bu açıdan arkasındaki (özellikle katı/sıvı kümesi gibi kap
+    // ortasına yakın duran) içerikleri tamamen gizleyebiliyordu. Hafif
+    // yarı-saydam yapmak, taneciklerin pistonun "içinden" de seçilmesini sağlar.
     const capGeo = new THREE.BoxGeometry(0.22, BOX_LY * 0.98, BOX_LZ * 0.98);
-    const capMat = new THREE.MeshStandardMaterial({ color: 0xaeb9c9, metalness: 0.85, roughness: 0.28 });
+    const capMat = new THREE.MeshStandardMaterial({ color: 0xaeb9c9, metalness: 0.85, roughness: 0.28, transparent: true, opacity: 0.6, depthWrite: false });
     const cap = new THREE.Mesh(capGeo, capMat);
     group.add(cap);
 
-    const rodGeo = new THREE.CylinderGeometry(0.11, 0.11, 3.2, 16);
+    // Sap kısa tutulur: eskiden kabın çok dışına taşıp büyük hacimlerde kadraj
+    // dışına çıkıyor ve tutamağı bulmayı zorlaştırıyordu.
+    const rodGeo = new THREE.CylinderGeometry(0.11, 0.11, 1.3, 16);
     const rodMat = new THREE.MeshStandardMaterial({ color: 0x8792a3, metalness: 0.9, roughness: 0.35 });
     const rod = new THREE.Mesh(rodGeo, rodMat);
     rod.rotation.z = Math.PI / 2;
-    rod.position.x = 1.7;
+    rod.position.x = 0.76;
     group.add(rod);
 
     const handleGeo = new THREE.TorusGeometry(0.34, 0.09, 12, 24);
     const handleMat = new THREE.MeshStandardMaterial({ color: 0xff8a3d, metalness: 0.4, roughness: 0.4, emissive: 0x552200, emissiveIntensity: 0.25 });
     const handle = new THREE.Mesh(handleGeo, handleMat);
-    handle.position.x = 3.3;
+    handle.position.x = 1.42;
     group.add(handle);
 
+    // Görünmez ama daha büyük bir "tutma alanı": dokunmatik cihazlarda küçük halkayı
+    // hassas şekilde yakalamak zor olduğundan raycast bu geniş küre üzerinden yapılır.
+    const grabGeo = new THREE.SphereGeometry(0.62, 12, 12);
+    const grabMat = new THREE.MeshBasicMaterial({ visible: false });
+    const grabZone = new THREE.Mesh(grabGeo, grabMat);
+    grabZone.position.copy(handle.position);
+    group.add(grabZone);
+
     this._piston = group;
-    this._pistonHandle = handle;
+    this._pistonHandle = grabZone;
     this.boxGroup.add(group);
     this._positionPiston();
     this._setupDrag();
@@ -250,8 +300,8 @@ export class GasBox {
       const pt = new THREE.Vector3();
       raycaster.ray.intersectPlane(plane, pt);
       if (!pt) return;
-      const newLx = THREE.MathUtils.clamp(pt.x - BOX_X0, volumeToLx(V_MIN), volumeToLx(V_MAX));
-      const newV = THREE.MathUtils.clamp(lxToVolume(newLx), V_MIN, V_MAX);
+      const newLx = THREE.MathUtils.clamp(pt.x - BOX_X0, this._volumeToLx(this.vMin), this._volumeToLx(this.vMax));
+      const newV = THREE.MathUtils.clamp(this._lxToVolume(newLx), this.vMin, this.vMax);
       this.setVolume(newV);
       this._emit("volumechange", newV);
     });
@@ -352,8 +402,8 @@ export class GasBox {
 
   /* ---------------- genel ayarlayıcılar ---------------- */
   setVolume(v) {
-    this.volumeL = THREE.MathUtils.clamp(v, V_MIN, V_MAX);
-    this._rebuildBoxGeometry();
+    this.volumeL = THREE.MathUtils.clamp(v, this.vMin, this.vMax);
+    this._syncGeometry();
   }
   setTemperature(t) { this.temperatureK = THREE.MathUtils.clamp(t, 50, 1200); }
   setMolCount(key, n) {
@@ -362,10 +412,18 @@ export class GasBox {
     sp.n = THREE.MathUtils.clamp(n, 0.1, 14);
     this._syncSpeciesCount(sp, this.species.indexOf(sp));
   }
-  setPhase(phase) { this.phase = phase; }
+  setPhase(phase) { this.phase = phase; this._syncGeometry(); }
+
+  /** Katı/sıvı hâlde piston sıkıştırmaya direndiği için kabın gerçekte
+      ulaştığı hacim, slider değerinden büyük olabilir — arayüzler okumalı. */
+  get effectiveVolumeL() { return this._lxToVolume(this._lx); }
 
   /** Dışarıdan erişim için kap sınırları (difüzyon/efüzyon ilerleme ölçümü vb.) */
   getBounds(r = 0.15) { return this._xBounds(r); }
+  /** Enstrümanları sahneye sabit, her zaman kadrajdaki noktalara yerleştirmek için. */
+  getInstrumentAnchor(frac, y = -1.55, z = BOX_LZ / 2 + 1.3) {
+    return { x: BOX_X0 + this._lxMax * frac, y, z };
+  }
 
   /** Tüm tanecikleri başlangıç konumlarına döndürür; bölme/delik durumunu sıfırlar. */
   reset() {
@@ -378,7 +436,7 @@ export class GasBox {
 
   currentSpeed(sp) {
     const M = sp.molarMass || 20;
-    return SPEED_K * Math.sqrt(this.temperatureK / M);
+    return SPEED_K * this.speedScale * Math.sqrt(this.temperatureK / M);
   }
 
   /* ---------------- fizik adımı: serbest gaz ---------------- */
@@ -471,19 +529,20 @@ export class GasBox {
 
   /* ---------------- fizik adımı: katı (örgü titreşimi) ---------------- */
   _stepLattice() {
-    const centerX = BOX_X0 + this._lx / 2;
-    const half = Math.min(SOLID_HALF, this._lx / 2, BOX_LY / 2, BOX_LZ / 2);
+    const centerX = this._phaseClusterCenterX();
     this.species.forEach(sp => {
       const r = sp.radius;
       const cols = Math.max(2, Math.ceil(Math.cbrt(sp.particles.length)));
-      const spacing = (half * 2) / (cols + 0.6);
+      // Tanecikler neredeyse birbirine değecek şekilde sıkı paketlenir (katılar
+      // sıvı/gazın aksine hemen hemen hiç sıkıştırılamaz, aralarında boşluk yoktur).
+      const spacing = Math.min(r * 2.05, (BOX_LY * 0.92) / cols, (BOX_LZ * 0.92) / cols);
       const dummy = new THREE.Object3D();
       sp.particles.forEach((p, i) => {
         if (!p.lattice) {
           const cx = i % cols, cy = Math.floor(i / cols) % cols, cz = Math.floor(i / (cols * cols));
           p.lattice = new THREE.Vector3((cx - (cols - 1) / 2) * spacing, (cy - (cols - 1) / 2) * spacing, (cz - (cols - 1) / 2) * spacing);
         }
-        const amp = spacing * 0.14 * Math.sqrt(this.temperatureK / 300);
+        const amp = spacing * 0.12 * Math.sqrt(this.temperatureK / 300);
         const t = performance.now() * 0.006 + i * 12.9;
         p.pos.set(
           centerX + p.lattice.x + Math.sin(t * 1.3) * amp,
@@ -500,8 +559,10 @@ export class GasBox {
 
   /* ---------------- fizik adımı: sıvı (sınırlı küme) ---------------- */
   _stepLiquid(dt) {
-    const centerX = BOX_X0 + this._lx / 2;
-    const clusterR = Math.min(LIQUID_HALF, this._lx / 2, BOX_LY / 2, BOX_LZ / 2);
+    const centerX = this._phaseClusterCenterX();
+    // Sıvı kümesinin yarıçapı kabın boyutuna göre DEĞİL, tanecik sayısı/boyutuna
+    // göre sabittir — sıvılar gazların aksine neredeyse sıkıştırılamaz.
+    const clusterR = Math.min(this._phaseNaturalHalf(), BOX_LY / 2 - 0.1, BOX_LZ / 2 - 0.1);
     this.species.forEach(sp => {
       const r = sp.radius;
       const dummy = new THREE.Object3D();
@@ -552,5 +613,6 @@ export class GasBox {
   static moles(pAtm, vL, tK) { return (pAtm * vL) / (R_CONST * tK); }
 }
 
-export function celsiusToKelvin(c) { return c + 273.15; }
-export function kelvinToCelsius(k) { return k - 273.15; }
+// Ders kitabı kısaltılmış dönüşümü kullanır: T(K) = t(°C) + 273.
+export function celsiusToKelvin(c) { return c + 273; }
+export function kelvinToCelsius(k) { return k - 273; }

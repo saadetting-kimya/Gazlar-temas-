@@ -93,9 +93,9 @@ export class RaceMeter {
   constructor(canvas) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
+    this.rows = [];
     this._fit();
     window.addEventListener("resize", () => this._fit());
-    this.rows = [];
   }
   _fit() {
     const dpr = Math.min(devicePixelRatio || 1, 2);

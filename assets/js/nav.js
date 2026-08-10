@@ -2,7 +2,7 @@
    GazLab 10 — nav.js
    Paylaşılan üst menüyü enjekte eder ve aktif sayfayı işaretler.
    ========================================================= */
-import { readProgress } from "./quiz-engine.js";
+import { readProgress } from "./quiz-engine.js?v=2";
 
 // Sayfa "moduller/" içindeyse "../" ile köke çık, sitede değilse dosya adını doğrudan kullan.
 // Bu sayede site ister kök dizinde ister bir alt yolda (ör. GitHub Pages proje sayfası) yayınlansın
@@ -17,9 +17,8 @@ const LINKS = [
   { href: link("index.html"), label: "Ana Sayfa", key: "home", num: "" },
   { href: link("moduller/01-kmt.html"), label: "Özellikler & KMT", key: "kmt", num: "1" },
   { href: link("moduller/02-gaz-yasalari.html"), label: "Gaz Yasaları", key: "yasalar", num: "2" },
-  { href: link("moduller/03-ideal-gaz.html"), label: "İdeal Gaz Yasası", key: "ideal", num: "3" },
+  { href: link("moduller/03-ideal-gaz.html"), label: "İdeal Gaz & Serbest Mod", key: "ideal", num: "3" },
   { href: link("moduller/04-difuzyon-efuzyon.html"), label: "Difüzyon & Efüzyon", key: "difuzyon", num: "4" },
-  { href: link("moduller/05-laboratuvar.html"), label: "Sanal Laboratuvar", key: "lab", num: "★" },
 ];
 
 export function mountNav(activeKey) {
