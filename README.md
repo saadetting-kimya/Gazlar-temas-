@@ -78,6 +78,25 @@ Ardından `http://localhost:8000/index.html` adresini açın. Three.js `assets/v
 altında yerel olarak paylaşılır (import map ile); internet bağlantısı ya da CDN gerekmez —
 okul ağlarında CDN engellense bile çalışır.
 
+## Çevrimdışı kullanım (akıllı tahta / internetsiz sınıf)
+
+Ana sayfadaki **💾 Çevrimdışı Sürüm (ZIP)** düğmesiyle `GazLab10-Cevrimdisi.zip` indirilebilir.
+Bu paket, tüm ES module `import`/`export` ifadelerini tek bir klasik (non-module) script'e
+derler; böylece bir klasöre çıkarıldığında **sunucu kurmadan**, `offline/index.html` dosyasına
+çift tıklayarak (`file://`) doğrudan açılır — internet bağlantısı hiç gerekmez.
+
+Kaynak site (`index.html`, `moduller/`, `assets/`) değiştiğinde çevrimdışı paketi yeniden
+üretmek için:
+
+```bash
+node tools/build-offline.js   # offline/ klasörünü yeniden oluşturur
+zip -r -X GazLab10-Cevrimdisi.zip offline/
+```
+
+`tools/build-offline.js`, her JS dosyasını kendi izole kapsamında (IIFE) sarıp bağımlılıkları
+parametre olarak geçirir — gerçek ES module kapsamını taklit eder, bu yüzden örn. Three.js ile
+OrbitControls içindeki aynı isimli iç değişkenler (`_ray` gibi) çakışmaz.
+
 ## Tarayıcı desteği
 
 ES modülleri, import map ve `ResizeObserver` kullanan modern bir tarayıcı (Chrome, Edge,

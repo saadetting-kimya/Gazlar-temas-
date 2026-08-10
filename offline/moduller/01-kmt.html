@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Gazların Özellikleri & Kinetik Moleküler Teori — GazLab 10</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2246%22 fill=%22%232fb8c6%22/></svg>">
+<link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+<div id="nav-root"></div>
+
+<header class="hero">
+  <div class="container">
+    <span class="eyebrow">Modül 1 · KİM.10.1.8</span>
+    <h1 style="max-width:760px">Gazların Özellikleri ve Kinetik Moleküler Teori</h1>
+    <p class="lead" style="max-width:680px">Katı, sıvı ve gaz — üçü de aynı tanecikli modelle mi açıklanır? İki deneyle altı özelliği (hacim, basınç, genleşme, sıkıştırılabilirlik, karışabilirlik, yoğunluk) sırayla keşfet.</p>
+  </div>
+</header>
+
+<section class="section tight">
+  <div class="container">
+    <div class="callout concept" style="max-width:820px">
+      <h5>🤔 Merak Et</h5>
+      <p>Bir dalgıç tüpüne normalden çok daha fazla hava sıkıştırılabilirken, aynı tüpe su sıkıştırmak neden neredeyse imkânsızdır? İkisi de "madde" — peki tanecikleri arasında ne fark var da biri kolayca büzülüyor, diğeri direniyor? Aşağıdaki iki deneyle bunu ve gazlara özgü beş diğer özelliği kendi gözlerinle keşfedeceksin; anlatım kısmı en sona, sen gözlemledikten sonra geliyor.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section tight">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">🔍 Keşfet</span>
+      <h2>Deney 1 — Hâl Karşılaştırma & Sıkıştırılabilirlik</h2>
+      <p>Pistonu sürükle, sıcaklığı ve hâli değiştir; hangi hâlin ne kadar sıkıştığını gözlemle.</p>
+    </div>
+    <div class="two-col">
+      <div class="lab-panel">
+        <div class="lab-head">
+          <div class="lab-title"><span class="dot"></span> Sıkıştırma Odası</div>
+          <span class="lab-hint">turuncu halkayı sürükle</span>
+        </div>
+        <div class="stage" id="stage1">
+          <span class="stage-badge" id="badge1">GAZ</span>
+          <span class="orbit-hint">🖱 sürükle = döndür</span>
+        </div>
+        <div class="readouts">
+          <div class="readout"><div class="k">Hâl</div><div class="v" id="r-phase">Gaz</div></div>
+          <div class="readout t"><div class="k">Sıcaklık</div><div class="v" id="r-temp">300<span class="u">K</span></div></div>
+          <div class="readout v2"><div class="k">Kap Hacmi</div><div class="v" id="r-vol">6,0<span class="u">L</span></div></div>
+          <div class="readout"><div class="k">Sıkıştırılabilirlik</div><div class="v" id="r-compress">Yüksek</div></div>
+        </div>
+      </div>
+      <div>
+        <div class="controls">
+          <div class="control-row">
+            <label>Hâl</label>
+            <div class="btnbar" style="margin:0">
+              <button class="btn on-dark active" data-phase="gas">Gaz</button>
+              <button class="btn on-dark" data-phase="liquid">Sıvı</button>
+              <button class="btn on-dark" data-phase="solid">Katı</button>
+            </div>
+            <span></span>
+          </div>
+          <div class="control-row">
+            <label for="temp1">Sıcaklık (genleşme)</label>
+            <input type="range" id="temp1" min="150" max="700" step="10" value="300" />
+            <output id="temp1-out">300 K</output>
+          </div>
+          <div class="control-row">
+            <label for="vol1">Kap Hacmi</label>
+            <input type="range" id="vol1" min="1" max="10" step="0.2" value="6" />
+            <output id="vol1-out">6,0 L</output>
+          </div>
+        </div>
+        <div class="btnbar"><button class="btn" id="reset1">↺ Odayı Sıfırla</button></div>
+        <div class="callout real" style="margin-top:16px">
+          <h5>Gözlemle</h5>
+          <p>Hacmi 1 L'ye indirmeyi dene: <strong>gaz</strong> kolayca sıkışır; <strong>sıvı/katı</strong> kümesi kabın küçülmesine neredeyse hiç aldırmaz. Sıcaklığı artırınca (sabit hacimde) taneciklerin çarpma sıklığı — dolayısıyla basınç — artar; hacim serbest bırakılırsa gaz genleşir.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section tight">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">🔍 Keşfet</span>
+      <h2>Deney 2 — Yayılma (Karışabilirlik) & Yoğunluk</h2>
+      <p>İki farklı gazı bir bölmeyle ayır, sonra bölmeyi kaldırıp karışmayı izle. Alttaki panelde aynı sıcaklık ve basınçtaki iki gazın yoğunluğunu karşılaştır.</p>
+    </div>
+    <div class="two-col">
+      <div class="lab-panel">
+        <div class="lab-head">
+          <div class="lab-title"><span class="dot" style="background:var(--mol-a)"></span> Karışım Odası</div>
+          <span class="lab-hint">bölme kalkınca gazlar karışır</span>
+        </div>
+        <div class="stage" id="stage2"><span class="orbit-hint">🖱 sürükle = döndür</span></div>
+        <div class="btnbar">
+          <button class="btn on-dark active" id="btn-mix">▶ Bölmeyi Kaldır (Karıştır)</button>
+          <button class="btn on-dark" id="btn-mix-reset">↺ Sıfırla</button>
+        </div>
+      </div>
+      <div>
+        <div class="controls" style="grid-template-columns:1fr">
+          <div class="control-row" style="grid-template-columns:110px 1fr">
+            <label for="gasX">Gaz A (mavi)</label>
+            <select id="gasX"></select>
+          </div>
+          <div class="control-row" style="grid-template-columns:110px 1fr">
+            <label for="gasY">Gaz B (pembe)</label>
+            <select id="gasY"></select>
+          </div>
+          <div class="control-row" style="grid-template-columns:110px 1fr 60px">
+            <label for="tempMix">Ortak Sıcaklık</label>
+            <input type="range" id="tempMix" min="200" max="500" step="10" value="300" />
+            <output id="tempMix-out">300 K</output>
+          </div>
+        </div>
+        <div class="readouts" style="grid-template-columns:1fr 1fr">
+          <div class="readout"><div class="k">Yoğunluk · Gaz A</div><div class="v" id="dA" style="color:var(--mol-a)">–<span class="u">g/L</span></div></div>
+          <div class="readout"><div class="k">Yoğunluk · Gaz B</div><div class="v" id="dB" style="color:var(--mol-b)">–<span class="u">g/L</span></div></div>
+        </div>
+        <div class="callout real" style="margin-top:16px">
+          <h5>Gözlemle</h5>
+          <p>Aynı sıcaklık ve basınçta mol kütlesi (M) büyük olan gaz daha yoğundur — çünkü aynı hacimde eşit sayıda tanecik varsa (Avogadro ilkesi), tanecikleri daha ağır olan gaz daha ağır basar. Bölmeyi kaldırdığında iki gaz de kendiliğinden her yöne yayılıp homojen karışır — bu <strong>karışabilirliktir</strong>. Sıcak hava balonu içindeki hava dışarıdakinden daha az yoğun olduğu için balon yükselir; CO₂ dolu balon havadan yoğun olduğu için batar.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="discover">
+      <h3><span class="ico">🔍</span> Keşfet: Balonun İçinde Ne Oluyor?</h3>
+      <div class="mission">
+        <div class="m-title">Görev 1 — Genleşme & Sıkıştırılabilirlik</div>
+        <ol>
+          <li>Deney 1'de hâli sırayla Gaz, Sıvı, Katı yap; her birinde hacmi 10 L'den 1 L'ye indir.</li>
+          <li>Dalgıç tüplerine neden sıkıştırılmış hava doldurulup sıkıştırılmış su doldurulmadığını bu gözlemle ilişkilendir.</li>
+        </ol>
+      </div>
+      <div class="mission">
+        <div class="m-title">Görev 2 — Karışabilirlik & Yoğunluk</div>
+        <ol>
+          <li>Deney 2'de Gaz A'yı He, Gaz B'yi SF₆ yap; yoğunluk farkını oku.</li>
+          <li>Bölmeyi kaldır — her iki gaz da diğerinin tarafına geçiyor mu? Bu, parfüm kokusunun odaya yayılmasıyla aynı olay mı?</li>
+        </ol>
+      </div>
+      <div class="journal">
+        <label>📓 Keşif Günlüğü — gözlemlerin (otomatik kaydedilir)</label>
+        <textarea id="journal1" placeholder="Örn: Sıcaklık arttıkça gaz taneciklerinin hareketi hızlandı çünkü..."></textarea>
+        <div class="save-state"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section tight">
+  <div class="container prose">
+    <div class="section-head">
+      <span class="eyebrow">💡 Açıkla</span>
+      <h2>Gözlemlediklerini Kinetik Moleküler Teori ile Adlandır</h2>
+    </div>
+    <p>Gaz moleküllerinin hareketini inceleyerek gaz tanecikleri arasındaki etkileşimleri açıklayan teoriye <strong>kinetik moleküler teori</strong> denir. Temel varsayımları: gaz tanecikleri birbirinden bağımsız hareket eder, bu nedenle bulundukları kabı doldurur; her yöne doğru sürekli hareket eder ve bu sırada kabın çeperlerine çarparak <strong>basınç</strong> oluşturur; hareketleri sıcaklıkla orantılıdır. <strong>Katıda</strong> tanecikler sabit noktalarda titreşir; <strong>sıvıda</strong> birbirine yakın kalıp yer değiştirebilir; <strong>gazda</strong> ise bu bağımsız hareket serbestçe gerçekleşir.</p>
+    <p>Az önce gözlemlediğin özellikler tam olarak bu serbest hareketten doğar: tanecikler arasındaki büyük boşluk gazı kolayca <strong>sıkıştırılabilir</strong> yapar; sıcaklıkla hızlanan tanecikler birbirinden uzaklaşınca gaz <strong>genleşir</strong>; boşluğa homojen dağılma eğilimi <strong>yayılma</strong> (karışabilirlik) davranışını doğurur. <strong>Yoğunluk</strong> ise gazlar için ayırt edici bir özellik değildir — hacim koşullara (sıcaklık, basınç) göre değiştiği için aynı gazın yoğunluğu da değişir; genel eğilim olarak gazların yoğunluğu katı ve sıvılara göre daha düşüktür.
+    <span class="small">Model notu: gerçek bir örnekte tanecik sayısı N<sub>A</sub>=6,02×10²³ mertebesindedir; burada kavramsal anlaşılırlık için ölçeklendirilmiştir — oranlar gerçek davranışla uyumludur.</span></p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">✅ Değerlendir</span>
+      <h2>Bağlam Temelli Sorular</h2>
+    </div>
+    <div id="quiz-host"></div>
+  </div>
+</section>
+
+<div id="footer-root"></div>
+
+<script src="../assets/js/offline-bundle.js"></script>
+<script>
+  const { mountNav, mountFooter } = __mod_nav;
+  const { GasBox, R_CONST } = __mod_gas_engine;
+  const { renderQuiz, markVisited, bindJournal } = __mod_quiz_engine;
+  const { QUIZ } = __mod_quiz_data;
+
+
+
+
+
+
+  mountNav("kmt");
+  mountFooter();
+  markVisited("kmt");
+  bindJournal(document.getElementById("journal1"), "kmt-hal");
+  renderQuiz(document.getElementById("quiz-host"), QUIZ.kmt, "kmt");
+
+  /* ---- Deney 1: hâl + sıkıştırılabilirlik ---- */
+  const stage1 = document.getElementById("stage1");
+  const box1 = new GasBox(stage1, {
+    species: [{ key: "a", name: "Örnek Madde", color: "#2fb8c6", molarMass: 24, n: 2.2 }],
+    volumeL: 6, temperatureK: 300, showPiston: true, phase: "gas", vMin: 1, vMax: 10,
+  });
+  box1.start();
+
+  const compressLabel = { gas: "Yüksek", liquid: "Çok Düşük", solid: "Neredeyse Yok" };
+  const phaseLabel = { gas: "Gaz", liquid: "Sıvı", solid: "Katı" };
+  function refresh1() {
+    document.getElementById("r-temp").innerHTML = `${box1.temperatureK}<span class="u">K</span>`;
+    document.getElementById("r-vol").innerHTML = `${box1.effectiveVolumeL.toFixed(1)}<span class="u">L</span>`;
+    document.getElementById("r-phase").textContent = phaseLabel[box1.phase];
+    document.getElementById("r-compress").textContent = compressLabel[box1.phase];
+    document.getElementById("badge1").textContent = phaseLabel[box1.phase].toUpperCase() + ` · ${box1.temperatureK.toFixed(0)}K`;
+  }
+  refresh1();
+  document.querySelectorAll("[data-phase]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("[data-phase]").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      box1.setPhase(btn.dataset.phase);
+      refresh1();
+    });
+  });
+  const temp1 = document.getElementById("temp1");
+  temp1.addEventListener("input", () => {
+    box1.setTemperature(+temp1.value);
+    document.getElementById("temp1-out").textContent = `${temp1.value} K`;
+    refresh1();
+  });
+  const vol1 = document.getElementById("vol1");
+  vol1.addEventListener("input", () => {
+    box1.setVolume(+vol1.value);
+    document.getElementById("vol1-out").textContent = `${(+vol1.value).toFixed(1)} L`;
+    refresh1();
+  });
+  box1.on("volumechange", (v) => {
+    vol1.value = v.toFixed(1);
+    document.getElementById("vol1-out").textContent = `${v.toFixed(1)} L`;
+    refresh1();
+  });
+  document.getElementById("reset1").addEventListener("click", () => {
+    box1.setVolume(6); box1.setTemperature(300); box1.setPhase("gas");
+    vol1.value = 6; temp1.value = 300;
+    document.getElementById("vol1-out").textContent = "6,0 L";
+    document.getElementById("temp1-out").textContent = "300 K";
+    document.querySelectorAll("[data-phase]").forEach(b => b.classList.remove("active"));
+    document.querySelector('[data-phase="gas"]').classList.add("active");
+    refresh1();
+  });
+
+  /* ---- Deney 2: karışabilirlik + yoğunluk ---- */
+  const MASS_PRESETS = [
+    { label: "H₂ · Hidrojen (M=2)", mass: 2 }, { label: "He · Helyum (M=4)", mass: 4 },
+    { label: "CH₄ · Metan (M=16)", mass: 16 }, { label: "NH₃ · Amonyak (M=17)", mass: 17 },
+    { label: "O₂ · Oksijen (M=32)", mass: 32 }, { label: "CO₂ · Karbondioksit (M=44)", mass: 44 },
+    { label: "SF₆ · Kükürt Hekzaflorür (M=146)", mass: 146 },
+  ];
+  const gasXSel = document.getElementById("gasX"), gasYSel = document.getElementById("gasY");
+  gasXSel.innerHTML = MASS_PRESETS.map((g,i)=>`<option value="${i}" ${i===1?"selected":""}>${g.label}</option>`).join("");
+  gasYSel.innerHTML = MASS_PRESETS.map((g,i)=>`<option value="${i}" ${i===5?"selected":""}>${g.label}</option>`).join("");
+
+  let mixT = 300, mixBox = null, mixStarted = false;
+  function buildMixBox() {
+    if (mixBox) mixBox.dispose();
+    const mA = MASS_PRESETS[+gasXSel.value].mass, mB = MASS_PRESETS[+gasYSel.value].mass;
+    mixBox = new GasBox(document.getElementById("stage2"), {
+      species: [
+        { key: "a", name: "Gaz A", color: "#5b8dff", molarMass: mA, n: 0.6 },
+        { key: "b", name: "Gaz B", color: "#ff5b7f", molarMass: mB, n: 0.6 },
+      ],
+      volumeL: 12, temperatureK: mixT, showPiston: false, showPartition: true, speedScale: 0.4, vMax: 12,
+    });
+    mixBox.start();
+    mixStarted = false;
+    refreshDensity();
+  }
+  function refreshDensity() {
+    const mA = MASS_PRESETS[+gasXSel.value].mass, mB = MASS_PRESETS[+gasYSel.value].mass;
+    const dA = (mA * 1) / (R_CONST * mixT), dB = (mB * 1) / (R_CONST * mixT);
+    document.getElementById("dA").innerHTML = `${dA.toFixed(2)}<span class="u">g/L</span>`;
+    document.getElementById("dB").innerHTML = `${dB.toFixed(2)}<span class="u">g/L</span>`;
+  }
+  buildMixBox();
+  gasXSel.addEventListener("change", buildMixBox);
+  gasYSel.addEventListener("change", buildMixBox);
+  document.getElementById("tempMix").addEventListener("input", (e) => {
+    mixT = +e.target.value;
+    document.getElementById("tempMix-out").textContent = `${mixT} K`;
+    mixBox.setTemperature(mixT);
+    refreshDensity();
+  });
+  document.getElementById("btn-mix").addEventListener("click", () => { mixBox.openPartition(); mixStarted = true; });
+  document.getElementById("btn-mix-reset").addEventListener("click", () => { mixBox.reset(); mixStarted = false; });
+
+  window.addEventListener("pagehide", () => { box1.dispose(); if (mixBox) mixBox.dispose(); });
+</script>
+</body>
+</html>

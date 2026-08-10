@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Gaz Yasaları — GazLab 10</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2246%22 fill=%22%232fb8c6%22/></svg>">
+<link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+<div id="nav-root"></div>
+
+<header class="hero">
+  <div class="container">
+    <span class="eyebrow">Modül 2 · KİM.10.1.9</span>
+    <h1 style="max-width:760px">Gaz Yasaları</h1>
+    <p class="lead" style="max-width:680px">Basınç, hacim, sıcaklık ve madde miktarından ikisini sabit tutup diğer ikisi arasındaki ilişkiyi incelediğinde dört klasik gaz yasasına ulaşırsın. Aşağıdaki sekmelerde her yasayı kendi piston-silindir deneyinle keşfet ve grafiğini canlı olarak çiz.</p>
+  </div>
+</header>
+
+<section class="section tight">
+  <div class="container">
+    <div class="callout concept" style="max-width:820px">
+      <h5>🤔 Merak Et</h5>
+      <p>Deniz seviyesinde sıkıca kapatılıp yüksek bir dağa çıkarılan bir cips paketi neden şişip gerilir, aşağı inince neden eski hâline döner? Paketin içindeki hava miktarı hiç değişmedi — peki aynı miktar gaz aynı sıcaklıkta nasıl iki farklı hacim kaplayabiliyor? Aşağıda dört klasik gaz yasasını kendi piston-silindir deneyinle bulacaksın.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section tight">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">🔍 Keşfet</span>
+      <h2>Dört Yasayı Piston-Silindir Deneyiyle Bul</h2>
+      <p>Her sekmede <strong>bir</strong> değişkeni sen kontrol edersin, <strong>iki</strong> değişken sabit tutulur, <strong>dördüncü</strong> değişken ideal gaz ilişkisinden anlık hesaplanıp hem kapta hem grafikte görünür.</p>
+    </div>
+    <div class="btnbar" id="law-tabs">
+      <button class="btn primary" data-law="boyle">Boyle Yasası (P–V)</button>
+      <button class="btn" data-law="charles">Charles Yasası (V–T)</button>
+      <button class="btn" data-law="gaylussac">Gay-Lussac Yasası (P–T)</button>
+      <button class="btn" data-law="avogadro">Avogadro Yasası (V–n)</button>
+    </div>
+  </div>
+</section>
+
+<section class="section tight">
+  <div class="container">
+    <div id="law-context" class="callout real"></div>
+
+    <div class="two-col">
+      <div class="lab-panel">
+        <div class="lab-head">
+          <div class="lab-title"><span class="dot"></span> <span id="lab-title-text">Boyle Deneyi</span></div>
+          <span class="lab-hint" id="lab-hint-text">sürükle = döndür</span>
+        </div>
+        <div class="stage" id="stage-host">
+          <!-- her yasa için bir stage div'i lazy olarak buraya eklenir -->
+        </div>
+        <div class="readouts">
+          <div class="readout p"><div class="k">Basınç</div><div class="v" id="ro-p">–<span class="u">atm</span></div></div>
+          <div class="readout v2"><div class="k">Hacim</div><div class="v" id="ro-v">–<span class="u">L</span></div></div>
+          <div class="readout t"><div class="k">Sıcaklık</div><div class="v" id="ro-t">–<span class="u">K</span></div></div>
+          <div class="readout n"><div class="k">Madde Miktarı</div><div class="v" id="ro-n">–<span class="u">mol</span></div></div>
+        </div>
+        <div class="controls" id="control-host"></div>
+      </div>
+      <div>
+        <div class="chart-wrap">
+          <div class="chart-label"><span id="chart-title">V (L) — P (atm)</span><span id="chart-count">0 nokta</span></div>
+          <canvas id="chart" height="220"></canvas>
+        </div>
+        <div class="btnbar">
+          <button class="btn" id="clear-chart">↺ Grafiği Temizle</button>
+        </div>
+        <div class="callout concept" style="margin-top:14px" id="law-formula"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="discover">
+      <h3><span class="ico">🔍</span> Keşfet: Örüntüyü Bul, Modeli Yaz</h3>
+      <p>Her yasa sekmesinde kontrol kaydırıcısını uçtan uca birkaç kez gezdir; grafikteki izin şeklini gözlemle.</p>
+      <div class="mission">
+        <div class="m-title">Görev — Sabiti Yakala</div>
+        <ol>
+          <li><strong>Boyle</strong> sekmesinde birkaç farklı V değeri için P×V çarpımını hesapla. Ne fark ediyorsun?</li>
+          <li><strong>Charles</strong> sekmesinde V/T oranını birkaç noktada hesapla.</li>
+          <li><strong>Gay-Lussac</strong> sekmesinde P/T oranını, <strong>Avogadro</strong> sekmesinde V/n oranını incele.</li>
+          <li>Dört sekmede de bulduğun "sabit sayı" ile sonraki modülde (İdeal Gaz Yasası) tanışacaksın — o sayı sence neyi temsil ediyor olabilir?</li>
+        </ol>
+      </div>
+      <div class="journal">
+        <label>📓 Keşif Günlüğü — örüntü ve matematiksel model önerin (otomatik kaydedilir)</label>
+        <textarea id="journal2" placeholder="Örn: Boyle sekmesinde P ile V ters orantılı çünkü..."></textarea>
+        <div class="save-state"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section tight">
+  <div class="container prose">
+    <div class="section-head">
+      <span class="eyebrow">💡 Açıkla</span>
+      <h2>Dört Yasa, Tek Örüntü: Sabit Kalan İkili</h2>
+    </div>
+    <p>Bulduğun dört "sabit sayı" aslında aynı fikrin dört farklı görünümüdür — <strong>iki değişken sabitken diğer ikisi arasında bir orantı vardır</strong>:</p>
+    <ul>
+      <li><strong>Boyle (P–V):</strong> sabit sıcaklıkta bir miktar gazın basıncı ile hacmi ters orantılıdır (P·V=sabit). Tanecikler aynı hızda ama hacim küçülünce duvara daha sık çarpar.</li>
+      <li><strong>Charles (V–T):</strong> sabit basınç altında belirli bir miktar gazın hacmi ile mutlak sıcaklığı doğru orantılıdır (V/T=sabit). Sıcaklık artınca tanecikler hızlanır, aynı basıncı korumak için hacim büyümek zorunda kalır.</li>
+      <li><strong>Gay-Lussac (P–T):</strong> sabit hacimli belirli bir miktar gazın basıncı ile mutlak sıcaklığı doğru orantılıdır (P/T=sabit). Hacim sabitken sıcaklık artınca çarpışma sıklığı (basınç) artar.</li>
+      <li><strong>Avogadro (V–n):</strong> sabit sıcaklık ve basınçta bir gazın mol sayısı ile hacmi doğru orantılıdır (V/n=sabit). Daha fazla tanecik, aynı basıncı korumak için daha büyük hacim ister.</li>
+    </ul>
+    <p class="small">Model notu: dördü de aynı ideal gaz davranışının farklı kesitleridir — Modül 3'te hepsini <strong>PV=nRT</strong> tek eşitliğinde birleştireceksin.</p>
+
+    <div class="callout concept" style="margin-top:20px">
+      <h5>Gazların Kinetik Moleküler Teorisi</h5>
+      <p>Gaz yasaları makroskobik düzeyde (ölçülebilir) örüntüleri anlatır; bunları moleküler düzeyde açıklayan teoriye <strong>kinetik moleküler teori</strong> denir. Varsayımları:</p>
+      <ul>
+        <li>Gaz taneciklerinin toplam hacmi, kabın hacmi yanında ihmal edilir; kabın hacmi gaz hacmi olarak kabul edilir.</li>
+        <li>Tanecikler her yöne doğru sürekli, doğrusal ve zikzaklı hareket eder — buna <strong>Brown (Bravn) hareketi</strong> denir.</li>
+        <li>Tanecikler birbirleri ve kabın çeperleriyle esnek çarpışma yapar: enerji aktarılır, yön değişir, ama toplam enerji ve hız korunur.</li>
+        <li>Ortalama kinetik enerji mutlak sıcaklıkla doğru orantılıdır; aynı sıcaklıktaki tüm gazların ortalama kinetik enerjisi eşittir.</li>
+        <li>Tanecikler arasındaki çekim/itme kuvveti yok denecek kadar azdır, bu yüzden ihmal edilir.</li>
+      </ul>
+    </div>
+
+    <div class="callout real" style="margin-top:16px">
+      <h5>Birim Hatırlatması</h5>
+      <p class="small">1 atm = 76 cmHg = 760 mmHg = 101 325 Pa = 760 torr · 1 L = 1 000 mL = 1 dm³ · T(K) = t(°C) + 273 · 1 mol = 6,02·10²³ tanecik (Avogadro sayısı, N<sub>A</sub>)</p>
+    </div>
+
+    <div class="section-head" style="margin-top:28px">
+      <h3 style="font-size:19px">🧮 Hesaplama Aracı: Birim Çevirici</h3>
+      <p class="small">Soru çözerken bir değeri farklı birime çevirmen mi gerekti? Herhangi bir kutuya değerini yaz, birimini seç — diğer tüm birimlerdeki karşılığı anında hesaplanır.</p>
+    </div>
+    <div id="unit-converter-host"></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">✅ Değerlendir</span>
+      <h2>Bağlam Temelli Sorular</h2>
+    </div>
+    <div id="quiz-host"></div>
+  </div>
+</section>
+
+<div id="footer-root"></div>
+
+<script src="../assets/js/offline-bundle.js"></script>
+<script>
+  const { mountNav, mountFooter } = __mod_nav;
+  const { GasBox } = __mod_gas_engine;
+  const { TraceChart } = __mod_charts;
+  const { renderQuiz, markVisited, bindJournal } = __mod_quiz_engine;
+  const { QUIZ } = __mod_quiz_data;
+  const { mountUnitConverter } = __mod_unit_converter;
+
+
+
+
+
+
+
+
+  mountNav("yasalar");
+  mountFooter();
+  markVisited("yasalar");
+  bindJournal(document.getElementById("journal2"), "yasalar");
+  renderQuiz(document.getElementById("quiz-host"), QUIZ.yasalar, "yasalar");
+  mountUnitConverter(document.getElementById("unit-converter-host"));
+
+  const LAWS = {
+    boyle: {
+      label: "Boyle Yasası", pair: "P–V (sabit T, n)", showPiston: true,
+      lockedText: "Sabit: T = 300 K, n = 0,4 mol", context: "🎒 Dağa çıkan bir cips paketi gibi — dış basınç değişince gazın hacmi tepki verir.",
+      formula: "P·V = sabit → basınç ile hacim ters orantılıdır.",
+      n: 0.4, T: 300, P: null, V: 5, vMax: 10,
+      control: { key: "V", label: "Hacim (V)", min: 1, max: 10, step: 0.2, unit: "L" },
+      chart: { xLabel: "V (L)", yLabel: "P (atm)", xMax: 10, yMax: 12, xKey: "V", yKey: "P" },
+    },
+    charles: {
+      label: "Charles Yasası", pair: "V–T (sabit P, n)", showPiston: true,
+      lockedText: "Sabit: P = 1,2 atm, n = 0,3 mol", context: "🎈 Dondurucuya konan bir balon gibi — sıcaklık düşünce hacim küçülür.",
+      formula: "V/T = sabit → hacim ile mutlak sıcaklık doğru orantılıdır.",
+      n: 0.3, T: 300, P: 1.2, V: null, vMax: 12,
+      control: { key: "T", label: "Sıcaklık (T)", min: 200, max: 550, step: 10, unit: "K" },
+      chart: { xLabel: "T (K)", yLabel: "V (L)", xMax: 600, yMax: 14, xKey: "T", yKey: "V" },
+    },
+    gaylussac: {
+      label: "Gay-Lussac Yasası", pair: "P–T (sabit V, n)", showPiston: false,
+      lockedText: "Sabit: V = 5 L (sızdırmaz kap), n = 0,3 mol", context: "🚗 Güneşte bekleyen bir araba lastiği gibi — hacim sabitken sıcaklık artınca basınç yükselir.",
+      formula: "P/T = sabit → basınç ile mutlak sıcaklık doğru orantılıdır.",
+      n: 0.3, T: 300, P: null, V: 5, vMax: 8,
+      control: { key: "T", label: "Sıcaklık (T)", min: 200, max: 800, step: 10, unit: "K" },
+      chart: { xLabel: "T (K)", yLabel: "P (atm)", xMax: 900, yMax: 5, xKey: "T", yKey: "P" },
+    },
+    avogadro: {
+      label: "Avogadro Yasası", pair: "V–n (sabit P, T)", showPiston: true,
+      lockedText: "Sabit: P = 2 atm, T = 300 K", context: "🎈 Şişirilen bir balon gibi — üflenen her ek gaz miktarı hacmi büyütür.",
+      formula: "V/n = sabit → hacim ile madde miktarı doğru orantılıdır.",
+      n: null, T: 300, P: 2, V: null, vMax: 14,
+      control: { key: "n", label: "Madde Miktarı (n)", min: 0.1, max: 0.8, step: 0.05, unit: "mol" },
+      chart: { xLabel: "n (mol)", yLabel: "V (L)", xMax: 1, yMax: 12, xKey: "n", yKey: "V" },
+    },
+  };
+
+  const R = 0.0821;
+  let current = "boyle";
+  const boxes = {};   // key -> GasBox
+  const stages = {};  // key -> host div
+  const state = {};   // key -> {P,V,T,n}
+  let chart = null;
+
+  function computeState(key) {
+    const cfg = LAWS[key];
+    const s = { n: cfg.n, T: cfg.T, P: cfg.P, V: cfg.V };
+    const ctrlVal = cfg._current ?? cfg.control.default ?? (cfg.control.min + cfg.control.max) / 2;
+    s[cfg.control.key] = ctrlVal;
+    if (key === "boyle") s.P = (s.n * R * s.T) / s.V;
+    if (key === "charles") s.V = (s.n * R * s.T) / s.P;
+    if (key === "gaylussac") s.P = (s.n * R * s.T) / s.V;
+    if (key === "avogadro") s.V = (s.n * R * s.T) / s.P;
+    return s;
+  }
+
+  function ensureBox(key) {
+    if (boxes[key]) return boxes[key];
+    const cfg = LAWS[key];
+    const host = document.createElement("div");
+    host.style.cssText = "position:absolute; inset:0;";
+    host.className = "gas-stage-instance";
+    document.getElementById("stage-host").appendChild(host);
+    stages[key] = host;
+    const s = computeState(key);
+    const box = new GasBox(host, {
+      species: [{ key: "a", name: "Gaz", color: "#2fb8c6", molarMass: 29, n: s.n }],
+      volumeL: s.V, temperatureK: s.T, showPiston: cfg.showPiston, vMin: 1, vMax: cfg.vMax,
+    });
+    boxes[key] = box;
+    return box;
+  }
+
+  function showLaw(key) {
+    current = key;
+    const cfg = LAWS[key];
+    document.querySelectorAll("#law-tabs [data-law]").forEach(b => b.classList.toggle("primary", b.dataset.law === key));
+    document.getElementById("lab-title-text").textContent = cfg.label + " Deneyi";
+    document.getElementById("law-context").innerHTML = `<h5>Bağlam</h5><p>${cfg.context}</p>`;
+    document.getElementById("law-formula").innerHTML = `<h5>Matematiksel Model</h5><p>${cfg.formula}</p>`;
+    document.getElementById("chart-title").textContent = `${cfg.chart.xLabel} — ${cfg.chart.yLabel}`;
+
+    // Aktif olmayan sekmelerin 3B sahnelerini tamamen kapat (dispose) — aksi hâlde
+    // birden fazla WebGL bağlamı aynı anda açık kalır ve mobil tarayıcılarda
+    // (özellikle iOS Safari) bağlam sınırı aşılınca yeni sahneler hiç render olmaz.
+    Object.keys(boxes).forEach(k => {
+      if (k === key) return;
+      boxes[k].dispose();
+      delete boxes[k];
+      if (stages[k]) { stages[k].remove(); delete stages[k]; }
+    });
+    ensureBox(key);
+    stages[key].style.display = "block";
+    boxes[key].start();
+
+    chart = new TraceChart(document.getElementById("chart"), {
+      xLabel: cfg.chart.xLabel, yLabel: cfg.chart.yLabel, xMax: cfg.chart.xMax, yMax: cfg.chart.yMax, color: "#2fb8c6",
+    });
+
+    const ctrlHost = document.getElementById("control-host");
+    const c = cfg.control;
+    const defVal = cfg._current ?? (c.key === "T" ? cfg.T : c.key === "V" ? cfg.V : c.key === "n" ? 0.4 : (c.min + c.max) / 2);
+    cfg._current = defVal;
+    ctrlHost.innerHTML = `
+      <div class="control-row">
+        <label for="ctrl-slider">${c.label}</label>
+        <input type="range" id="ctrl-slider" min="${c.min}" max="${c.max}" step="${c.step}" value="${defVal}" />
+        <output id="ctrl-out">${defVal} ${c.unit}</output>
+      </div>
+      <p class="lab-hint" style="margin:2px 0 0">${cfg.lockedText}</p>
+    `;
+    document.getElementById("ctrl-slider").addEventListener("input", (e) => {
+      cfg._current = +e.target.value;
+      document.getElementById("ctrl-out").textContent = `${(+e.target.value).toFixed(2).replace(/\.00$/,'').replace(/(\.\d)0$/,'$1')} ${c.unit}`;
+      applyState();
+    });
+
+    applyState();
+  }
+
+  function applyState() {
+    const cfg = LAWS[current];
+    const s = computeState(current);
+    state[current] = s;
+    const box = boxes[current];
+    box.setTemperature(s.T);
+    if (Math.abs(box.volumeL - s.V) > 1e-6) box.setVolume(s.V);
+    if (Math.abs((box.species[0].n ?? 0) - s.n) > 1e-6) box.setMolCount("a", s.n);
+
+    document.getElementById("ro-p").innerHTML = `${s.P.toFixed(2)}<span class="u">atm</span>`;
+    document.getElementById("ro-v").innerHTML = `${s.V.toFixed(2)}<span class="u">L</span>`;
+    document.getElementById("ro-t").innerHTML = `${s.T.toFixed(0)}<span class="u">K</span>`;
+    document.getElementById("ro-n").innerHTML = `${s.n.toFixed(2)}<span class="u">mol</span>`;
+
+    const xVal = s[cfg.chart.xKey], yVal = s[cfg.chart.yKey];
+    chart.push(xVal, yVal);
+    document.getElementById("chart-count").textContent = `${chart.points.length} nokta`;
+  }
+
+  document.querySelectorAll("#law-tabs [data-law]").forEach(btn => {
+    btn.addEventListener("click", () => showLaw(btn.dataset.law));
+  });
+  document.getElementById("clear-chart").addEventListener("click", () => chart.clear());
+
+  document.getElementById("stage-host").style.position = "relative";
+  showLaw("boyle");
+
+  // Sayfadan ayrılırken açık WebGL bağlamını serbest bırak (bfcache/mobil tarayıcı uyumluluğu).
+  window.addEventListener("pagehide", () => Object.values(boxes).forEach(b => b.dispose()));
+</script>
+</body>
+</html>

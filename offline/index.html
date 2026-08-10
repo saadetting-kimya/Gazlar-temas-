@@ -6,13 +6,7 @@
 <title>GazLab 10 — Gazlar Teması Sanal Laboratuvarı</title>
 <meta name="description" content="10. Sınıf Kimya, Gazlar Teması için üç boyutlu sanal laboratuvar: gazların özellikleri, gaz yasaları, ideal gaz yasası, Graham difüzyon-efüzyon yasası." />
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2246%22 fill=%22%232fb8c6%22/></svg>">
-<link rel="stylesheet" href="assets/css/style.css?v=3" />
-<script type="importmap">
-{ "imports": {
-  "three": "./assets/vendor/three/three.module.js",
-  "three/addons/": "./assets/vendor/three/examples/jsm/"
-}}
-</script>
+<link rel="stylesheet" href="assets/css/style.css" />
 </head>
 <body>
 
@@ -80,19 +74,6 @@
   </div>
 </section>
 
-<section class="section tight">
-  <div class="container">
-    <div class="card" style="display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap;">
-      <div>
-        <span class="eyebrow">Akıllı Tahta / İnternetsiz Kullanım</span>
-        <h3 style="margin:6px 0;">💾 Çevrimdışı Sürüm (ZIP)</h3>
-        <p style="margin-bottom:0; max-width:560px;">İndirip bir klasöre çıkardığında, <code>index.html</code>'e çift tıklayarak internet olmadan açılan tam bağımsız bir kopya. Sunucu kurmaya gerek yok — akıllı tahta veya sınıf bilgisayarına bir kez indirip her zaman çevrimdışı kullanabilirsin.</p>
-      </div>
-      <a href="GazLab10-Cevrimdisi.zip" class="btn" target="_blank" rel="noopener">ZIP İndir →</a>
-    </div>
-  </div>
-</section>
-
 <section class="section">
   <div class="container">
     <div class="card" style="background:linear-gradient(135deg,#101826,#1c2b45); color:#fff; display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap;">
@@ -107,9 +88,13 @@
 
 <div id="footer-root"></div>
 
-<script type="module">
-  import { mountNav, mountFooter } from "./assets/js/nav.js?v=3";
-  import { GasBox } from "./assets/js/gas-engine.js?v=3";
+<script src="assets/js/offline-bundle.js"></script>
+<script>
+  const { mountNav, mountFooter } = __mod_nav;
+  const { GasBox } = __mod_gas_engine;
+
+
+
   mountNav("home");
   mountFooter();
 
