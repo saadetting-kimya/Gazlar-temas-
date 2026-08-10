@@ -82,15 +82,16 @@ okul ağlarında CDN engellense bile çalışır.
 
 Ana sayfadaki **💾 Çevrimdışı Sürüm (ZIP)** düğmesiyle `GazLab10-Cevrimdisi.zip` indirilebilir.
 Bu paket, tüm ES module `import`/`export` ifadelerini tek bir klasik (non-module) script'e
-derler; böylece bir klasöre çıkarıldığında **sunucu kurmadan**, `offline/index.html` dosyasına
-çift tıklayarak (`file://`) doğrudan açılır — internet bağlantısı hiç gerekmez.
+derler; böylece bir klasöre çıkarıldığında **sunucu kurmadan**, ZIP'in kökündeki `index.html`
+dosyasına çift tıklayarak (`file://`) doğrudan açılır — internet bağlantısı hiç gerekmez.
+(ZIP'i açtığınızda dosyalar bir alt klasöre değil, doğrudan çıkarma konumuna gelir.)
 
 Kaynak site (`index.html`, `moduller/`, `assets/`) değiştiğinde çevrimdışı paketi yeniden
 üretmek için:
 
 ```bash
 node tools/build-offline.js   # offline/ klasörünü yeniden oluşturur
-zip -r -X GazLab10-Cevrimdisi.zip offline/
+cd offline && zip -r -X ../GazLab10-Cevrimdisi.zip . && cd ..   # offline/ içeriği ZIP kökünde olsun
 ```
 
 `tools/build-offline.js`, her JS dosyasını kendi izole kapsamında (IIFE) sarıp bağımlılıkları
