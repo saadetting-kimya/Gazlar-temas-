@@ -138,6 +138,12 @@
       <h5>Birim Hatırlatması</h5>
       <p class="small">1 atm = 76 cmHg = 760 mmHg = 101 325 Pa = 760 torr · 1 L = 1 000 mL = 1 dm³ · T(K) = t(°C) + 273 · 1 mol = 6,02·10²³ tanecik (Avogadro sayısı, N<sub>A</sub>)</p>
     </div>
+
+    <div class="section-head" style="margin-top:28px">
+      <h3 style="font-size:19px">🧮 Hesaplama Aracı: Birim Çevirici</h3>
+      <p class="small">Soru çözerken bir değeri farklı birime çevirmen mi gerekti? Herhangi bir kutuya değerini yaz, birimini seç — diğer tüm birimlerdeki karşılığı anında hesaplanır.</p>
+    </div>
+    <div id="unit-converter-host"></div>
   </div>
 </section>
 
@@ -159,12 +165,14 @@
   import { TraceChart } from "../assets/js/charts.js?v=3";
   import { renderQuiz, markVisited, bindJournal } from "../assets/js/quiz-engine.js?v=3";
   import { QUIZ } from "../assets/js/quiz-data.js?v=3";
+  import { mountUnitConverter } from "../assets/js/unit-converter.js?v=3";
 
   mountNav("yasalar");
   mountFooter();
   markVisited("yasalar");
   bindJournal(document.getElementById("journal2"), "yasalar");
   renderQuiz(document.getElementById("quiz-host"), QUIZ.yasalar, "yasalar");
+  mountUnitConverter(document.getElementById("unit-converter-host"));
 
   const LAWS = {
     boyle: {
