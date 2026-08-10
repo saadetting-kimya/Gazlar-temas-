@@ -19,6 +19,7 @@ const LINKS = [
   { href: link("moduller/02-gaz-yasalari.html"), label: "Gaz Yasaları", key: "yasalar", num: "2" },
   { href: link("moduller/03-ideal-gaz.html"), label: "İdeal Gaz & Serbest Mod", key: "ideal", num: "3" },
   { href: link("moduller/04-difuzyon-efuzyon.html"), label: "Difüzyon & Efüzyon", key: "difuzyon", num: "4" },
+  { href: link("kitap/GazLab10-Gazlar-Ders-Defteri.pdf"), label: "📘 Ders Defteri (PDF)", key: "kitap", num: "" },
 ];
 
 export function mountNav(activeKey) {
