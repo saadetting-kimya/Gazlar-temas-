@@ -51,6 +51,18 @@ export const QUIZ = {
       correct: 0,
       explain: "Gaz taneciklerinin bulundukları ortamla kendiliğinden, her yöne homojen şekilde karışması karışabilirlik olarak adlandırılır; bu, sıvıların yüzey gerilimiyle sınırlı yayılmasından çok farklıdır.",
     },
+    {
+      context: "Yoğunluk Gazı Ele Verir mi?",
+      text: "Bir öğrenci 'bir gazın yoğunluğunu ölçersem hangi gaz olduğunu her zaman kesin olarak anlarım, çünkü her gazın kendine özgü sabit bir yoğunluğu vardır' diyor. Bu ifade neden sorunludur?",
+      options: [
+        "Gazın hacmi sıcaklık ve basınca göre değiştiği için yoğunluğu da değişir; yoğunluk gazlar için sabit/ayırt edici bir özellik değildir",
+        "Gazların yoğunluğu yoktur, yalnızca katı ve sıvıların yoğunluğu ölçülebilir",
+        "Yoğunluk yalnızca renkli gazlarda ölçülebilir",
+        "İfade tamamen doğrudur, itiraz edilecek bir nokta yoktur",
+      ],
+      correct: 0,
+      explain: "Gazların hacmi koşullara (sıcaklık, basınç) bağlı olarak kolayca değiştiğinden aynı gazın yoğunluğu da değişir. Bu yüzden yoğunluk, katılardaki gibi gazlar için sabit/ayırt edici bir özellik olarak kullanılamaz.",
+    },
   ],
 
   yasalar: [
@@ -121,6 +133,18 @@ export const QUIZ = {
       correct: 0,
       explain: "V = k·(1/P) doğrusal bir ilişkidir; 1/P eksenine karşı çizilen V, orijinden geçen bir doğru verir. Bilim insanları eğriyi doğrusallaştırarak orantı sabitini kolayca ölçer.",
     },
+    {
+      context: "Pencereden Süzülen Işıkta Toz Zerreleri",
+      text: "Bir pencereden içeri giren ışık demetinde havadaki toz zerrelerinin düzensiz, zikzaklı bir şekilde hareket ettiği gözlemlenir. Bu hareket biçiminin adı ve bu hareketin durup gaz taneciklerinin enerjisini kaybetmeden sürmesini sağlayan çarpışma türü hangileridir?",
+      options: [
+        "Brown (Bravn) hareketi; tanecikler birbirleri ve kabın çeperleriyle esnek çarpışma yapar, bu yüzden toplam enerji ve hız korunur",
+        "Difüzyon hareketi; tanecikler birbirleriyle esnek olmayan çarpışma yapıp yavaşça durur",
+        "Brown hareketi; tanecikler yalnızca yer çekimi etkisiyle hareket eder",
+        "Efüzyon hareketi; tanecikler yalnızca bir delikten geçerken hareket eder",
+      ],
+      correct: 0,
+      explain: "Gaz taneciklerinin her yöne sürekli, doğrusal ve zikzaklı hareketine Brown (Bravn) hareketi denir. Tanecikler birbirleri ve kabın çeperleriyle esnek çarpışma yaptığı için yön değişir ama toplam enerji ve hız korunur; hareket bu yüzden durmaz.",
+    },
   ],
 
   ideal: [
@@ -133,7 +157,7 @@ export const QUIZ = {
     },
     {
       context: "Aynı Hacim, Farklı Gaz",
-      text: "Standart-normal şartlarda (NŞ, ≈1 atm, 273 K) 1 mol He (M=4) ile 1 mol Ar (M=40) gazı ayrı kaplarda bulunuyor. Bu iki ifadeden hangisi doğrudur? (1) NŞ, referans bir basınç-sıcaklık koşuludur. (2) İki gazın hacmi birbirine eşittir.",
+      text: "Normal şartlarda (NŞ: 0°C/273,15 K, 1 atm) 1 mol He (M=4) ile 1 mol Ar (M=40) gazı ayrı kaplarda bulunuyor. Bu iki ifadeden hangisi doğrudur? (1) NŞ, referans bir basınç-sıcaklık koşuludur. (2) İki gazın hacmi birbirine eşittir.",
       options: [
         "İkisi de doğrudur — NŞ basınç ve sıcaklığı sabitler; ideal gaz denklemi mol kütlesini içermediği için aynı n,P,T'de tüm ideal gazlar aynı hacmi kaplar",
         "Yalnızca (1) doğrudur, hacimler farklıdır çünkü Ar daha ağırdır",
@@ -141,7 +165,7 @@ export const QUIZ = {
         "İkisi de yanlıştır",
       ],
       correct: 0,
-      explain: "PV=nRT ifadesinde molar kütle (M) yer almaz — yalnızca n, P, T hacmi belirler. NŞ ise gazları karşılaştırmak için tanımlanmış referans bir basınç-sıcaklık koşuludur (≈1 atm, 273 K); bu koşulda 1 mol ideal gaz her zaman ≈22,4 L kaplar.",
+      explain: "PV=nRT ifadesinde molar kütle (M) yer almaz — yalnızca n, P, T hacmi belirler. NŞ, gazları karşılaştırmak için tanımlanmış referans bir basınç-sıcaklık koşuludur (0°C, 1 atm); bu koşulda 1 mol ideal gaz her zaman ≈22,4 L kaplar.",
     },
     {
       context: "R Sabitinin Birimi Ne Anlatır?",
@@ -267,6 +291,18 @@ export const QUIZ = {
       ],
       correct: 0,
       explain: "Kinetik moleküler teoriye göre gaz taneciklerinin ortalama kinetik enerjisi mutlak sıcaklıkla doğru orantılıdır; bu yüzden sıcaklık da hızı etkiler. Graham Yasası, sıcaklık AYNI tutulduğunda mol kütlesinin etkisini karşılaştırmaya odaklanır.",
+    },
+    {
+      context: "Sızdıran Tüp mü, Kokusu Yayılan Oda mı?",
+      text: "Sıkıştırılmış CO₂ dolu sızdırmaz bir tüp, küçük bir valften CO₂ içermeyen boş bir odaya yavaşça gaz kaçırıyor. Bir öğrenci 'bu da konsantrasyon farkından kaynaklanan bir difüzyondur, tıpkı parfüm kokusunun yayılması gibi' diyor. Bu görüşteki eksiklik nedir?",
+      options: [
+        "Bu olay efüzyondur: kaçış küçük bir delikten, iki bölge arasındaki BASINÇ farkı nedeniyle olur; difüzyon ise genellikle bir bariyer olmadan, KONSANTRASYON farkından kaynaklanan karışmadır",
+        "Eksiklik yok, öğrenci tamamen haklıdır",
+        "CO₂ hiçbir koşulda difüze veya efüze olamaz",
+        "Bu olay yalnızca sıvılar için geçerli bir kavramdır, gazlarla ilgisi yoktur",
+      ],
+      correct: 0,
+      explain: "Efüzyon, sıkışmış gazın küçük bir delikten kaçmasıdır ve basınç farkıyla oluşur/kolaylaşır; difüzyon ise genellikle bir bariyer olmaksızın konsantrasyon farkından kaynaklanan karışmadır. Tüpten kaçış senaryosu (küçük delik + basınç farkı) efüzyona örnektir.",
     },
   ],
 };
