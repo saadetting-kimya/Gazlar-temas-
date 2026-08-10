@@ -25,24 +25,21 @@
 </header>
 
 <section class="section tight">
-  <div class="container two-col prose">
-    <div>
-      <p>Modül 2'deki üç ilişkiyi (P·V=sabit, V/T=sabit, V/n=sabit) birleştirdiğimizde <strong>ideal gaz denklemi</strong> ortaya çıkar:</p>
-      <div class="callout concept">
-        <h5>İdeal Gaz Denklemi</h5>
-        <p style="font-family:var(--mono); font-size:18px; color:var(--ink); font-weight:800;">P·V = n·R·T</p>
-        <p>R, tüm ideal gazlar için aynı olan evrensel sabittir. Bu simülasyonda R ≈ 0,0821 L·atm/(mol·K) alınır.</p>
-      </div>
-    </div>
-    <div class="callout real">
-      <h5>Standart-Normal Şartlar (NŞ)</h5>
-      <p>Gazları karşılaştırmak için tanımlanan referans koşul (≈1 atm, 273 K). Bu koşulda 1 mol ideal gazın kapladığı hacim her zaman aynıdır (≈22,4 L) — "NŞ'ye Ayarla" ile bunu doğrula.</p>
+  <div class="container">
+    <div class="callout concept" style="max-width:820px">
+      <h5>🤔 Merak Et</h5>
+      <p>Modül 2'de Boyle, Charles, Gay-Lussac ve Avogadro yasalarının her biri yalnızca <strong>iki</strong> değişkeni bir arada değiştirdi, diğer ikisini sabit tuttu. Peki gerçek hayatta P, V, T, n'nin hepsi AYNI ANDA değişirse ne olur? Dört ayrı yasayı ezberlemek yerine hepsini TEK bir eşitlikte birleştirebilir miyiz?</p>
     </div>
   </div>
 </section>
 
 <section class="section tight">
   <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">🔍 Keşfet</span>
+      <h2>Kendi "İdeal Gaz Sabitini" Bul</h2>
+      <p>Rehberli modda bir değişkeni kilitleyip diğer üçünü değiştir; Deneysel R kutusundaki sayının hep aynı çıktığını doğrula. Sonra Serbest Mod'a geçip iki gazla kendi deneyini kur.</p>
+    </div>
     <div class="btnbar" id="mode-tabs">
       <button class="btn primary" data-mode="guided">🧮 Rehberli — R Sabitini Keşfet</button>
       <button class="btn" data-mode="free">★ Serbest Mod</button>
@@ -184,9 +181,32 @@
   </div>
 </section>
 
+<section class="section tight">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">💡 Açıkla</span>
+      <h2>Dört Yasa, Tek Eşitlik</h2>
+    </div>
+  </div>
+  <div class="container two-col prose">
+    <div>
+      <p>Modül 2'deki üç ilişkiyi (P·V=sabit, V/T=sabit, V/n=sabit) birleştirdiğimizde, az önce deneyde bizzat doğruladığın <strong>ideal gaz denklemi</strong> ortaya çıkar:</p>
+      <div class="callout concept">
+        <h5>İdeal Gaz Denklemi</h5>
+        <p style="font-family:var(--mono); font-size:18px; color:var(--ink); font-weight:800;">P·V = n·R·T</p>
+        <p>R, tüm ideal gazlar için aynı olan evrensel sabittir — hangi değişkeni kilitlersen kilitle aynı sayıyı bulman bu yüzdendir. Bu simülasyonda R ≈ 0,0821 L·atm/(mol·K) alınır.</p>
+      </div>
+    </div>
+    <div class="callout real">
+      <h5>Standart-Normal Şartlar (NŞ)</h5>
+      <p>Gazları karşılaştırmak için tanımlanan referans koşuldur (≈1 atm, 273 K). Bu koşulda 1 mol ideal gazın kapladığı hacim her zaman aynıdır (≈22,4 L) ve gaz türünden bağımsızdır — denklemde molar kütle (M) hiç yer almaz.</p>
+    </div>
+  </div>
+</section>
+
 <section class="section">
   <div class="container">
-    <div class="section-head"><span class="eyebrow">Değerlendirme</span><h2>Bağlam Temelli Sorular</h2></div>
+    <div class="section-head"><span class="eyebrow">✅ Değerlendir</span><h2>Bağlam Temelli Sorular</h2></div>
     <div id="quiz-host"></div>
   </div>
 </section>
