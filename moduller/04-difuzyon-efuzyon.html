@@ -87,9 +87,9 @@
             <canvas id="diff-race" height="110"></canvas>
           </div>
           <div class="callout real" style="margin-top:16px">
-            <h5>Graham Öngörüsü ile Karşılaştır</h5>
-            <p>Beklenen hız oranı (r<sub>He</sub>/r<sub>B</sub>) = <strong id="diff-predicted">–</strong><br/>
-            Gözlenen geçiş oranı (A%/B%) = <strong id="diff-observed">–</strong></p>
+            <h5>Gözlemini Kaydet</h5>
+            <p>Gözlenen geçiş oranı (A%/B%) = <strong id="diff-observed">–</strong><br/>
+            <span class="small">Hangi gaz önde? Bu örüntüyü aşağıdaki "Açıkla" bölümünde adlandıracaksın.</span></p>
           </div>
         </div>
       </div>
@@ -116,9 +116,9 @@
         <canvas id="eff-race" height="110"></canvas>
       </div>
       <div class="callout real" style="margin-top:16px">
-        <h5>Graham Öngörüsü ile Karşılaştır</h5>
-        <p>Beklenen hız oranı (r<sub>He</sub>/r<sub>B</sub>) = <strong id="eff-predicted">–</strong><br/>
-        Gözlenen kaçış oranı (A%/B%) = <strong id="eff-observed">–</strong></p>
+        <h5>Gözlemini Kaydet</h5>
+        <p>Gözlenen kaçış oranı (A%/B%) = <strong id="eff-observed">–</strong><br/>
+        <span class="small">Hangi gaz önde? Bu örüntüyü aşağıdaki "Açıkla" bölümünde adlandıracaksın.</span></p>
       </div>
     </div>
   </div>
@@ -131,15 +131,15 @@
       <div class="mission">
         <div class="m-title">Görev 1 — Tahmin Et, Sonra Doğrula</div>
         <ol>
-          <li>Gaz B'yi SF₆ (M=146) olarak seç. He'nin kaç kat hızlı kaçacağını Graham Yasası'yla önceden hesapla.</li>
-          <li>Efüzyon sekmesinde delikleri aç, gözlemle. Tahminin doğru çıktı mı?</li>
+          <li>Gaz B'yi sırayla en hafiften en ağıra doğru (H₂ → SF₆) değiştir. Her seferinde hangi gazın önde bitireceğini tahmin et, sonra delikleri aç ve gözlemle.</li>
+          <li>Gaz B ağırlaştıkça Gaz A'nın (He) kazanma farkı büyüyor mu, küçülüyor mu?</li>
         </ol>
       </div>
       <div class="mission">
         <div class="m-title">Görev 2 — Sıcaklığın Etkisi</div>
         <ol>
           <li>Aynı gaz çiftiyle sıcaklığı önce 200 K'ye, sonra 500 K'ye ayarlayıp difüzyon deneyini tekrarla.</li>
-          <li>Sıcaklık, iki gaz arasındaki hız FARKINI mı yoksa ORANINI mı değiştiriyor? Grahame formülüne bakarak tartış.</li>
+          <li>Sıcaklık artınca her iki gaz da mı hızlanıyor, yoksa sadece biri mi? Kinetik moleküler teoriye göre bunu açıkla.</li>
         </ol>
       </div>
       <div class="journal">
@@ -157,13 +157,24 @@
       <span class="eyebrow">💡 Açıkla</span>
       <h2>Gözlemlediğin Farkın Adı: Graham Yasası</h2>
     </div>
-    <p>Thomas Graham'ın 1840'larda keşfettiği yasaya göre, aynı sıcaklıktaki iki gazın yayılma hızlarının oranı mol kütleleriyle ters ilişkilidir — az önce yarışta gördüğün "hafif olan önde bitiriyor" örüntüsünün matematiksel karşılığı budur:</p>
+    <p>Odanın bir köşesinde açılan parfüm şişesinin kokusunun tüm odaya yayılması çok uzun sürmez — gaz moleküllerinin başka gaz molekülleriyle yavaş yavaş karışması sürecine <strong>difüzyon</strong> denir; yüksek konsantrasyonlu bölgeden düşük konsantrasyonlu bölgeye doğru gerçekleşir. Sıkışmış gaz moleküllerinin bir bölmeden diğerine küçük bir delikten geçerek yayılmasına ise <strong>efüzyon</strong> (dışa yayılma, sızma) denir. Thomas Graham'ın keşfettiği yasaya göre:</p>
     <div class="callout concept">
-      <h5>Graham Yasası</h5>
-      <p style="font-family:var(--mono); font-size:17px; color:var(--ink); font-weight:800;">r₁ / r₂ = √(M₂ / M₁)</p>
-      <p>Mol kütlesi küçük olan gaz, her zaman daha hızlı difüze/efüze olur.</p>
+      <h5>Graham Difüzyon ve Efüzyon Yasası</h5>
+      <ul style="margin:6px 0 0">
+        <li>Mol kütlesi küçük olan tanecik daha hızlı yayılır.</li>
+        <li>Sıcaklık arttıkça moleküllerin ortalama kinetik enerjileri arttığı için hızları artar.</li>
+      </ul>
     </div>
-    <p class="small"><strong>Gerçek hayatta:</strong> doğal gaz kaçağı algılamak için eklenen kokulu gaz (M küçük, hızlı difüze olur) · uranyum izotoplarının gaz difüzyonuyla zenginleştirilmesi · bir balonun günler içinde He kaybederek küçülmesi (efüzyon) · dalış tüplerinde He'nin dokulardan hızla uzaklaşması.</p>
+    <p>Az önce yarışta gördüğün "hafif olan önde bitiriyor" örüntüsü tam olarak bu yasadır. Efüzyon ile difüzyon aynı temel fikre dayansa da birkaç noktada ayrılır:</p>
+    <table style="width:100%; border-collapse:collapse; font-size:13.5px; margin:10px 0">
+      <tr style="background:var(--surface-2)"><th style="text-align:left; padding:8px">Efüzyon</th><th style="text-align:left; padding:8px">Difüzyon</th></tr>
+      <tr><td style="padding:8px; border-top:1px solid var(--line)">Gaz moleküllerinin küçük bir delikten vakuma kaçmasıdır.</td><td style="padding:8px; border-top:1px solid var(--line)">Gazların genellikle bir bariyer olmaksızın birbiriyle karışmasıdır.</td></tr>
+      <tr><td style="padding:8px; border-top:1px solid var(--line)">Basınç farkı nedeniyle oluşur/kolaylaşır.</td><td style="padding:8px; border-top:1px solid var(--line)">Konsantrasyon farklılıklarından kaynaklanır.</td></tr>
+      <tr><td style="padding:8px; border-top:1px solid var(--line)">Hafif gazlar daha hızlı, ağır gazlar daha yavaş efüzyona uğrar.</td><td style="padding:8px; border-top:1px solid var(--line)">Hızı moleküler kütle, sıcaklık, ortam yoğunluğu gibi faktörlere bağlıdır.</td></tr>
+    </table>
+    <p class="small"><strong>Efüzyon uygulamaları:</strong> kütle spektrometrisinde iyonları kütle-yük oranına göre ayırma · vakum teknolojisinde gazların ortamdan uzaklaştırılması · yarı iletken üretiminde ince film biriktirme.<br/>
+    <strong>Difüzyon uygulamaları:</strong> besin ve gazların hücre zarından geçişi · ilaçların vücutta belirli hızda salınımı · gaz karışımlarının ayrılması.<br/>
+    <strong>Diğer örnekler:</strong> doğal gaza sızıntıyı fark ettirmek için eklenen metil merkaptan (M küçük, hızlı difüze olur) · UF₆ gazının izotoplarının (²³⁵U/²³⁸U) gaz difüzyonuyla ayrılarak uranyumun zenginleştirilmesi · bir helyum balonunun günler içinde küçülmesi (efüzyon).</p>
   </div>
 </section>
 
@@ -230,7 +241,6 @@
     });
     diffBox.start();
     diffStarted = false;
-    document.getElementById("diff-predicted").textContent = Math.sqrt(gasB.mass / 4).toFixed(2) + "×";
     updateDiffMeter();
   }
 
@@ -290,7 +300,6 @@
     effA.on("escape", () => { escapedA++; updateEffMeter(); });
     effB.on("escape", () => { escapedB++; updateEffMeter(); });
     effA.start(); effB.start();
-    document.getElementById("eff-predicted").textContent = Math.sqrt(gasB.mass / 4).toFixed(2) + "×";
     updateEffMeter();
   }
 

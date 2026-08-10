@@ -194,12 +194,26 @@
       <div class="callout concept">
         <h5>İdeal Gaz Denklemi</h5>
         <p style="font-family:var(--mono); font-size:18px; color:var(--ink); font-weight:800;">P·V = n·R·T</p>
-        <p>R, tüm ideal gazlar için aynı olan evrensel sabittir — hangi değişkeni kilitlersen kilitle aynı sayıyı bulman bu yüzdendir. Bu simülasyonda R ≈ 0,0821 L·atm/(mol·K) alınır.</p>
+        <p>R, tüm ideal gazlar için aynı olan evrensel sabittir — hangi değişkeni kilitlersen kilitle aynı sayıyı bulman bu yüzdendir. R'nin değeri kullanılan birime göre değişir:</p>
+        <table style="width:100%; font-size:13px; border-collapse:collapse; margin-top:8px">
+          <tr style="color:var(--ink-faint)"><td>L·atm/(mol·K)</td><td>cal/(mol·K)</td><td>J/(mol·K)</td><td>L·torr/(mol·K)</td></tr>
+          <tr style="font-family:var(--mono); font-weight:700"><td>0,082</td><td>1,987</td><td>8,314</td><td>62,36</td></tr>
+        </table>
+        <p class="small" style="margin-top:8px">Bu simülasyonda hesaplamalarda R ≈ 0,082 L·atm/(mol·K) kullanılır.</p>
       </div>
     </div>
     <div class="callout real">
-      <h5>Standart-Normal Şartlar (NŞ)</h5>
-      <p>Gazları karşılaştırmak için tanımlanan referans koşuldur (≈1 atm, 273 K). Bu koşulda 1 mol ideal gazın kapladığı hacim her zaman aynıdır (≈22,4 L) ve gaz türünden bağımsızdır — denklemde molar kütle (M) hiç yer almaz.</p>
+      <h5>Normal Şartlar (NŞ)</h5>
+      <p>Gazları karşılaştırmak için tanımlanan referans koşuldur: 0°C (273,15 K) sıcaklık ve 1 atm (1 bar, 100 kPa) basınç. Bu koşulda 1 mol ideal gazın kapladığı hacim her zaman aynıdır (≈22,4 L) ve gaz türünden bağımsızdır — denklemde molar kütle (M) hiç yer almaz.</p>
+    </div>
+    <div class="callout model" style="grid-column:1/-1">
+      <h5>Gerçek Gaz mı, İdeal Gaz mı?</h5>
+      <p>Gerçekte tüm koşullarda ideal gaz davranışına sahip bir gaz yoktur — gerçek gazlarda tanecikler arası çekim kuvveti vardır ve taneciklerin hacmi sıfır değildir. Basınç sıfıra yaklaştıkça gazlar ideal gaz gibi davranır. Gerçek gazların ideale yaklaştığı üç durum:</p>
+      <ul>
+        <li>Gazlar <strong>yüksek sıcaklıkta</strong> ideale yaklaşır.</li>
+        <li>Gazlar <strong>düşük basınçta</strong> ideale yaklaşır.</li>
+        <li><strong>Mol kütlesi küçük</strong> olan gazlar ideale daha yakındır.</li>
+      </ul>
     </div>
   </div>
 </section>

@@ -580,5 +580,6 @@ export class GasBox {
   static moles(pAtm, vL, tK) { return (pAtm * vL) / (R_CONST * tK); }
 }
 
-export function celsiusToKelvin(c) { return c + 273.15; }
-export function kelvinToCelsius(k) { return k - 273.15; }
+// Ders kitabı kısaltılmış dönüşümü kullanır: T(K) = t(°C) + 273.
+export function celsiusToKelvin(c) { return c + 273; }
+export function kelvinToCelsius(k) { return k - 273; }

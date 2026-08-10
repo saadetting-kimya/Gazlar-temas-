@@ -51,18 +51,6 @@ export const QUIZ = {
       correct: 0,
       explain: "Gaz taneciklerinin bulundukları ortamla kendiliğinden, her yöne homojen şekilde karışması karışabilirlik olarak adlandırılır; bu, sıvıların yüzey gerilimiyle sınırlı yayılmasından çok farklıdır.",
     },
-    {
-      context: "İdeal Gaza En Yakın Davranış",
-      text: "KMT'ye göre ideal bir gazda tanecikler arasında çekim kuvveti yoktur ve tanecik hacmi kabın hacmine göre ihmal edilir. Gerçek bir gaz hangi koşulda bu ideal davranışa EN YAKIN sonuç verir?",
-      options: [
-        "Düşük basınç ve yüksek sıcaklıkta (tanecikler seyrek ve hızlı, aralarındaki etkileşim önemsiz)",
-        "Yüksek basınç ve düşük sıcaklıkta (tanecikler sık ve yavaş)",
-        "Basınç ve sıcaklıktan bağımsız, her zaman aynıdır",
-        "Yalnızca çok küçük kaplarda",
-      ],
-      correct: 0,
-      explain: "Düşük basınçta tanecikler arası mesafe büyür (tanecik hacmi ihmal edilebilir hâle gelir), yüksek sıcaklıkta tanecikler hızlı hareket ettiğinden çekim kuvvetlerinin etkisi görece küçülür — gerçek gaz bu koşullarda ideale en çok yaklaşır.",
-    },
   ],
 
   yasalar: [
@@ -198,6 +186,18 @@ export const QUIZ = {
       correct: 0,
       explain: "PV=nRT'de n ve V sabitken P, T ile doğru orantılı artar. Rijit bir kutuda aşırı ısınma basıncı güvensiz seviyelere çıkarabileceği için üretici bu uyarıyı ekler.",
     },
+    {
+      context: "İdeal Gaza En Yakın Davranış",
+      text: "Gerçek gazlarda tanecikler arası çekim kuvveti vardır ve tanecik hacmi sıfır değildir — bu yüzden hiçbir gerçek gaz tam olarak ideal davranmaz. Bir gerçek gaz hangi koşulda ideal davranışa EN YAKIN sonuç verir?",
+      options: [
+        "Düşük basınç, yüksek sıcaklık ve küçük mol kütlesinde (tanecikler seyrek, hızlı ve hafif; aralarındaki etkileşim önemsizleşir)",
+        "Yüksek basınç ve düşük sıcaklıkta (tanecikler sık ve yavaş)",
+        "Basınç ve sıcaklıktan bağımsız, her zaman aynıdır",
+        "Yalnızca çok büyük mol kütleli gazlarda",
+      ],
+      correct: 0,
+      explain: "Gazlar yüksek sıcaklıkta, düşük basınçta ve mol kütlesi küçük olduğunda ideale yaklaşır — tanecikler arası mesafe büyür ve çekim kuvvetlerinin etkisi görece küçülür.",
+    },
   ],
 
   difuzyon: [
@@ -222,10 +222,15 @@ export const QUIZ = {
     },
     {
       context: "Kimliği Bilinmeyen Gaz X",
-      text: "Aynı koşullarda, kimliği bilinmeyen bir X gazı, oksijenden (M=32 g/mol) 1,41 kat daha hızlı efüze oluyor. Graham Yasası'na göre X gazının mol kütlesi yaklaşık kaçtır?",
-      options: ["≈16 g/mol", "≈45 g/mol", "≈64 g/mol", "≈8 g/mol"],
+      text: "Kapalı bir odada aynı anda açılan X gazı (M=16 g/mol) ile Y gazı (M=146 g/mol) kaynaklarından, X gazının kokusu Y gazınınkinden çok daha önce fark ediliyor. Bu gözlem hangi akıl yürütmeyle açıklanır?",
+      options: [
+        "Graham Yasası'na göre mol kütlesi küçük olan X gazı, Y gazından daha hızlı difüze olur",
+        "X gazı Y gazından daha sıcaktır, bu yüzden önce hissedilir",
+        "X gazının rengi daha belirgin olduğu için önce fark edilir",
+        "Mol kütlesinin difüzyon hızıyla bir ilgisi yoktur, tesadüftür",
+      ],
       correct: 0,
-      explain: "r_X/r_O2 = √(M_O2/M_X) ⇒ 1,41 = √(32/M_X) ⇒ 1,41² ≈ 2 ⇒ M_X ≈ 32/2 = 16 g/mol (örneğin CH₄ olabilir).",
+      explain: "Graham Yasası'na göre mol kütlesi küçük olan tanecikler daha hızlı yayılır; X gazının mol kütlesi Y gazından çok daha küçük olduğu için kokusu daha erken fark edilir.",
     },
     {
       context: "NH₃ – HCl Klasik Deneyi",
@@ -249,19 +254,19 @@ export const QUIZ = {
         "Helyum molekülleri elektrikçe yüklüdür, kauçuktan itilir",
       ],
       correct: 0,
-      explain: "Aynı sıcaklıkta efüzyon hızı 1/√M ile orantılıdır. Helyum (M=4), havanın ortalama mol kütlesinden (≈29) çok küçük olduğundan aynı gözeneklerden çok daha hızlı kaçar.",
+      explain: "Graham Yasası'na göre mol kütlesi küçük olan tanecikler daha hızlı efüze olur. Helyum (M=4), havanın ortalama mol kütlesinden (≈29) çok küçük olduğundan aynı gözeneklerden çok daha hızlı kaçar.",
     },
     {
       context: "Ali ile Ayşe Tartışıyor",
-      text: "Ali, 'efüzyon hızı yalnızca mol kütlesine bağlıdır' diyor. Ayşe ise 'hayır, sıcaklığa da bağlıdır' diyor. v ∝ √(T/M) ilişkisine göre kim haklı?",
+      text: "Ali, 'efüzyon hızı yalnızca mol kütlesine bağlıdır' diyor. Ayşe ise 'hayır, sıcaklığa da bağlıdır' diyor. Kinetik moleküler teoriye göre kim haklı?",
       options: [
-        "Ayşe haklı; efüzyon (ve difüzyon) hızı hem sıcaklıkla doğru hem de mol kütlesinin kareköküyle ters orantılıdır — Graham Yasası yalnızca sabit sıcaklıkta iki gazı karşılaştırırken M'yi öne çıkarır",
+        "Ayşe haklı; gaz taneciklerinin ortalama kinetik enerjisi sıcaklıkla doğru orantılıdır, bu yüzden sıcaklık arttıkça hız da artar — Graham Yasası yalnızca AYNI sıcaklıkta iki gazı karşılaştırırken mol kütlesini öne çıkarır",
         "Ali haklı; sıcaklığın hiçbir etkisi yoktur",
         "İkisi de yanlış; efüzyon hızı yalnızca basınca bağlıdır",
         "İkisi de haklı ama farklı gazlar için geçerlidir",
       ],
       correct: 0,
-      explain: "v ∝ √(T/M) ilişkisi hem sıcaklığın hem mol kütlesinin etkisini gösterir. Graham Yasası'ndaki r₁/r₂=√(M₂/M₁) formülü, karşılaştırılan iki gazın AYNI sıcaklıkta olduğu özel durum için sadeleşmiş hâlidir.",
+      explain: "Kinetik moleküler teoriye göre gaz taneciklerinin ortalama kinetik enerjisi mutlak sıcaklıkla doğru orantılıdır; bu yüzden sıcaklık da hızı etkiler. Graham Yasası, sıcaklık AYNI tutulduğunda mol kütlesinin etkisini karşılaştırmaya odaklanır.",
     },
   ],
 };
