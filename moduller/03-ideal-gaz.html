@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>İdeal Gaz Yasası — GazLab 10</title>
+<title>İdeal Gaz Yasası & Serbest Mod — GazLab 10</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2246%22 fill=%22%232fb8c6%22/></svg>">
-<link rel="stylesheet" href="../assets/css/style.css?v=2" />
+<link rel="stylesheet" href="../assets/css/style.css?v=3" />
 <script type="importmap">
 { "imports": {
   "three": "../assets/vendor/three/three.module.js",
@@ -20,57 +20,43 @@
   <div class="container">
     <span class="eyebrow">Modül 3 · KİM.10.1.10</span>
     <h1 style="max-width:760px">İdeal Gaz Yasası</h1>
-    <p class="lead" style="max-width:680px">Boyle, Charles ve Avogadro yasalarının her biri, dört değişkenden (P, V, T, n) sadece ikisi arasındaki ilişkiyi anlatır. Peki hepsini TEK bir eşitlikte birleştirirsek ne elde ederiz? Kontrol panelindeki üç ölçüm aletini kullanarak kendi "ideal gaz sabitini" keşfet.</p>
+    <p class="lead" style="max-width:680px">Boyle, Charles ve Avogadro yasalarının üçünü TEK bir eşitlikte birleştirirsek ne elde ederiz? Kendi "ideal gaz sabitini" keşfet — sonra Serbest Mod'da iki gazla kendi deneyini kur.</p>
   </div>
 </header>
 
 <section class="section tight">
   <div class="container two-col prose">
     <div>
-      <h4>Üç yasadan bir örüntüye</h4>
-      <p>Modül 2'de üç ayrı ilişki bulmuştun:</p>
-      <ul>
-        <li>Boyle: <strong>P·V = sabit</strong> (n, T sabitken)</li>
-        <li>Charles: <strong>V/T = sabit</strong> (n, P sabitken)</li>
-        <li>Avogadro: <strong>V/n = sabit</strong> (P, T sabitken)</li>
-      </ul>
-      <p>Bu üç örüntüyü tek bir eşitlikte birleştirdiğimizde <strong>ideal gaz denklemi</strong> ortaya çıkar:</p>
+      <p>Modül 2'deki üç ilişkiyi (P·V=sabit, V/T=sabit, V/n=sabit) birleştirdiğimizde <strong>ideal gaz denklemi</strong> ortaya çıkar:</p>
       <div class="callout concept">
         <h5>İdeal Gaz Denklemi</h5>
         <p style="font-family:var(--mono); font-size:18px; color:var(--ink); font-weight:800;">P·V = n·R·T</p>
-        <p>Buradaki <strong>R</strong>, tüm ideal gazlar için aynı olan evrensel bir orantı sabitidir (ideal gaz sabiti). Bu simülasyonda sadelik için R ≈ 0,0821 L·atm/(mol·K) alınır.</p>
+        <p>R, tüm ideal gazlar için aynı olan evrensel sabittir. Bu simülasyonda R ≈ 0,0821 L·atm/(mol·K) alınır.</p>
       </div>
     </div>
-    <div>
-      <div class="callout real">
-        <h5>Anahtar Kavram · Standart-Normal Şartlar (NŞ)</h5>
-        <p>Gazları karşılaştırabilmek için tanımlanan referans koşuldur (≈1 atm, 273 K). Bu koşulda 1 mol ideal gazın kapladığı hacim her zaman aynıdır. Aşağıdaki panelde "NŞ'ye Ayarla" düğmesiyle bunu bizzat doğrulayabilirsin.</p>
-      </div>
-      <div class="callout model">
-        <h5>Model Notu</h5>
-        <p>İdeal gaz denklemi, gaz türünden (mol kütlesinden) bağımsızdır — denklemde M yer almaz. Bu yüzden aynı n, P, T değerlerinde hangi gazı simüle ettiğinin bir önemi yoktur.</p>
-      </div>
+    <div class="callout real">
+      <h5>Standart-Normal Şartlar (NŞ)</h5>
+      <p>Gazları karşılaştırmak için tanımlanan referans koşul (≈1 atm, 273 K). Bu koşulda 1 mol ideal gazın kapladığı hacim her zaman aynıdır (≈22,4 L) — "NŞ'ye Ayarla" ile bunu doğrula.</p>
     </div>
   </div>
 </section>
 
-<section class="section">
+<section class="section tight">
   <div class="container">
-    <div class="section-head">
-      <span class="eyebrow">Sanal Deney</span>
-      <h2>Kontrol Paneli: P · V · T · n</h2>
-      <p>Dört değişkenden birini "kilitleyerek" onu diğer üçünden otomatik hesaplat; kalan üçünü serbestçe değiştir. Sağdaki üç ölçüm aleti (manometre, termometre, mol sayacı) değerleri anlık gösterir.</p>
+    <div class="btnbar" id="mode-tabs">
+      <button class="btn primary" data-mode="guided">🧮 Rehberli — R Sabitini Keşfet</button>
+      <button class="btn" data-mode="free">★ Serbest Mod</button>
     </div>
+  </div>
+</section>
+
+<!-- REHBERLİ MOD -->
+<section class="section tight" id="panel-guided">
+  <div class="container">
     <div class="two-col">
       <div class="lab-panel">
-        <div class="lab-head">
-          <div class="lab-title"><span class="dot"></span> İdeal Gaz Odası</div>
-          <span class="lab-hint">sürükle = döndür</span>
-        </div>
-        <div class="stage" id="stage3">
-          <span class="stage-badge" id="badge3">n=0,50 mol</span>
-          <span class="orbit-hint">🖱 sürükle = döndür</span>
-        </div>
+        <div class="lab-head"><div class="lab-title"><span class="dot"></span> İdeal Gaz Odası</div><span class="lab-hint">sürükle = döndür</span></div>
+        <div class="stage" id="stage3"><span class="stage-badge" id="badge3">n=0,50 mol</span><span class="orbit-hint">🖱 sürükle = döndür</span></div>
         <div class="readouts">
           <div class="readout p"><div class="k">Basınç</div><div class="v" id="ro-p">–<span class="u">atm</span></div></div>
           <div class="readout v2"><div class="k">Hacim</div><div class="v" id="ro-v">–<span class="u">L</span></div></div>
@@ -87,8 +73,84 @@
         <div class="callout concept" style="margin-top:16px">
           <h5>Deneysel R</h5>
           <p style="font-family:var(--mono); font-size:16px; color:var(--ink)">R = P·V / (n·T) = <span id="r-value" style="font-weight:800">–</span> L·atm/(mol·K)</p>
-          <p>Hangi üç değişkeni seçersen seç, dördüncüsü ideal gaz eşitliğinden hesaplanıyor. Bu oranın <strong>her kombinasyonda aynı çıkması</strong>, R'nin gazın türünden ve seçtiğin değerlerden bağımsız evrensel bir sabit olduğunu gösterir.</p>
+          <p>Hangi üç değişkeni seçersen seç, dördüncüsü ideal gaz eşitliğinden hesaplanır. Oranın <strong>her kombinasyonda aynı çıkması</strong> R'nin evrensel bir sabit olduğunu gösterir.</p>
         </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERBEST MOD -->
+<section class="section tight" id="panel-free" style="display:none">
+  <div class="container">
+    <div class="two-col">
+      <div class="lab-panel">
+        <div class="lab-head"><div class="lab-title"><span class="dot"></span> Serbest Laboratuvar</div><span class="lab-hint">turuncu halkayı sürükle</span></div>
+        <div class="stage" id="stage5"><span class="stage-badge" id="badge5">–</span><span class="orbit-hint">🖱 sürükle = döndür</span></div>
+        <div class="readouts">
+          <div class="readout p"><div class="k">Toplam Basınç</div><div class="v" id="f-ro-p">–<span class="u">atm</span></div></div>
+          <div class="readout v2"><div class="k">Hacim</div><div class="v" id="f-ro-v">–<span class="u">L</span></div></div>
+          <div class="readout t"><div class="k">Sıcaklık</div><div class="v" id="f-ro-t">–<span class="u">K</span></div></div>
+          <div class="readout n"><div class="k">Toplam Madde Miktarı</div><div class="v" id="f-ro-n">–<span class="u">mol</span></div></div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:12px">
+          <h3 style="font-size:15px; margin-bottom:10px">Hâl</h3>
+          <div class="btnbar" style="margin:0">
+            <button class="btn primary" data-phase="gas">Gaz</button>
+            <button class="btn" data-phase="liquid">Sıvı</button>
+            <button class="btn" data-phase="solid">Katı</button>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:12px">
+          <h3 style="font-size:15px; margin-bottom:10px">🔵 Gaz A</h3>
+          <div class="controls">
+            <div class="control-row" style="grid-template-columns:100px 1fr 90px">
+              <label for="massA">Mol Kütlesi</label>
+              <select id="massA"></select><span></span>
+            </div>
+            <div class="control-row" style="grid-template-columns:100px 1fr 90px">
+              <label for="nA">Madde Miktarı</label>
+              <input type="range" id="nA" min="0.1" max="4" step="0.1" value="1" />
+              <output id="nA-out">1,0 mol</output>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:12px">
+          <h3 style="font-size:15px; margin-bottom:10px">
+            <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+              <input type="checkbox" id="enableB" style="width:16px;height:16px" /> 🔴 Gaz B'yi Ekle
+            </label>
+          </h3>
+          <div class="controls" id="gasB-controls" style="opacity:.4; pointer-events:none">
+            <div class="control-row" style="grid-template-columns:100px 1fr 90px">
+              <label for="massB">Mol Kütlesi</label>
+              <select id="massB"></select><span></span>
+            </div>
+            <div class="control-row" style="grid-template-columns:100px 1fr 90px">
+              <label for="nB">Madde Miktarı</label>
+              <input type="range" id="nB" min="0.1" max="4" step="0.1" value="1" />
+              <output id="nB-out">1,0 mol</output>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h3 style="font-size:15px; margin-bottom:10px">Ortam</h3>
+          <div class="controls">
+            <div class="control-row" style="grid-template-columns:100px 1fr 90px">
+              <label for="tempS">Sıcaklık</label>
+              <input type="range" id="tempS" min="150" max="700" step="10" value="300" />
+              <output id="tempS-out">300 K</output>
+            </div>
+            <div class="control-row" style="grid-template-columns:100px 1fr 90px">
+              <label for="volS">Hacim</label>
+              <input type="range" id="volS" min="1" max="20" step="0.2" value="8" />
+              <output id="volS-out">8,0 L</output>
+            </div>
+          </div>
+        </div>
+        <div class="btnbar" style="margin-top:14px"><button class="btn primary" id="reset5">↺ Laboratuvarı Sıfırla</button></div>
       </div>
     </div>
   </div>
@@ -97,25 +159,24 @@
 <section class="section">
   <div class="container">
     <div class="discover">
-      <h3><span class="ico">🔍</span> Keşfet: R Sabitini Avla</h3>
+      <h3><span class="ico">🔍</span> Keşfet</h3>
       <div class="mission">
-        <div class="m-title">Görev 1 — Değişmezliği Doğrula</div>
+        <div class="m-title">Görev 1 — R Sabitini Doğrula (Rehberli Mod)</div>
         <ol>
-          <li>Kilidi <strong>V</strong> üzerinde bırak. P, T, n değerlerini rastgele beş kez değiştir.</li>
-          <li>Her seferinde "Deneysel R" kutusundaki sayıyı oku. Değişiyor mu?</li>
-          <li>Kilidi sırasıyla P, T ve n'ye taşıyarak aynı testi tekrarla.</li>
+          <li>Kilidi V'de bırak, P/T/n'yi birkaç kez değiştir. "Deneysel R" değişiyor mu?</li>
+          <li>"NŞ'ye Ayarla" — okuduğun hacim 22,4 L/mol'e ne kadar yakın?</li>
         </ol>
       </div>
       <div class="mission">
-        <div class="m-title">Görev 2 — Standart Şartlar</div>
+        <div class="m-title">Görev 2 — İki Gazın Yarışı (Serbest Mod)</div>
         <ol>
-          <li>"NŞ'ye Ayarla" düğmesine bas.</li>
-          <li>Okuduğun hacim değeri, kimya kitaplarında sıkça geçen 22,4 L/mol değerine ne kadar yakın?</li>
-          <li>n'yi 2 mol'e çıkarırsan (P, T sabit) hacim nasıl değişir? Bu, Avogadro Yasası ile tutarlı mı?</li>
+          <li>Gaz A'yı He (M=4), Gaz B'yi CO₂ (M=44) yap; eşit mol miktarı ver.</li>
+          <li>Hangi tanecikler daha hızlı hareket ediyor? Graham Yasası ile ilişkilendir (Modül 4'te derinleştireceksin).</li>
+          <li>Katı hâldeyken hacmi büyüt — tanecikler kabı dolduruyor mu? Gaz hâlinde tekrarla; fark neyi kanıtlıyor?</li>
         </ol>
       </div>
       <div class="journal">
-        <label>📓 Keşif Günlüğü — R sabitiyle ilgili çıkarımların (otomatik kaydedilir)</label>
+        <label>📓 Keşif Günlüğü (otomatik kaydedilir)</label>
         <textarea id="journal3" placeholder="Örn: Hangi değişkeni değiştirirsem değiştireyim R sabit kaldı çünkü..."></textarea>
         <div class="save-state"></div>
       </div>
@@ -125,10 +186,7 @@
 
 <section class="section">
   <div class="container">
-    <div class="section-head">
-      <span class="eyebrow">Değerlendirme</span>
-      <h2>Bağlam Temelli Sorular</h2>
-    </div>
+    <div class="section-head"><span class="eyebrow">Değerlendirme</span><h2>Bağlam Temelli Sorular</h2></div>
     <div id="quiz-host"></div>
   </div>
 </section>
@@ -136,11 +194,10 @@
 <div id="footer-root"></div>
 
 <script type="module">
-  import { mountNav, mountFooter } from "../assets/js/nav.js?v=2";
-  import { GasBox, R_CONST, SCENE_BOUNDS } from "../assets/js/gas-engine.js?v=2";
-  import { createManometer, createThermometer, createMolBalance } from "../assets/js/instruments.js?v=2";
-  import { renderQuiz, markVisited, bindJournal } from "../assets/js/quiz-engine.js?v=2";
-  import { QUIZ } from "../assets/js/quiz-data.js?v=2";
+  import { mountNav, mountFooter } from "../assets/js/nav.js?v=3";
+  import { GasBox, R_CONST } from "../assets/js/gas-engine.js?v=3";
+  import { renderQuiz, markVisited, bindJournal } from "../assets/js/quiz-engine.js?v=3";
+  import { QUIZ } from "../assets/js/quiz-data.js?v=3";
 
   mountNav("ideal");
   mountFooter();
@@ -148,6 +205,7 @@
   bindJournal(document.getElementById("journal3"), "ideal");
   renderQuiz(document.getElementById("quiz-host"), QUIZ.ideal, "ideal");
 
+  /* ================= REHBERLİ MOD ================= */
   const VARS = {
     P: { label: "Basınç (P)", min: 0.2, max: 6, step: 0.1, unit: "atm" },
     V: { label: "Hacim (V)", min: 0.5, max: 25, step: 0.1, unit: "L" },
@@ -156,6 +214,7 @@
   };
   const state = { P: 1.2, V: 10.2, T: 298, n: 0.5 };
   let locked = "V";
+  let guidedBox = null;
 
   function recompute() {
     const { P, V, T, n } = state;
@@ -167,35 +226,20 @@
     state[locked] = Math.min(cfg.max, Math.max(cfg.min, state[locked]));
   }
 
-  const stage = document.getElementById("stage3");
-  const box = new GasBox(stage, {
-    species: [{ key: "a", name: "Gaz", color: "#2fb8c6", molarMass: 29, n: state.n }],
-    volumeL: state.V, temperatureK: state.T, showPiston: true,
-  });
-  box.start();
-  window.addEventListener("pagehide", () => box.dispose());
-
-  const manometer = createManometer({ maxAtm: 6 });
-  const thermometer = createThermometer({ minK: 150, maxK: 600 });
-  const balance = createMolBalance({ maxMol: 3 });
-  manometer.group.scale.setScalar(0.85);
-  thermometer.group.scale.setScalar(0.85);
-  balance.group.scale.setScalar(0.85);
-  manometer.group.position.set(SCENE_BOUNDS.x0 + 1.4, 2.5, SCENE_BOUNDS.lz / 2 + 1.0);
-  thermometer.group.position.set(SCENE_BOUNDS.x0 + 0.5, -2.0, SCENE_BOUNDS.lz / 2 + 1.0);
-  balance.group.position.set(SCENE_BOUNDS.x0 + 2.3, -2.0, SCENE_BOUNDS.lz / 2 + 1.0);
-  box.scene.add(manometer.group, thermometer.group, balance.group);
+  function buildGuidedBox() {
+    guidedBox = new GasBox(document.getElementById("stage3"), {
+      species: [{ key: "a", name: "Gaz", color: "#2fb8c6", molarMass: 29, n: state.n }],
+      volumeL: state.V, temperatureK: state.T, showPiston: true, vMin: 0.5, vMax: 25,
+    });
+    guidedBox.start();
+  }
 
   const panel = document.getElementById("panel");
   const varEls = {};
   Object.entries(VARS).forEach(([key, cfg]) => {
     const row = document.createElement("div");
     row.className = "control-row";
-    row.innerHTML = `
-      <label>${cfg.label}</label>
-      <input type="range" min="${cfg.min}" max="${cfg.max}" step="${cfg.step}" value="${state[key]}" />
-      <output></output>
-    `;
+    row.innerHTML = `<label>${cfg.label}</label><input type="range" min="${cfg.min}" max="${cfg.max}" step="${cfg.step}" value="${state[key]}" /><output></output>`;
     const slider = row.querySelector("input");
     const output = row.querySelector("output");
     const lockWrap = document.createElement("button");
@@ -204,21 +248,12 @@
     lockWrap.title = "Bu değişkeni diğer üçünden hesapla";
     row.appendChild(lockWrap);
     panel.appendChild(row);
-
-    slider.addEventListener("input", () => {
-      state[key] = +slider.value;
-      recomputeAndSync();
-    });
-    lockWrap.addEventListener("click", () => {
-      locked = key;
-      recomputeAndSync();
-    });
+    slider.addEventListener("input", () => { state[key] = +slider.value; recomputeAndSync(); });
+    lockWrap.addEventListener("click", () => { locked = key; recomputeAndSync(); });
     varEls[key] = { row, slider, output, lockWrap };
   });
 
-  function fmt(v, unit) {
-    return `${v.toFixed(2).replace(/0$/,'').replace(/\.$/,'')} ${unit}`;
-  }
+  function fmt(v, unit) { return `${v.toFixed(2).replace(/0$/,'').replace(/\.$/,'')} ${unit}`; }
 
   function syncUI() {
     Object.entries(VARS).forEach(([key, cfg]) => {
@@ -235,33 +270,116 @@
     document.getElementById("ro-t").innerHTML = `${state.T.toFixed(0)}<span class="u">K</span>`;
     document.getElementById("ro-n").innerHTML = `${state.n.toFixed(2)}<span class="u">mol</span>`;
     document.getElementById("badge3").textContent = `n=${state.n.toFixed(2)} mol · kilit: ${locked}`;
-    const R = (state.P * state.V) / (state.n * state.T);
-    document.getElementById("r-value").textContent = R.toFixed(4);
+    document.getElementById("r-value").textContent = ((state.P * state.V) / (state.n * state.T)).toFixed(4);
   }
 
   function recomputeAndSync() {
     recompute();
-    box.setTemperature(state.T);
-    if (Math.abs(box.volumeL - state.V) > 1e-6) box.setVolume(state.V);
-    if (Math.abs((box.species[0].n ?? 0) - state.n) > 1e-6) box.setMolCount("a", state.n);
-    manometer.update(state.P);
-    thermometer.update(state.T);
-    balance.update(state.n);
+    if (guidedBox) {
+      guidedBox.setTemperature(state.T);
+      if (Math.abs(guidedBox.volumeL - state.V) > 1e-6) guidedBox.setVolume(state.V);
+      if (Math.abs((guidedBox.species[0].n ?? 0) - state.n) > 1e-6) guidedBox.setMolCount("a", state.n);
+    }
     syncUI();
   }
 
-  document.getElementById("btn-nsart").addEventListener("click", () => {
-    locked = "V";
-    state.P = 1; state.T = 273; state.n = 1;
-    recomputeAndSync();
+  document.getElementById("btn-nsart").addEventListener("click", () => { locked = "V"; state.P = 1; state.T = 273; state.n = 1; recomputeAndSync(); });
+  document.getElementById("btn-reset").addEventListener("click", () => { locked = "V"; state.P = 1.2; state.T = 298; state.n = 0.5; recomputeAndSync(); });
+
+  /* ================= SERBEST MOD ================= */
+  const MASS_PRESETS = [
+    { label: "H₂ (M=2)", mass: 2 }, { label: "He (M=4)", mass: 4 }, { label: "CH₄ (M=16)", mass: 16 },
+    { label: "NH₃ (M=17)", mass: 17 }, { label: "O₂ (M=32)", mass: 32 }, { label: "CO₂ (M=44)", mass: 44 },
+    { label: "SF₆ (M=146)", mass: 146 },
+  ];
+  const massA = document.getElementById("massA"), massB = document.getElementById("massB");
+  [massA, massB].forEach((sel, i) => {
+    sel.innerHTML = MASS_PRESETS.map((g, idx) => `<option value="${idx}" ${idx === (i===0?1:5) ? "selected" : ""}>${g.label}</option>`).join("");
   });
-  document.getElementById("btn-reset").addEventListener("click", () => {
-    locked = "V";
-    state.P = 1.2; state.T = 298; state.n = 0.5;
-    recomputeAndSync();
+  const fui = { phase: "gas", enableB: false, massA: MASS_PRESETS[1].mass, nA: 1, massB: MASS_PRESETS[5].mass, nB: 1, T: 300, V: 8 };
+  let freeBox = null, freeBuilt = false;
+
+  function rebuildFree() {
+    if (freeBox) freeBox.dispose();
+    const species = [{ key: "a", name: "Gaz A", color: "#5b8dff", molarMass: fui.massA, n: fui.nA }];
+    if (fui.enableB) species.push({ key: "b", name: "Gaz B", color: "#ff5b7f", molarMass: fui.massB, n: fui.nB });
+    freeBox = new GasBox(document.getElementById("stage5"), {
+      species, volumeL: fui.V, temperatureK: fui.T, showPiston: true, phase: fui.phase, vMin: 1, vMax: 20,
+    });
+    freeBox.start();
+    syncFree();
+  }
+  function syncFree() {
+    freeBox.setTemperature(fui.T);
+    if (Math.abs(freeBox.volumeL - fui.V) > 1e-6) freeBox.setVolume(fui.V);
+    freeBox.setPhase(fui.phase);
+    const nTotal = fui.nA + (fui.enableB ? fui.nB : 0);
+    const P = (nTotal * R_CONST * fui.T) / fui.V;
+    document.getElementById("f-ro-p").innerHTML = `${P.toFixed(2)}<span class="u">atm</span>`;
+    document.getElementById("f-ro-v").innerHTML = `${fui.V.toFixed(1)}<span class="u">L</span>`;
+    document.getElementById("f-ro-t").innerHTML = `${fui.T.toFixed(0)}<span class="u">K</span>`;
+    document.getElementById("f-ro-n").innerHTML = `${nTotal.toFixed(2)}<span class="u">mol</span>`;
+    document.getElementById("badge5").textContent = `${fui.enableB ? "2 gaz" : "1 gaz"} · ${fui.phase.toUpperCase()}`;
+  }
+  document.querySelectorAll("#panel-free [data-phase]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("#panel-free [data-phase]").forEach(b => b.classList.remove("primary"));
+      btn.classList.add("primary");
+      fui.phase = btn.dataset.phase;
+      syncFree();
+    });
+  });
+  document.getElementById("enableB").addEventListener("change", (e) => {
+    fui.enableB = e.target.checked;
+    document.getElementById("gasB-controls").style.opacity = fui.enableB ? "1" : ".4";
+    document.getElementById("gasB-controls").style.pointerEvents = fui.enableB ? "auto" : "none";
+    rebuildFree();
+  });
+  massA.addEventListener("change", () => { fui.massA = MASS_PRESETS[+massA.value].mass; rebuildFree(); });
+  massB.addEventListener("change", () => { fui.massB = MASS_PRESETS[+massB.value].mass; rebuildFree(); });
+  const nASlider = document.getElementById("nA");
+  nASlider.addEventListener("input", () => { fui.nA = +nASlider.value; document.getElementById("nA-out").textContent = `${fui.nA.toFixed(1)} mol`; freeBox.setMolCount("a", fui.nA); syncFree(); });
+  const nBSlider = document.getElementById("nB");
+  nBSlider.addEventListener("input", () => { fui.nB = +nBSlider.value; document.getElementById("nB-out").textContent = `${fui.nB.toFixed(1)} mol`; if (fui.enableB) freeBox.setMolCount("b", fui.nB); syncFree(); });
+  const tempSlider = document.getElementById("tempS");
+  tempSlider.addEventListener("input", () => { fui.T = +tempSlider.value; document.getElementById("tempS-out").textContent = `${fui.T} K`; syncFree(); });
+  const volSlider = document.getElementById("volS");
+  volSlider.addEventListener("input", () => { fui.V = +volSlider.value; document.getElementById("volS-out").textContent = `${fui.V.toFixed(1)} L`; syncFree(); });
+  document.getElementById("reset5").addEventListener("click", () => {
+    fui.phase = "gas"; fui.enableB = false; fui.massA = MASS_PRESETS[1].mass; fui.nA = 1;
+    fui.massB = MASS_PRESETS[5].mass; fui.nB = 1; fui.T = 300; fui.V = 8;
+    document.getElementById("enableB").checked = false;
+    document.getElementById("gasB-controls").style.opacity = ".4";
+    document.getElementById("gasB-controls").style.pointerEvents = "none";
+    massA.value = 1; massB.value = 5;
+    nASlider.value = 1; document.getElementById("nA-out").textContent = "1,0 mol";
+    nBSlider.value = 1; document.getElementById("nB-out").textContent = "1,0 mol";
+    tempSlider.value = 300; document.getElementById("tempS-out").textContent = "300 K";
+    volSlider.value = 8; document.getElementById("volS-out").textContent = "8,0 L";
+    document.querySelectorAll("#panel-free [data-phase]").forEach(b => b.classList.remove("primary"));
+    document.querySelector('#panel-free [data-phase="gas"]').classList.add("primary");
+    rebuildFree();
   });
 
-  recomputeAndSync();
+  /* ================= MOD SEKME YÖNETİMİ ================= */
+  function showMode(mode) {
+    document.querySelectorAll("#mode-tabs [data-mode]").forEach(b => b.classList.toggle("primary", b.dataset.mode === mode));
+    document.getElementById("panel-guided").style.display = mode === "guided" ? "block" : "none";
+    document.getElementById("panel-free").style.display = mode === "free" ? "block" : "none";
+    if (mode === "guided") {
+      if (freeBox) { freeBox.dispose(); freeBox = null; }
+      if (!guidedBox) buildGuidedBox(); else guidedBox.start();
+      recomputeAndSync();
+    } else {
+      if (guidedBox) { guidedBox.dispose(); guidedBox = null; }
+      if (!freeBuilt || !freeBox) { rebuildFree(); freeBuilt = true; } else { freeBox.start(); }
+    }
+  }
+  document.querySelectorAll("#mode-tabs [data-mode]").forEach(btn => btn.addEventListener("click", () => showMode(btn.dataset.mode)));
+
+  showMode(location.hash === "#serbest" ? "free" : "guided");
+
+  window.addEventListener("pagehide", () => { if (guidedBox) guidedBox.dispose(); if (freeBox) freeBox.dispose(); });
 </script>
 </body>
 </html>

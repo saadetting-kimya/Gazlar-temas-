@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Gaz Yasaları — GazLab 10</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2246%22 fill=%22%232fb8c6%22/></svg>">
-<link rel="stylesheet" href="../assets/css/style.css?v=2" />
+<link rel="stylesheet" href="../assets/css/style.css?v=3" />
 <script type="importmap">
 { "imports": {
   "three": "../assets/vendor/three/three.module.js",
@@ -112,11 +112,11 @@
 <div id="footer-root"></div>
 
 <script type="module">
-  import { mountNav, mountFooter } from "../assets/js/nav.js?v=2";
-  import { GasBox } from "../assets/js/gas-engine.js?v=2";
-  import { TraceChart } from "../assets/js/charts.js?v=2";
-  import { renderQuiz, markVisited, bindJournal } from "../assets/js/quiz-engine.js?v=2";
-  import { QUIZ } from "../assets/js/quiz-data.js?v=2";
+  import { mountNav, mountFooter } from "../assets/js/nav.js?v=3";
+  import { GasBox } from "../assets/js/gas-engine.js?v=3";
+  import { TraceChart } from "../assets/js/charts.js?v=3";
+  import { renderQuiz, markVisited, bindJournal } from "../assets/js/quiz-engine.js?v=3";
+  import { QUIZ } from "../assets/js/quiz-data.js?v=3";
 
   mountNav("yasalar");
   mountFooter();
@@ -129,7 +129,7 @@
       label: "Boyle Yasası", pair: "P–V (sabit T, n)", showPiston: true,
       lockedText: "Sabit: T = 300 K, n = 0,4 mol", context: "🎒 Dağa çıkan bir cips paketi gibi — dış basınç değişince gazın hacmi tepki verir.",
       formula: "P·V = sabit → basınç ile hacim ters orantılıdır.",
-      n: 0.4, T: 300, P: null, V: 5,
+      n: 0.4, T: 300, P: null, V: 5, vMax: 10,
       control: { key: "V", label: "Hacim (V)", min: 1, max: 10, step: 0.2, unit: "L" },
       chart: { xLabel: "V (L)", yLabel: "P (atm)", xMax: 10, yMax: 12, xKey: "V", yKey: "P" },
     },
@@ -137,7 +137,7 @@
       label: "Charles Yasası", pair: "V–T (sabit P, n)", showPiston: true,
       lockedText: "Sabit: P = 1,2 atm, n = 0,3 mol", context: "🎈 Dondurucuya konan bir balon gibi — sıcaklık düşünce hacim küçülür.",
       formula: "V/T = sabit → hacim ile mutlak sıcaklık doğru orantılıdır.",
-      n: 0.3, T: 300, P: 1.2, V: null,
+      n: 0.3, T: 300, P: 1.2, V: null, vMax: 12,
       control: { key: "T", label: "Sıcaklık (T)", min: 200, max: 550, step: 10, unit: "K" },
       chart: { xLabel: "T (K)", yLabel: "V (L)", xMax: 600, yMax: 14, xKey: "T", yKey: "V" },
     },
@@ -145,7 +145,7 @@
       label: "Gay-Lussac Yasası", pair: "P–T (sabit V, n)", showPiston: false,
       lockedText: "Sabit: V = 5 L (sızdırmaz kap), n = 0,3 mol", context: "🚗 Güneşte bekleyen bir araba lastiği gibi — hacim sabitken sıcaklık artınca basınç yükselir.",
       formula: "P/T = sabit → basınç ile mutlak sıcaklık doğru orantılıdır.",
-      n: 0.3, T: 300, P: null, V: 5,
+      n: 0.3, T: 300, P: null, V: 5, vMax: 8,
       control: { key: "T", label: "Sıcaklık (T)", min: 200, max: 800, step: 10, unit: "K" },
       chart: { xLabel: "T (K)", yLabel: "P (atm)", xMax: 900, yMax: 5, xKey: "T", yKey: "P" },
     },
@@ -153,7 +153,7 @@
       label: "Avogadro Yasası", pair: "V–n (sabit P, T)", showPiston: true,
       lockedText: "Sabit: P = 2 atm, T = 300 K", context: "🎈 Şişirilen bir balon gibi — üflenen her ek gaz miktarı hacmi büyütür.",
       formula: "V/n = sabit → hacim ile madde miktarı doğru orantılıdır.",
-      n: null, T: 300, P: 2, V: null,
+      n: null, T: 300, P: 2, V: null, vMax: 14,
       control: { key: "n", label: "Madde Miktarı (n)", min: 0.1, max: 0.8, step: 0.05, unit: "mol" },
       chart: { xLabel: "n (mol)", yLabel: "V (L)", xMax: 1, yMax: 12, xKey: "n", yKey: "V" },
     },
@@ -189,7 +189,7 @@
     const s = computeState(key);
     const box = new GasBox(host, {
       species: [{ key: "a", name: "Gaz", color: "#2fb8c6", molarMass: 29, n: s.n }],
-      volumeL: s.V, temperatureK: s.T, showPiston: cfg.showPiston,
+      volumeL: s.V, temperatureK: s.T, showPiston: cfg.showPiston, vMin: 1, vMax: cfg.vMax,
     });
     boxes[key] = box;
     return box;
