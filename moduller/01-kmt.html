@@ -212,7 +212,7 @@
   const phaseLabel = { gas: "Gaz", liquid: "Sıvı", solid: "Katı" };
   function refresh1() {
     document.getElementById("r-temp").innerHTML = `${box1.temperatureK}<span class="u">K</span>`;
-    document.getElementById("r-vol").innerHTML = `${box1.volumeL.toFixed(1)}<span class="u">L</span>`;
+    document.getElementById("r-vol").innerHTML = `${box1.effectiveVolumeL.toFixed(1)}<span class="u">L</span>`;
     document.getElementById("r-phase").textContent = phaseLabel[box1.phase];
     document.getElementById("r-compress").textContent = compressLabel[box1.phase];
     document.getElementById("badge1").textContent = phaseLabel[box1.phase].toUpperCase() + ` · ${box1.temperatureK.toFixed(0)}K`;

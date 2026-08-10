@@ -30,8 +30,6 @@ const BOX_LY = 4.0;
 const BOX_LZ = 4.0;
 const BOX_X0 = -3.0; // sabit sol duvar (silindir tabanı)
 export const SCENE_BOUNDS = { x0: BOX_X0, ly: BOX_LY, lz: BOX_LZ };
-const SOLID_HALF = 1.35;
-const LIQUID_HALF = 1.7;
 
 function speciesColor(hex) { return new THREE.Color(hex); }
 
@@ -176,8 +174,32 @@ export class GasBox {
     this.scene.add(rulerGroup);
   }
 
+  /** Katı/sıvı hâlde taneciklerin sıkı paketlenmiş (neredeyse boşluksuz) doğal
+      yarı-boyutu — piston bu sınırın ötesine geçemez (sıkıştırılamazlık). */
+  _phaseNaturalHalf() {
+    if (this.phase !== "solid" && this.phase !== "liquid") return 0;
+    const totalN = this.species.reduce((a, s) => a + s.particles.length, 0);
+    const r = this.species[0]?.radius ?? 0.15;
+    if (!totalN) return 0;
+    const cols = Math.max(2, Math.ceil(Math.cbrt(totalN)));
+    const spacing = r * 2.05; // tanecikler birbirine neredeyse değiyor
+    const packedHalf = (cols * spacing) / 2;
+    return this.phase === "liquid" ? packedHalf * 1.4 : packedHalf;
+  }
+  _phaseFloorLx() {
+    const half = this._phaseNaturalHalf();
+    return half ? half * 2 + 0.7 : 0;
+  }
+  /** Katı/sıvı küme, hareketli pistonun tam önünde kalıp perde gibi onu
+      kapatmasın diye HER ZAMAN sabit sol duvara yakın konumlanır — piston
+      hangi hacimde olursa olsun küme ile arasında pay kalır. */
+  _phaseClusterCenterX() {
+    return BOX_X0 + this._phaseNaturalHalf() + 0.35;
+  }
+
   _syncGeometry() {
-    const Lx = this._volumeToLx(this.volumeL);
+    const rawLx = this._volumeToLx(this.volumeL);
+    const Lx = Math.max(rawLx, this._phaseFloorLx());
     this._lx = Lx;
     const centerX = BOX_X0 + Lx / 2;
 
@@ -209,8 +231,12 @@ export class GasBox {
   /* ---------------- piston (sağ, hareketli duvar) ---------------- */
   _buildPiston() {
     const group = new THREE.Group();
+    // Piston kapağı kabın neredeyse tüm Y/Z kesitini kapladığından, tam opak
+    // olursa bu açıdan arkasındaki (özellikle katı/sıvı kümesi gibi kap
+    // ortasına yakın duran) içerikleri tamamen gizleyebiliyordu. Hafif
+    // yarı-saydam yapmak, taneciklerin pistonun "içinden" de seçilmesini sağlar.
     const capGeo = new THREE.BoxGeometry(0.22, BOX_LY * 0.98, BOX_LZ * 0.98);
-    const capMat = new THREE.MeshStandardMaterial({ color: 0xaeb9c9, metalness: 0.85, roughness: 0.28 });
+    const capMat = new THREE.MeshStandardMaterial({ color: 0xaeb9c9, metalness: 0.85, roughness: 0.28, transparent: true, opacity: 0.6, depthWrite: false });
     const cap = new THREE.Mesh(capGeo, capMat);
     group.add(cap);
 
@@ -386,7 +412,11 @@ export class GasBox {
     sp.n = THREE.MathUtils.clamp(n, 0.1, 14);
     this._syncSpeciesCount(sp, this.species.indexOf(sp));
   }
-  setPhase(phase) { this.phase = phase; }
+  setPhase(phase) { this.phase = phase; this._syncGeometry(); }
+
+  /** Katı/sıvı hâlde piston sıkıştırmaya direndiği için kabın gerçekte
+      ulaştığı hacim, slider değerinden büyük olabilir — arayüzler okumalı. */
+  get effectiveVolumeL() { return this._lxToVolume(this._lx); }
 
   /** Dışarıdan erişim için kap sınırları (difüzyon/efüzyon ilerleme ölçümü vb.) */
   getBounds(r = 0.15) { return this._xBounds(r); }
@@ -499,19 +529,20 @@ export class GasBox {
 
   /* ---------------- fizik adımı: katı (örgü titreşimi) ---------------- */
   _stepLattice() {
-    const centerX = BOX_X0 + this._lx / 2;
-    const half = Math.min(SOLID_HALF, this._lx / 2, BOX_LY / 2, BOX_LZ / 2);
+    const centerX = this._phaseClusterCenterX();
     this.species.forEach(sp => {
       const r = sp.radius;
       const cols = Math.max(2, Math.ceil(Math.cbrt(sp.particles.length)));
-      const spacing = (half * 2) / (cols + 0.6);
+      // Tanecikler neredeyse birbirine değecek şekilde sıkı paketlenir (katılar
+      // sıvı/gazın aksine hemen hemen hiç sıkıştırılamaz, aralarında boşluk yoktur).
+      const spacing = Math.min(r * 2.05, (BOX_LY * 0.92) / cols, (BOX_LZ * 0.92) / cols);
       const dummy = new THREE.Object3D();
       sp.particles.forEach((p, i) => {
         if (!p.lattice) {
           const cx = i % cols, cy = Math.floor(i / cols) % cols, cz = Math.floor(i / (cols * cols));
           p.lattice = new THREE.Vector3((cx - (cols - 1) / 2) * spacing, (cy - (cols - 1) / 2) * spacing, (cz - (cols - 1) / 2) * spacing);
         }
-        const amp = spacing * 0.14 * Math.sqrt(this.temperatureK / 300);
+        const amp = spacing * 0.12 * Math.sqrt(this.temperatureK / 300);
         const t = performance.now() * 0.006 + i * 12.9;
         p.pos.set(
           centerX + p.lattice.x + Math.sin(t * 1.3) * amp,
@@ -528,8 +559,10 @@ export class GasBox {
 
   /* ---------------- fizik adımı: sıvı (sınırlı küme) ---------------- */
   _stepLiquid(dt) {
-    const centerX = BOX_X0 + this._lx / 2;
-    const clusterR = Math.min(LIQUID_HALF, this._lx / 2, BOX_LY / 2, BOX_LZ / 2);
+    const centerX = this._phaseClusterCenterX();
+    // Sıvı kümesinin yarıçapı kabın boyutuna göre DEĞİL, tanecik sayısı/boyutuna
+    // göre sabittir — sıvılar gazların aksine neredeyse sıkıştırılamaz.
+    const clusterR = Math.min(this._phaseNaturalHalf(), BOX_LY / 2 - 0.1, BOX_LZ / 2 - 0.1);
     this.species.forEach(sp => {
       const r = sp.radius;
       const dummy = new THREE.Object3D();
