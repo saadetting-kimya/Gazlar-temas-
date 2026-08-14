@@ -122,6 +122,9 @@
           <div class="readout"><div class="k">Yoğunluk · Gaz A</div><div class="v" id="dA" style="color:var(--mol-a)">–<span class="u">g/L</span></div></div>
           <div class="readout"><div class="k">Yoğunluk · Gaz B</div><div class="v" id="dB" style="color:var(--mol-b)">–<span class="u">g/L</span></div></div>
         </div>
+        <div class="readouts" style="grid-template-columns:1fr; margin-top:10px">
+          <div class="readout"><div class="k">Karışım Yoğunluğu (Ortalama)</div><div class="v" id="dMix">–<span class="u">g/L</span></div></div>
+        </div>
         <div class="callout real" style="margin-top:16px">
           <h5>Gözlemle</h5>
           <p>Aynı sıcaklık ve basınçta mol kütlesi (M) büyük olan gaz daha yoğundur — çünkü aynı hacimde eşit sayıda tanecik varsa (Avogadro ilkesi), tanecikleri daha ağır olan gaz daha ağır basar. Bölmeyi kaldırdığında iki gaz de kendiliğinden her yöne yayılıp homojen karışır — bu <strong>karışabilirliktir</strong>. Sıcak hava balonu içindeki hava dışarıdakinden daha az yoğun olduğu için balon yükselir; CO₂ dolu balon havadan yoğun olduğu için batar.</p>
@@ -185,7 +188,7 @@
 <script src="../assets/js/offline-bundle.js"></script>
 <script>
   const { mountNav, mountFooter } = __mod_nav;
-  const { GasBox, R_CONST } = __mod_gas_engine;
+  const { GasBox } = __mod_gas_engine;
   const { renderQuiz, markVisited, bindJournal } = __mod_quiz_engine;
   const { QUIZ } = __mod_quiz_data;
 
@@ -264,26 +267,37 @@
   gasXSel.innerHTML = MASS_PRESETS.map((g,i)=>`<option value="${i}" ${i===1?"selected":""}>${g.label}</option>`).join("");
   gasYSel.innerHTML = MASS_PRESETS.map((g,i)=>`<option value="${i}" ${i===5?"selected":""}>${g.label}</option>`).join("");
 
-  let mixT = 300, mixBox = null, mixStarted = false;
+  const MIX_N = 0.6; // her iki gazın da mol miktarı — bölme açılınca aynı kabı paylaşırlar
+  let mixT = 300, mixBox = null;
   function buildMixBox() {
     if (mixBox) mixBox.dispose();
     const mA = MASS_PRESETS[+gasXSel.value].mass, mB = MASS_PRESETS[+gasYSel.value].mass;
     mixBox = new GasBox(document.getElementById("stage2"), {
       species: [
-        { key: "a", name: "Gaz A", color: "#5b8dff", molarMass: mA, n: 0.6 },
-        { key: "b", name: "Gaz B", color: "#ff5b7f", molarMass: mB, n: 0.6 },
+        { key: "a", name: "Gaz A", color: "#5b8dff", molarMass: mA, n: MIX_N },
+        { key: "b", name: "Gaz B", color: "#ff5b7f", molarMass: mB, n: MIX_N },
       ],
       volumeL: 12, temperatureK: mixT, showPiston: false, showPartition: true, speedScale: 0.4, vMax: 12,
     });
     mixBox.start();
-    mixStarted = false;
     refreshDensity();
   }
+  /** Yoğunluk = kütle / kaplanan hacim. Bölme kapalıyken her gaz kabın yarısını
+      (volumeL/2), bölme açılıp karışınca kabın tamamını (volumeL) kaplar — bu yüzden
+      karıştırınca yoğunluk yarıya iner. Kütle ve hacim sıcaklıktan etkilenmediği için
+      (sabit hacimli kap) yoğunluk sıcaklıkla değişmez; değişen sadece basınçtır. */
   function refreshDensity() {
     const mA = MASS_PRESETS[+gasXSel.value].mass, mB = MASS_PRESETS[+gasYSel.value].mass;
-    const dA = (mA * 1) / (R_CONST * mixT), dB = (mB * 1) / (R_CONST * mixT);
+    const occupiedL = mixBox.partitionOpen ? mixBox.volumeL : mixBox.volumeL / 2;
+    const dA = (MIX_N * mA) / occupiedL, dB = (MIX_N * mB) / occupiedL;
     document.getElementById("dA").innerHTML = `${dA.toFixed(2)}<span class="u">g/L</span>`;
     document.getElementById("dB").innerHTML = `${dB.toFixed(2)}<span class="u">g/L</span>`;
+    const dMixEl = document.getElementById("dMix");
+    if (mixBox.partitionOpen) {
+      dMixEl.innerHTML = `${(dA + dB).toFixed(2)}<span class="u">g/L</span>`;
+    } else {
+      dMixEl.innerHTML = `–<span class="u">g/L</span>`;
+    }
   }
   buildMixBox();
   gasXSel.addEventListener("change", buildMixBox);
@@ -294,8 +308,8 @@
     mixBox.setTemperature(mixT);
     refreshDensity();
   });
-  document.getElementById("btn-mix").addEventListener("click", () => { mixBox.openPartition(); mixStarted = true; });
-  document.getElementById("btn-mix-reset").addEventListener("click", () => { mixBox.reset(); mixStarted = false; });
+  document.getElementById("btn-mix").addEventListener("click", () => { mixBox.openPartition(); refreshDensity(); });
+  document.getElementById("btn-mix-reset").addEventListener("click", () => { mixBox.reset(); refreshDensity(); });
 
   window.addEventListener("pagehide", () => { box1.dispose(); if (mixBox) mixBox.dispose(); });
 </script>
