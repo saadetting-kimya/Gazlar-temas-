@@ -53,17 +53,19 @@
 
 <section class="section tight">
   <div class="container">
-    <div class="controls" style="grid-template-columns:repeat(2,1fr); gap:16px; margin-bottom:22px;">
-      <div class="control-row" style="grid-template-columns:120px 1fr 90px">
-        <label for="gasB">Gaz B</label>
-        <select id="gasB" style="background:#0a1120;color:#e9f2ff;border:1px solid var(--lab-line);border-radius:8px;padding:8px;">
-        </select>
-        <span></span>
-      </div>
-      <div class="control-row" style="grid-template-columns:120px 1fr 90px">
-        <label for="raceT">Sıcaklık</label>
-        <input type="range" id="raceT" min="200" max="500" step="10" value="300" />
-        <output id="raceT-out">300 K</output>
+    <div class="card" style="margin-bottom:22px">
+      <div class="controls" style="grid-template-columns:repeat(2,1fr); gap:16px;">
+        <div class="control-row" style="grid-template-columns:120px 1fr 90px">
+          <label for="gasB" style="color:var(--ink-soft)">Gaz B</label>
+          <select id="gasB" style="background:#0a1120;color:#e9f2ff;border:1px solid var(--lab-line);border-radius:8px;padding:8px;">
+          </select>
+          <span></span>
+        </div>
+        <div class="control-row" style="grid-template-columns:120px 1fr 90px">
+          <label for="raceT" style="color:var(--ink-soft)">Sıcaklık</label>
+          <input type="range" id="raceT" min="200" max="500" step="10" value="300" />
+          <output id="raceT-out" style="color:var(--ink); font-weight:700;">300 K</output>
+        </div>
       </div>
     </div>
 
@@ -234,8 +236,8 @@
     const gasB = selectedGas();
     diffBox = new GasBox(document.getElementById("stage-diff"), {
       species: [
-        { key: "a", name: "Gaz A (He)", color: "#5b8dff", molarMass: 4, n: 0.6 },
-        { key: "b", name: `Gaz B (${gasB.label})`, color: "#ff5b7f", molarMass: gasB.mass, n: 0.6 },
+        { key: "a", name: "Gaz A (He)", color: "#5b8dff", molarMass: 4, n: 1.6 },
+        { key: "b", name: `Gaz B (${gasB.label})`, color: "#ff5b7f", molarMass: gasB.mass, n: 1.6 },
       ],
       volumeL: 16, temperatureK: raceT, showPiston: false, showPartition: true, speedScale: 0.18, vMax: 20,
     });
@@ -287,11 +289,11 @@
     const gasB = selectedGas();
     document.getElementById("effB-title").textContent = `Gaz B · ${gasB.label}`;
     effA = new GasBox(document.getElementById("stage-effA"), {
-      species: [{ key: "a", name: "Gaz A (He)", color: "#5b8dff", molarMass: 4, n: 0.85 }],
+      species: [{ key: "a", name: "Gaz A (He)", color: "#5b8dff", molarMass: 4, n: 2.2 }],
       volumeL: 4, temperatureK: raceT, showPiston: false, showHole: true, holeRadius: 1.05, speedScale: 0.42, vMax: 6,
     });
     effB = new GasBox(document.getElementById("stage-effB"), {
-      species: [{ key: "b", name: "Gaz B", color: "#ff5b7f", molarMass: gasB.mass, n: 0.85 }],
+      species: [{ key: "b", name: "Gaz B", color: "#ff5b7f", molarMass: gasB.mass, n: 2.2 }],
       volumeL: 4, temperatureK: raceT, showPiston: false, showHole: true, holeRadius: 1.05, speedScale: 0.42, vMax: 6,
     });
     totalA = effA.species[0].particles.length;

@@ -344,6 +344,22 @@ export class GasBox {
   _positionHole() { this._holeMarker.position.x = BOX_X0 - 0.01; }
   setHoleOpen(open) { this.holeOpen = open; if (this._holeMarker) this._holeMarker.material.color.set(open ? 0x2fbf6e : 0xff8a3d); }
 
+  /** Delikten kaçan taneciğin, kaçış sırasına göre kabın dışında (delik
+      önünde) sabitleneceği yığın konumu — büyüyen, gözle görülür bir küme. */
+  _pileSlot(sp, index) {
+    const spacing = sp.radius * 2 + 0.06;
+    const cols = 4, rowsPerLayer = 8, perLayer = cols * rowsPerLayer;
+    const layer = Math.floor(index / perLayer);
+    const within = index % perLayer;
+    const col = within % cols;
+    const row = Math.floor(within / cols);
+    return new THREE.Vector3(
+      BOX_X0 - 0.55 - sp.radius - layer * spacing,
+      -BOX_LY / 2 + sp.radius + 0.12 + row * spacing,
+      -((cols - 1) / 2) * spacing + col * spacing
+    );
+  }
+
   /* ---------------- tanecikler ---------------- */
   _targetCount(sp) { return Math.max(2, Math.min(MAX_PARTICLES, Math.round((sp.n || 1) * PARTICLES_PER_MOL))); }
 
@@ -379,12 +395,13 @@ export class GasBox {
   }
 
   _syncSpeciesCount(sp, idx) {
+    if (sp._escapeCount === undefined) sp._escapeCount = 0;
     const target = this._targetCount(sp);
     while (sp.particles.length < target) {
       sp.particles.push({
         pos: this._spawnPoint(sp, idx),
         dir: new THREE.Vector3().randomDirection(),
-        speedFactor: THREE.MathUtils.randFloat(0.6, 1.4),
+        speedFactor: THREE.MathUtils.randFloat(0.82, 1.18),
         escaped: false,
         lattice: null,
       });
@@ -395,6 +412,7 @@ export class GasBox {
 
   _resetParticlePositions() {
     this.species.forEach((sp, idx) => {
+      sp._escapeCount = 0;
       sp.particles.forEach(p => { p.pos.copy(this._spawnPoint(sp, idx)); p.escaped = false; });
       sp.mesh.count = sp.particles.length;
     });
@@ -451,7 +469,18 @@ export class GasBox {
       let visibleIdx = 0;
 
       for (const p of sp.particles) {
-        if (p.escaped) continue;
+        // Kaçmış tanecikler artık görünmez olmuyor: delik dışında büyüyen bir
+        // "toplama yığınına" yerleşip orada kalıyor — böylece hangi gazın daha
+        // çok/hızlı kaçtığı, tek tek tanecik izlemek yerine yığın boyutundan
+        // doğrudan görülebiliyor.
+        if (p.escaped) {
+          dummy.position.copy(p.pos);
+          dummy.scale.setScalar(r);
+          dummy.updateMatrix();
+          sp.mesh.setMatrixAt(visibleIdx, dummy.matrix);
+          visibleIdx++;
+          continue;
+        }
         const speed = vBase * p.speedFactor;
         p.pos.addScaledVector(p.dir, speed * dt);
 
@@ -463,7 +492,13 @@ export class GasBox {
           const nearHole = this.showHole && Math.abs(p.pos.y) < this.holeRadius && Math.abs(p.pos.z) < this.holeRadius;
           if (nearHole && this.holeOpen && p.dir.x < 0) {
             p.escaped = true;
+            p.pos.copy(this._pileSlot(sp, sp._escapeCount++));
             this._emit("escape", { key: sp.key, t: performance.now() });
+            dummy.position.copy(p.pos);
+            dummy.scale.setScalar(r);
+            dummy.updateMatrix();
+            sp.mesh.setMatrixAt(visibleIdx, dummy.matrix);
+            visibleIdx++;
             continue;
           }
           p.pos.x = xMin; p.dir.x *= -1;
