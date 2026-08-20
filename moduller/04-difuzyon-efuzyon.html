@@ -197,14 +197,14 @@
   import { mountNav, mountFooter } from "../assets/js/nav.js?v=3";
   import { BulbApparatus, EffusionFlask } from "../assets/js/gas-engine.js?v=3";
   import { RaceMeter } from "../assets/js/charts.js?v=3";
-  import { renderQuiz, markVisited, bindJournal } from "../assets/js/quiz-engine.js?v=3";
-  import { QUIZ } from "../assets/js/quiz-data.js?v=3";
+  import { renderQuiz, markVisited, bindJournal } from "../assets/js/quiz-engine.js?v=4";
+  import { QUIZ, QUIZ_RESERVE } from "../assets/js/quiz-data.js?v=4";
 
   mountNav("difuzyon");
   mountFooter();
   markVisited("difuzyon");
   bindJournal(document.getElementById("journal4"), "difuzyon");
-  renderQuiz(document.getElementById("quiz-host"), QUIZ.difuzyon, "difuzyon");
+  renderQuiz(document.getElementById("quiz-host"), QUIZ.difuzyon, "difuzyon", QUIZ_RESERVE.difuzyon);
 
   const GAS_PRESETS = [
     { label: "H₂ · Hidrojen (M=2)", mass: 2 },

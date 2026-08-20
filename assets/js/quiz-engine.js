@@ -434,7 +434,7 @@ function clearWrongAnswer(moduleKey, question) {
 
 /* ================= quiz mantığı ================= */
 
-export function renderQuiz(hostEl, questions, moduleKey) {
+export function renderQuiz(hostEl, questions, moduleKey, reserveQuestions = []) {
   hostEl.innerHTML = "";
   const wrap = document.createElement("div");
   wrap.className = "quiz";
@@ -446,17 +446,31 @@ export function renderQuiz(hostEl, questions, moduleKey) {
   // "yanıtlandı" sayacını sorulardan fazla artırıp modül hiç tamamlanamaz).
   const slotResults = new Array(questions.length).fill(null);
 
-  /** Aynı kazanımın (modülün) havuzundan, bu slotta zaten yanlış cevaplanmış
-      sorulardan farklı rastgele bir soru seçer — "aynı kazanımdan başka bir
-      soru dene". excludeTexts, bu deneme zincirinde daha önce yanlış
-      cevaplanan tüm soruları kapsar (aynı sorunun tekrar önerilmesini önler). */
-  function pickReplacement(excludeTexts) {
-    const others = questions.filter(q => !excludeTexts.includes(q.text));
+  // Ekrandaki her kartta O AN gösterilen sorunun metni. Bu app modüldeki
+  // TÜM soruları aynı anda kart olarak gösterdiği için (gazlarlab10'daki
+  // gibi bir havuzdan yalnızca birkaçını göstermez), yedek soru asıl
+  // sorulardan seçilirse ekranda zaten görünen başka bir kartla birebir
+  // aynı soru önerilmiş olurdu. Bunu önlemek için yedekler önce
+  // reserveQuestions'tan (hiç kart olarak gösterilmeyen ayrı bir havuzdan)
+  // seçilir; o da tükenirse ekranda o an görünmeyen ana havuz sorularına
+  // düşülür.
+  const currentlyShown = questions.map(q => q.text);
+  const replacementPool = [...reserveQuestions, ...questions];
+
+  /** Bu slotta (kart) zaten yanlış cevaplanmış sorulardan ve ekranda o an
+      BAŞKA bir kartta görünen sorulardan farklı, aynı kazanımın havuzundan
+      rastgele bir soru seçer — "aynı kazanımdan başka bir soru dene". */
+  function pickReplacement(card) {
+    const slotIdx = +card.dataset.slot - 1;
+    const exclude = new Set(card._wrongChain.map(wq => wq.text));
+    currentlyShown.forEach((t, i) => { if (i !== slotIdx && t) exclude.add(t); });
+    const others = replacementPool.filter(q => !exclude.has(q.text));
     if (!others.length) return null;
     return others[Math.floor(Math.random() * others.length)];
   }
 
   function mountCard(card, q) {
+    currentlyShown[+card.dataset.slot - 1] = q.text;
     card.dataset.done = "";
     card.innerHTML = `
       <div class="qhead">
@@ -506,16 +520,27 @@ export function renderQuiz(hostEl, questions, moduleKey) {
         }
 
         if (!isCorrect) {
-          const nextQ = pickReplacement(card._wrongChain.map((wq) => wq.text));
-          if (nextQ) {
-            const btn = document.createElement("button");
-            btn.className = "btn";
-            btn.style.marginTop = "10px";
-            btn.textContent = "Bu kazanımdan yeni bir soru dene →";
-            btn.addEventListener("click", () => mountCard(card, nextQ));
-            fbEl.appendChild(document.createElement("br"));
-            fbEl.appendChild(btn);
-          }
+          // Yedek soru, düğmeye BASILDIĞI anda seçilir (burada değil) —
+          // aksi hâlde birden fazla kart art arda (düğmeye hiç basılmadan)
+          // yanlış cevaplanırsa her biri, henüz ekrana yansımamış diğer
+          // kartların o an bilinmeyen gelecekteki seçimlerinden habersiz,
+          // "o an görünenler" hâlâ eskiyken karar verir — bu da aynı yedek
+          // sorunun birden fazla karta önerilmesine yol açar.
+          const btn = document.createElement("button");
+          btn.className = "btn";
+          btn.style.marginTop = "10px";
+          btn.textContent = "Bu kazanımdan yeni bir soru dene →";
+          btn.addEventListener("click", () => {
+            const nextQ = pickReplacement(card);
+            if (nextQ) {
+              mountCard(card, nextQ);
+            } else {
+              btn.disabled = true;
+              btn.textContent = "Bu kazanımda başka yedek soru kalmadı";
+            }
+          });
+          fbEl.appendChild(document.createElement("br"));
+          fbEl.appendChild(btn);
         }
         updateSummary();
       });

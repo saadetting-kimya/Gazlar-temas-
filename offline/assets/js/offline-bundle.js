@@ -439,7 +439,7 @@ function clearWrongAnswer(moduleKey, question) {
 
 /* ================= quiz mantığı ================= */
 
-function renderQuiz(hostEl, questions, moduleKey) {
+function renderQuiz(hostEl, questions, moduleKey, reserveQuestions = []) {
   hostEl.innerHTML = "";
   const wrap = document.createElement("div");
   wrap.className = "quiz";
@@ -451,17 +451,31 @@ function renderQuiz(hostEl, questions, moduleKey) {
   // "yanıtlandı" sayacını sorulardan fazla artırıp modül hiç tamamlanamaz).
   const slotResults = new Array(questions.length).fill(null);
 
-  /** Aynı kazanımın (modülün) havuzundan, bu slotta zaten yanlış cevaplanmış
-      sorulardan farklı rastgele bir soru seçer — "aynı kazanımdan başka bir
-      soru dene". excludeTexts, bu deneme zincirinde daha önce yanlış
-      cevaplanan tüm soruları kapsar (aynı sorunun tekrar önerilmesini önler). */
-  function pickReplacement(excludeTexts) {
-    const others = questions.filter(q => !excludeTexts.includes(q.text));
+  // Ekrandaki her kartta O AN gösterilen sorunun metni. Bu app modüldeki
+  // TÜM soruları aynı anda kart olarak gösterdiği için (gazlarlab10'daki
+  // gibi bir havuzdan yalnızca birkaçını göstermez), yedek soru asıl
+  // sorulardan seçilirse ekranda zaten görünen başka bir kartla birebir
+  // aynı soru önerilmiş olurdu. Bunu önlemek için yedekler önce
+  // reserveQuestions'tan (hiç kart olarak gösterilmeyen ayrı bir havuzdan)
+  // seçilir; o da tükenirse ekranda o an görünmeyen ana havuz sorularına
+  // düşülür.
+  const currentlyShown = questions.map(q => q.text);
+  const replacementPool = [...reserveQuestions, ...questions];
+
+  /** Bu slotta (kart) zaten yanlış cevaplanmış sorulardan ve ekranda o an
+      BAŞKA bir kartta görünen sorulardan farklı, aynı kazanımın havuzundan
+      rastgele bir soru seçer — "aynı kazanımdan başka bir soru dene". */
+  function pickReplacement(card) {
+    const slotIdx = +card.dataset.slot - 1;
+    const exclude = new Set(card._wrongChain.map(wq => wq.text));
+    currentlyShown.forEach((t, i) => { if (i !== slotIdx && t) exclude.add(t); });
+    const others = replacementPool.filter(q => !exclude.has(q.text));
     if (!others.length) return null;
     return others[Math.floor(Math.random() * others.length)];
   }
 
   function mountCard(card, q) {
+    currentlyShown[+card.dataset.slot - 1] = q.text;
     card.dataset.done = "";
     card.innerHTML = `
       <div class="qhead">
@@ -511,16 +525,27 @@ function renderQuiz(hostEl, questions, moduleKey) {
         }
 
         if (!isCorrect) {
-          const nextQ = pickReplacement(card._wrongChain.map((wq) => wq.text));
-          if (nextQ) {
-            const btn = document.createElement("button");
-            btn.className = "btn";
-            btn.style.marginTop = "10px";
-            btn.textContent = "Bu kazanımdan yeni bir soru dene →";
-            btn.addEventListener("click", () => mountCard(card, nextQ));
-            fbEl.appendChild(document.createElement("br"));
-            fbEl.appendChild(btn);
-          }
+          // Yedek soru, düğmeye BASILDIĞI anda seçilir (burada değil) —
+          // aksi hâlde birden fazla kart art arda (düğmeye hiç basılmadan)
+          // yanlış cevaplanırsa her biri, henüz ekrana yansımamış diğer
+          // kartların o an bilinmeyen gelecekteki seçimlerinden habersiz,
+          // "o an görünenler" hâlâ eskiyken karar verir — bu da aynı yedek
+          // sorunun birden fazla karta önerilmesine yol açar.
+          const btn = document.createElement("button");
+          btn.className = "btn";
+          btn.style.marginTop = "10px";
+          btn.textContent = "Bu kazanımdan yeni bir soru dene →";
+          btn.addEventListener("click", () => {
+            const nextQ = pickReplacement(card);
+            if (nextQ) {
+              mountCard(card, nextQ);
+            } else {
+              btn.disabled = true;
+              btn.textContent = "Bu kazanımda başka yedek soru kalmadı";
+            }
+          });
+          fbEl.appendChild(document.createElement("br"));
+          fbEl.appendChild(btn);
         }
         updateSummary();
       });
@@ -1136,7 +1161,172 @@ const QUIZ = {
   ],
 };
 
-return { QUIZ };
+/* =========================================================
+   QUIZ_RESERVE — "Yanlışlarım" yedek soru havuzu.
+   Bir soru yanlış cevaplandığında önerilen "aynı kazanımdan
+   başka bir soru dene" bağlantısı buradan seçilir. Bu sorular
+   modül sayfalarında kart olarak GÖSTERİLMEZ; yalnızca yedek
+   olarak sunulur — bu sayede önerilen soru, ekranda zaten
+   görünen bir kartla asla aynı olmaz (bkz. quiz-engine.js
+   renderQuiz → pickReplacement).
+   ========================================================= */
+const QUIZ_RESERVE = {
+  kmt: [
+    {
+      context: "Dağda Şişen Cips Paketi",
+      text: "Deniz seviyesinde sızdırmaz şekilde paketlenmiş bir cips paketi, yüksek bir dağa çıkarıldığında şişer ve gergin hâle gelir; paketin içine dışarıdan hiç hava girmez. Bu gözlem KMT'ye göre nasıl açıklanır?",
+      options: [
+        "Yükseklikte dış atmosfer basıncı azaldığı için paket içindeki gaz tanecikleri daha az dirençle karşılaşır ve birbirinden uzaklaşarak paketi genleştirir",
+        "Yükseklikte sıcaklık arttığı için gaz tanecikleri büyür",
+        "Paket içindeki hava kimyasal tepkimeyle çoğalır",
+        "Yükseklikte yer çekimi azaldığı için tanecikler dışa doğru itilir",
+        "Paketin plastik malzemesi ısıdan genleşir, gazın bir ilgisi yoktur",
+      ],
+      correct: 0,
+      explain: "Paket içindeki gaz miktarı sabit kalır; dışarıdaki atmosfer basıncı yükseklikle azaldığından paketin dışını iten kuvvet zayıflar, içerideki tanecikler daha az sıkışmış hâlde daha geniş bir hacme yayılır (genleşme).",
+    },
+    {
+      context: "Helyum Balonu Neden Yükselir?",
+      text: "Bir helyum balonu havada bırakıldığında kendiliğinden yukarı doğru yükselir, oysa aynı boyuttaki hava dolu bir balon yerinde kalır. Bu farkın temel nedeni gazların hangi özelliğidir?",
+      options: ["Yoğunluk", "Sıkıştırılabilirlik", "Genleşme", "Karışabilirlik", "Basınç"],
+      correct: 0,
+      explain: "Helyumun mol kütlesi (M≈4) havanın ortalama mol kütlesinden (M≈29) çok küçüktür; bu yüzden helyum havadan daha az yoğundur ve balon kaldırma kuvvetiyle yukarı yükselir.",
+    },
+    {
+      context: "Kapalı Kutuda Dağılan Renkli Buhar",
+      text: "Kapalı bir kutuda serbest bırakılan renkli bir gaz, zaman içinde kutunun tamamına homojen şekilde dağılır; kutunun hiçbir köşesi boş kalmaz. Bu davranış gazların hangi özelliğini gösterir?",
+      options: ["Karışabilirlik", "Yoğunluk", "Sıkıştırılabilirlik", "Genleşme", "Basınç"],
+      correct: 0,
+      explain: "Gaz tanecikleri, tanecikler arası boşluklarda serbestçe hareket ederek bulundukları ortamla kendiliğinden, her yöne homojen biçimde karışır; bu özelliğe karışabilirlik denir.",
+    },
+    {
+      context: "Bisiklet Pompasıyla Su Sıkıştırmak Neden Zor?",
+      text: "Ucu kapatılmış bir bisiklet pompası hava ile doluyken piston kolayca itilebilirken, aynı pompa suyla doldurulduğunda pistonu ittirmek neredeyse imkânsız hâle gelir. Bu fark KMT'ye göre nasıl açıklanır?",
+      options: [
+        "Gaz taneciklerinin arasında büyük boşluklar vardır ve bu boşluklar kolayca daraltılabilir; sıvıda tanecikler zaten birbirine çok yakın olduğundan sıkıştırmaya çok daha fazla direnç gösterilir",
+        "Su moleküllerinin kütlesi hava moleküllerinden daha büyük olduğu için sıkışmaz",
+        "Hava elektrikçe yüklüdür, su değildir",
+        "Pompa yalnızca gazlar için tasarlanmıştır, suyla çalışmaz",
+        "Su sıcaklığı hava sıcaklığından düşüktür, bu yüzden sıkışmaz",
+      ],
+      correct: 0,
+      explain: "Gaz taneciklerinin arasındaki büyük boşluk kolayca daraltılabilirken, sıvıda tanecikler zaten birbirine çok yakın olduğundan sıkıştırmaya karşı çok daha fazla direnç gösterir.",
+    },
+  ],
+
+  yasalar: [
+    {
+      context: "Tıkalı Şırınga Deneyi",
+      text: "Ucu parmakla kapatılmış bir şırıngada 1 atm basınçta 20 mL hava var. Piston itilip hacim 5 mL'ye düşürülürse (sıcaklık sabit), basınç kaç atm olur?",
+      options: ["2 atm", "0,25 atm", "8 atm", "4 atm", "5 atm"],
+      correct: 3,
+      explain: "Sabit sıcaklıkta P₁V₁=P₂V₂ (Boyle Yasası) ⇒ 1 atm × 20 mL = P₂ × 5 mL ⇒ P₂ = 4 atm.",
+    },
+    {
+      context: "Balonun Soğuk Depoda Küçülmesi",
+      text: "Sabit basınçlı bir balonun hacmi 27°C'de 3 L'dir. Balon -73°C'deki bir soğuk hava deposuna konursa hacmi kaç L olur?",
+      options: ["4,5 L", "1 L", "2 L", "3,5 L", "6 L"],
+      correct: 2,
+      explain: "T(K)=t(°C)+273 ⇒ T₁=300 K, T₂=200 K. Sabit basınçta V₁/T₁=V₂/T₂ (Charles Yasası) ⇒ 3/300 = V₂/200 ⇒ V₂ = 2 L.",
+    },
+    {
+      context: "Deodorant Kutusu Isınırsa",
+      text: "Rijit (sabit hacimli) bir deodorant kutusunun iç basıncı 27°C'de 3 atm'dir. Kutu güneşte kalıp sıcaklığı 127°C'ye çıkarsa iç basınç kaç atm olur?",
+      options: ["2,25 atm", "4 atm", "3,5 atm", "5 atm", "1,8 atm"],
+      correct: 1,
+      explain: "T₁=300 K, T₂=400 K. Sabit hacimde P₁/T₁=P₂/T₂ (Gay-Lussac Yasası) ⇒ 3/300 = P₂/400 ⇒ P₂ = 4 atm.",
+    },
+    {
+      context: "Şişirilen Deniz Yatağı",
+      text: "Sabit sıcaklık ve basınçta 2 mol hava içeren şişme bir deniz yatağı 8 L hacim kaplıyor. Pompayla 1 mol daha hava eklenirse (toplam 3 mol) yeni hacim kaç L olur?",
+      options: ["10 L", "16 L", "12 L", "6 L", "14 L"],
+      correct: 2,
+      explain: "Sabit P, T'de V/n=sabit (Avogadro Yasası) ⇒ 8/2 = V₂/3 ⇒ V₂ = 12 L.",
+    },
+  ],
+
+  ideal: [
+    {
+      context: "Plastik Balonun İçindeki Hava",
+      text: "Bir plastik balonun içinde 27°C sıcaklıkta, 2 atm basınç altında 12,3 L hava bulunuyor. R≈0,082 L·atm/(mol·K) alarak balondaki hava yaklaşık kaç moldür?",
+      options: ["≈0,5 mol", "≈1 mol", "≈2 mol", "≈4 mol", "≈0,25 mol"],
+      correct: 1,
+      explain: "T=27+273=300 K. n=PV/(RT)=(2×12,3)/(0,082×300)=24,6/24,6≈1 mol.",
+    },
+    {
+      context: "Küçük Gaz Tüpünün Basıncı",
+      text: "Bir gaz tüpü 12,3 L hacminde, 27°C sıcaklıkta 1 mol azot gazı içeriyor. R≈0,082 L·atm/(mol·K) alarak tüpün iç basıncı kaç atm'dir?",
+      options: ["1 atm", "4 atm", "2 atm", "0,5 atm", "3 atm"],
+      correct: 2,
+      explain: "T=300 K. P=nRT/V=(1×0,082×300)/12,3=24,6/12,3=2 atm.",
+    },
+    {
+      context: "Denklemi Yeniden Düzenlemek",
+      text: "Bir öğrenci PV=nRT denklemini n ve R sabitken P=(nR)·(T/V) şeklinde yeniden yazıyor. Bu düzenlemeye göre, sabit mol sayısında T/V oranı sabit tutulursa P için ne söylenebilir?",
+      options: [
+        "P de sabit kalır, çünkü P doğrudan T/V oranına bağlıdır",
+        "P sürekli artar",
+        "P sıfıra iner",
+        "P yalnızca T'ye bağlıdır, V'nin etkisi yoktur",
+        "Bu düzenleme fiziksel olarak anlamsızdır",
+      ],
+      correct: 0,
+      explain: "n ve R sabitken P=(nR)·(T/V) olduğundan, T/V oranı sabit kaldığı sürece P de sabit kalır — örneğin hem sıcaklık hem hacim aynı oranda artarsa basınç değişmez.",
+    },
+    {
+      context: "Yüksek Basınçlı Doğal Gaz Deposu",
+      text: "Endüstriyel bir doğal gaz deposunda gaz çok yüksek basınç altında sıkıştırılarak saklanıyor. Bu koşullarda gerçek gaz davranışının ideal gaz denkleminden sapması beklenir mi, beklenirse neden?",
+      options: [
+        "Evet; yüksek basınçta tanecikler birbirine çok yaklaşır, tanecik hacmi ve aralarındaki çekim kuvvetleri artık ihmal edilemez hâle gelir",
+        "Hayır, basınç ideal gaz davranışını hiç etkilemez",
+        "Evet ama yalnızca çok düşük basınçta sapma olur, yüksek basınçta olmaz",
+        "Hayır; sapma yalnızca sıcaklık değiştiğinde görülür",
+        "Evet; yüksek basınçta gaz kimyasal olarak bozunur",
+      ],
+      correct: 0,
+      explain: "Yüksek basınçta gaz tanecikleri birbirine çok yaklaşır; ideal gaz varsayımının göz ardı ettiği tanecik hacmi ve tanecikler arası çekim kuvvetleri bu koşulda artık ihmal edilemez, bu yüzden gerçek gaz davranışı idealden sapar.",
+    },
+  ],
+
+  difuzyon: [
+    {
+      context: "Metan mı, Karbondioksit mi Daha Hızlı?",
+      text: "Aynı sıcaklıkta metan (CH₄, M=16) ile karbondioksit (CO₂, M=44) gazlarının efüzyon hızları karşılaştırıldığında, metan CO₂'den kaç kat daha hızlı efüze olur? (√(44/16)≈1,66 alınız)",
+      options: ["1,66 kat", "2,75 kat", "0,6 kat", "4 kat", "1 kat"],
+      correct: 0,
+      explain: "Graham Yasası'na göre r_CH4/r_CO2=√(M_CO2/M_CH4)=√(44/16)≈1,66. Metan, CO₂'den yaklaşık 1,66 kat daha hızlı efüze olur.",
+    },
+    {
+      context: "Zamanla Sönen Parti Balonu",
+      text: "Lastik bir parti balonu havayla şişirilip bağlandıktan birkaç gün sonra kendiliğinden küçülür; balonun yüzeyinde gözle görülür bir delik yoktur. Bu olay hangi kavramla açıklanır?",
+      options: [
+        "Efüzyon; balonun mikroskobik gözeneklerinden gaz taneciklerinin tek tek sızmasıyla",
+        "Difüzyon; balonun içindeki gaz kendi kendine yok olur",
+        "Yoğunlaşma; gaz sıvıya dönüşüp buharlaşır",
+        "Genleşme; balon içindeki hava küçülür",
+        "Bu olayla KMT'nin bir ilgisi yoktur, yalnızca lastik yorulmasıdır",
+      ],
+      correct: 0,
+      explain: "Lastiğin mikroskobik gözeneklerinden gaz taneciklerinin basınç farkı nedeniyle tek tek kaçması efüzyon olarak adlandırılır.",
+    },
+    {
+      context: "Efüzyon Yarışı: O₂ ve H₂",
+      text: "Aynı koşullarda eşit hacimdeki O₂ (M=32) ve H₂ (M=2) gazlarının tamamen efüze olma süreleri karşılaştırılıyor. H₂, O₂'den kaç kat daha hızlı efüze olur?",
+      options: ["4 kat", "2 kat", "16 kat", "0,25 kat", "8 kat"],
+      correct: 0,
+      explain: "r_H2/r_O2=√(M_O2/M_H2)=√(32/2)=√16=4. H₂, O₂'den 4 kat daha hızlı efüze olur.",
+    },
+    {
+      context: "Doğru Terim Hangisi?",
+      text: "Bir laboratuvar raporunda 'gaz, ince bir gözenekten boşluğa doğru kaçtı' cümlesindeki olay için en doğru terim hangisidir?",
+      options: ["Difüzyon", "Efüzyon", "Konveksiyon", "Yoğunlaşma", "Süblimleşme"],
+      correct: 1,
+      explain: "Efüzyon, bir gazın küçük bir delik veya gözenekten boşluğa ya da düşük basınçlı bir bölgeye kaçmasıdır; tarif edilen olay tam olarak budur.",
+    },
+  ],
+};
+
+return { QUIZ, QUIZ_RESERVE };
 })();
 
 const __mod_charts = (function() {

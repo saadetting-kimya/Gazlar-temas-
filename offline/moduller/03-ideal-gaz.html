@@ -226,7 +226,7 @@
   const { mountNav, mountFooter } = __mod_nav;
   const { GasBox, R_CONST } = __mod_gas_engine;
   const { renderQuiz, markVisited, bindJournal } = __mod_quiz_engine;
-  const { QUIZ } = __mod_quiz_data;
+  const { QUIZ, QUIZ_RESERVE } = __mod_quiz_data;
 
 
 
@@ -237,7 +237,7 @@
   mountFooter();
   markVisited("ideal");
   bindJournal(document.getElementById("journal3"), "ideal");
-  renderQuiz(document.getElementById("quiz-host"), QUIZ.ideal, "ideal");
+  renderQuiz(document.getElementById("quiz-host"), QUIZ.ideal, "ideal", QUIZ_RESERVE.ideal);
 
   /* ================= REHBERLİ MOD ================= */
   const VARS = {

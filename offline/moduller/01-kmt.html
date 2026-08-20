@@ -190,7 +190,7 @@
   const { mountNav, mountFooter } = __mod_nav;
   const { GasBox } = __mod_gas_engine;
   const { renderQuiz, markVisited, bindJournal } = __mod_quiz_engine;
-  const { QUIZ } = __mod_quiz_data;
+  const { QUIZ, QUIZ_RESERVE } = __mod_quiz_data;
 
 
 
@@ -201,7 +201,7 @@
   mountFooter();
   markVisited("kmt");
   bindJournal(document.getElementById("journal1"), "kmt-hal");
-  renderQuiz(document.getElementById("quiz-host"), QUIZ.kmt, "kmt");
+  renderQuiz(document.getElementById("quiz-host"), QUIZ.kmt, "kmt", QUIZ_RESERVE.kmt);
 
   /* ---- Deney 1: hâl + sıkıştırılabilirlik ---- */
   const stage1 = document.getElementById("stage1");

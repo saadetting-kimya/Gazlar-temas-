@@ -194,14 +194,14 @@
 <script type="module">
   import { mountNav, mountFooter } from "../assets/js/nav.js?v=3";
   import { GasBox } from "../assets/js/gas-engine.js?v=3";
-  import { renderQuiz, markVisited, bindJournal } from "../assets/js/quiz-engine.js?v=3";
-  import { QUIZ } from "../assets/js/quiz-data.js?v=3";
+  import { renderQuiz, markVisited, bindJournal } from "../assets/js/quiz-engine.js?v=4";
+  import { QUIZ, QUIZ_RESERVE } from "../assets/js/quiz-data.js?v=4";
 
   mountNav("kmt");
   mountFooter();
   markVisited("kmt");
   bindJournal(document.getElementById("journal1"), "kmt-hal");
-  renderQuiz(document.getElementById("quiz-host"), QUIZ.kmt, "kmt");
+  renderQuiz(document.getElementById("quiz-host"), QUIZ.kmt, "kmt", QUIZ_RESERVE.kmt);
 
   /* ---- Deney 1: hâl + sıkıştırılabilirlik ---- */
   const stage1 = document.getElementById("stage1");

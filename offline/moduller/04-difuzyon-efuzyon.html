@@ -193,7 +193,7 @@
   const { BulbApparatus, EffusionFlask } = __mod_gas_engine;
   const { RaceMeter } = __mod_charts;
   const { renderQuiz, markVisited, bindJournal } = __mod_quiz_engine;
-  const { QUIZ } = __mod_quiz_data;
+  const { QUIZ, QUIZ_RESERVE } = __mod_quiz_data;
 
 
 
@@ -205,7 +205,7 @@
   mountFooter();
   markVisited("difuzyon");
   bindJournal(document.getElementById("journal4"), "difuzyon");
-  renderQuiz(document.getElementById("quiz-host"), QUIZ.difuzyon, "difuzyon");
+  renderQuiz(document.getElementById("quiz-host"), QUIZ.difuzyon, "difuzyon", QUIZ_RESERVE.difuzyon);
 
   const GAS_PRESETS = [
     { label: "H₂ · Hidrojen (M=2)", mass: 2 },
