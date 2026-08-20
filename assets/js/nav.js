@@ -17,7 +17,7 @@ const LINKS = [
   { href: link("index.html"), label: "Ana Sayfa", key: "home", num: "" },
   { href: link("moduller/01-kmt.html"), label: "Özellikler & KMT", key: "kmt", num: "1" },
   { href: link("moduller/02-gaz-yasalari.html"), label: "Gaz Yasaları", key: "yasalar", num: "2" },
-  { href: link("moduller/03-ideal-gaz.html"), label: "İdeal Gaz & Serbest Mod", key: "ideal", num: "3" },
+  { href: link("moduller/03-ideal-gaz.html"), label: "İdeal Gaz Yasası", key: "ideal", num: "3" },
   { href: link("moduller/04-difuzyon-efuzyon.html"), label: "Difüzyon & Efüzyon", key: "difuzyon", num: "4" },
   { href: link("Gazlar%20Ders%20Defteri.pdf"), label: "📘 Ders Defteri (PDF)", key: "kitap", num: "" },
   { href: link("Soru%20Bankas%C4%B1.pdf"), label: "📚 Soru Bankası (PDF)", key: "sorubankasi", num: "" },

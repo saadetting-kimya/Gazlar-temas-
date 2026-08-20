@@ -15,7 +15,7 @@ türleri) bilinçli olarak kapsam dışı bırakılmıştır. İçerik şu dört
 |---|---|---|
 | KİM.10.1.8 | Gazların özelliklerine (hacim, basınç, genleşme, sıkıştırılabilirlik, karışabilirlik, yoğunluk) ilişkin bilimsel gözlem; tanecikli modelle açıklama | Modül 1 |
 | KİM.10.1.9 | P, V, T, n arasındaki ilişkileri bilimsel sorgulama; grafik/matematiksel model önerme; kinetik moleküler teoriyle değerlendirme | Modül 2 |
-| KİM.10.1.10 | Boyle, Charles, Avogadro yasaları arasında örüntü oluşturarak ideal gaz denklemini tümevarımsal akıl yürütmeyle oluşturma | Modül 3 (+ Serbest Mod) |
+| KİM.10.1.10 | Boyle, Charles, Avogadro yasaları arasında örüntü oluşturarak ideal gaz denklemini tümevarımsal akıl yürütmeyle oluşturma | Modül 3 |
 | KİM.10.1.11 | Efüzyon ve difüzyona ilişkin deney tasarlama; sonuçları günlük hayatla ilişkilendirme | Modül 4 |
 
 Kullanılan anahtar kavramlar da aynı şekilde sınırlıdır: **gaz basıncı, hacim, ideal gaz,
@@ -29,7 +29,7 @@ index.html                          Ana sayfa: tema tanıtımı, kazanım özeti
 moduller/
   01-kmt.html                       Gazların Özellikleri & Kinetik Moleküler Teori
   02-gaz-yasalari.html              Boyle · Charles · Gay-Lussac · Avogadro (sekmeli)
-  03-ideal-gaz.html                 PV=nRT — P/V/T/n kilit paneli + R sabitini keşfetme + ★ Serbest Mod (iki gazlı sandbox)
+  03-ideal-gaz.html                 PV=nRT — P/V/T/n kilit paneli + R sabitini keşfetme
   04-difuzyon-efuzyon.html          Graham Yasası — difüzyon ve efüzyon "yarışları"
 assets/
   vendor/three/                     Yerel olarak vendor edilmiş Three.js (CDN bağımlılığı yok)
