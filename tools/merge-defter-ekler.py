@@ -27,11 +27,21 @@ DEFTER_PATH = os.path.join(ROOT, "Gazlar Ders Defteri.pdf")
 OUT_PATH = DEFTER_PATH  # yerinde günceller; çağıran taraf önceden yedek almalı
 
 # (kitap-ek/uretilen/Unite-N-Ek.pdf yolu, bu sayfadan SONRA eklenecek doc-order sayfa no)
+#
+# ÖNEMLİ SIRALAMA NOTU: leaf_lookup aşağıda TEK SEFER, betiğin başında
+# hesaplanır ve tüm INSERTS için aynı (değişmeyen) index'leri kullanır. Eğer
+# iki INSERT aynı /Pages ebeveynine düşüyorsa (bu kitapta örn. Ünite 1 ve
+# Ünite 2 sayfaları aynı ebeveyni paylaşıyor), listedeki sayfa numaraları
+# büyükten küçüğe sıralanmalıdır — aksi hâlde önce yapılan bir ekleme, aynı
+# ebeveyndeki SONRAKİ (ama sayı olarak küçük, listede sonra gelen) bir
+# INSERT'in index'ini kaydırıp yanlış yere ekleme yapar. Büyükten küçüğe
+# sıralamada daha büyük index'e yapılan ekleme, daha küçük index'i hiç
+# etkilemez.
 INSERTS = [
-    (os.path.join(ROOT, "kitap-ek/uretilen/Unite-1-Ek.pdf"), 9),
-    (os.path.join(ROOT, "kitap-ek/uretilen/Unite-2-Ek.pdf"), 15),
-    (os.path.join(ROOT, "kitap-ek/uretilen/Unite-3-Ek.pdf"), 20),
-    (os.path.join(ROOT, "kitap-ek/uretilen/Unite-4-Ek.pdf"), 26),
+    (os.path.join(ROOT, "kitap-ek/uretilen/Unite-4-Ek-Yeni.pdf"), 31),
+    (os.path.join(ROOT, "kitap-ek/uretilen/Unite-3-Ek-Yeni.pdf"), 24),
+    (os.path.join(ROOT, "kitap-ek/uretilen/Unite-2-Ek-Yeni.pdf"), 17),
+    (os.path.join(ROOT, "kitap-ek/uretilen/Unite-1-Ek-Yeni.pdf"), 10),
 ]
 
 
