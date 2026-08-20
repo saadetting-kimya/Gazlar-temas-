@@ -28,15 +28,21 @@
 <div id="content"></div>
 
 <script type="module">
-  import { QUIZ } from "../assets/js/quiz-data.js?v=3";
-  import { renderQuestionVisual } from "../assets/js/quiz-engine.js?v=3";
+  import { QUIZ, QUIZ_RESERVE } from "../assets/js/quiz-data.js?v=4";
+  import { renderQuestionVisual } from "../assets/js/quiz-engine.js?v=4";
 
   const params = new URLSearchParams(location.search);
   const unitKey = params.get("unit") || "kmt";
+  // source=all (varsayılan): ana + yedek havuz. source=reserve: yalnızca yedek
+  // havuz — Ders Defteri'ne SONRADAN eklenecek yeni sayfaları üretirken, ana
+  // havuzdaki (zaten kitapta olan) görselli soruların tekrar basılmamasını
+  // sağlamak için kullanılır.
+  const source = params.get("source") || "all";
 
   const VISUAL_FIELDS = ["table", "chart", "compareChart", "statements", "dialogue", "matchPairs", "checklist", "gasContainer", "particleModel", "balloons"];
   const LETTERS = ["A", "B", "C", "D", "E"];
-  const questions = (QUIZ[unitKey] || []).filter(q => VISUAL_FIELDS.some(f => q[f]));
+  const bank = source === "reserve" ? (QUIZ_RESERVE[unitKey] || []) : [...(QUIZ[unitKey] || []), ...(QUIZ_RESERVE[unitKey] || [])];
+  const questions = bank.filter(q => VISUAL_FIELDS.some(f => q[f]));
 
   const content = document.getElementById("content");
   questions.forEach((q, i) => {

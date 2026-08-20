@@ -1316,6 +1316,127 @@ const QUIZ_RESERVE = {
       correct: 0,
       explain: "Gaz taneciklerinin arasındaki büyük boşluk kolayca daraltılabilirken, sıvıda tanecikler zaten birbirine çok yakın olduğundan sıkıştırmaya karşı çok daha fazla direnç gösterir.",
     },
+    {
+      context: "Üç Hâlin Karşılaştırılması",
+      table: {
+        caption: "Aynı maddenin katı, sıvı ve gaz hâllerinin bazı özellikleri.",
+        headers: ["Özellik", "Katı", "Sıvı", "Gaz"],
+        rows: [
+          ["Şekil", "Sabit", "Kabın şeklini alır", "Kabın şeklini alır"],
+          ["Hacim", "Sabit", "Sabit", "Kabı tamamen doldurur"],
+          ["Sıkıştırılabilirlik", "Yok denecek kadar az", "Çok az", "Yüksek"],
+          ["Tanecikler arası boşluk", "Çok küçük", "Küçük", "Çok büyük"],
+        ],
+      },
+      text: "Tablodaki dört özellik karşılaştırıldığında, gazları katı ve sıvılardan en temel düzeyde ayıran ve diğer üç farkın da KÖKENİNİ oluşturan özellik hangisidir?",
+      options: [
+        "Sabit şekil",
+        "Sabit hacim",
+        "Tanecikler arası boşluğun çok büyük olması",
+        "Kabın şeklini alması",
+        "Renk"
+      ],
+      correct: 2,
+      explain: "Gaz taneciklerinin arasındaki boşluk katı ve sıvıya göre çok daha büyüktür; şeklin/hacmin sabit olmaması ve yüksek sıkıştırılabilirlik doğrudan bu büyük boşluğun sonucudur.",
+    },
+    {
+      context: "Kaç İfade Doğru?",
+      checklist: {
+        intro: "Gazlarla ilgili aşağıdaki ifadeleri değerlendir:",
+        items: [
+          "Gaz tanecikleri arasındaki boşluk katı ve sıvıya göre çok daha büyüktür.",
+          "Bir gazın yoğunluğu sıcaklık ve basınçtan bağımsız, sabit bir değerdir.",
+          "Gazlar bulundukları kabın tamamını doldurur.",
+          "İki farklı gaz bir araya geldiğinde kendiliğinden, homojen şekilde karışır.",
+          "Sabit hacimde sıcaklık arttıkça gaz taneciklerinin kabın duvarına çarpma sıklığı azalır.",
+        ],
+      },
+      text: "Yukarıdaki 5 ifadeden kaç tanesi DOĞRUDUR?",
+      options: ["2", "3", "5", "4", "1"],
+      correct: 1,
+      explain: "Doğru olanlar: 1 (büyük boşluk), 3 (kabı doldurma) ve 4 (karışabilirlik) — 3 ifade doğru. 2. ifade yanlıştır çünkü gazın yoğunluğu koşullara bağlı değişir. 5. ifade yanlıştır çünkü sıcaklık arttıkça çarpma sıklığı ARTAR, azalmaz.",
+    },
+    {
+      context: "Ayşe ile Mert Tartışıyor",
+      dialogue: {
+        speakers: [
+          { name: "Mert", text: "Bir gazın yoğunluğunu bir kez ölçersem, o gazı her zaman bu değerden tanırım — yoğunluk suda olduğu gibi ayırt edici bir özelliktir." },
+          { name: "Ayşe", text: "Bence bu yanlış; çünkü gazın hacmi kolayca değişebiliyor." },
+        ],
+      },
+      text: "Ayşe'nin itirazını KMT'ye dayanarak en iyi tamamlayan seçenek hangisidir?",
+      options: [
+        "Ayşe haksızdır, gazların da suyunki gibi sabit bir yoğunluğu vardır",
+        "Gaz tanecikleri arasındaki büyük boşluk nedeniyle hacim sıcaklık ve basınçla kolayca değişir; aynı kütle farklı hacimlere yayılınca yoğunluk da değişir, bu yüzden yoğunluk gazlar için ayırt edici değildir",
+        "Ayşe haklıdır ama nedeni gazların renksiz olmasıdır",
+        "Yoğunluk yalnızca sıvılar için tanımlı bir kavramdır",
+        "Gazların kütlesi sürekli değiştiği için yoğunluk ölçülemez"
+      ],
+      correct: 1,
+      explain: "Gaz taneciklerinin arasındaki boşluk kolayca değiştiğinden (sıkıştırılabilirlik/genleşme), aynı kütledeki bir gazın hacmi de değişir; d=m/V olduğundan yoğunluk da değişir. Bu yüzden yoğunluk, katı/sıvılardaki gibi gazlar için sabit/ayırt edici bir özellik değildir.",
+    },
+    {
+      context: "Özellik – Örnek Eşleştirmesi",
+      matchPairs: {
+        leftLabel: "Özellik",
+        rightLabel: "Günlük Hayat Örneği",
+        left: ["Basınç", "Yoğunluk", "Sıkıştırılabilirlik", "Karışabilirlik"],
+        right: ["Uçakta iniş sırasında kulakların tıkanması", "LPG tüpü sızıntısında yere yakın yerlerin havalandırılması", "Dalış tüpüne normalden çok fazla hava sığdırılabilmesi", "Açılan bir parfüm kokusunun tüm odaya yayılması"],
+      },
+      text: "Yukarıdaki eşleştirmede 'Basınç' satırıyla ilişkilendirilen örnek, gaz taneciklerinin hangi davranışıyla açıklanır?",
+      options: [
+        "Taneciklerin kap/zar yüzeyine çarpma sıklığının dış ortama göre farklılaşmasıyla",
+        "Taneciklerin renk değiştirmesiyle",
+        "Taneciklerin birbirine yapışmasıyla",
+        "Taneciklerin sabit bir hacimde donmasıyla",
+        "Taneciklerin manyetik alan oluşturmasıyla"
+      ],
+      correct: 0,
+      explain: "Basınç, gaz taneciklerinin bir yüzeye birim zamanda yaptığı çarpışmalardan doğar. Kabin basıncı hızla değişince kulak zarının iki tarafındaki çarpışma sıklığı (basınç) dengesizleşir ve rahatsızlık hissedilir.",
+    },
+    {
+      context: "İki Balon, İki Sıcaklık",
+      balloons: {
+        caption: "Aynı miktarda hava içeren iki özdeş balon, biri sıcak biri soğuk ortamda bir süre bekletiliyor.",
+        balloons: [
+          { label: "Sıcak Ortam", color: "#ff8a3d", sizeRatio: 1.15, sub: "Belirgin şekilde büyümüş" },
+          { label: "Soğuk Ortam", color: "#5b8dff", sizeRatio: 0.85, sub: "Küçülmüş" },
+        ],
+      },
+      text: "Şekildeki gözlem, gazların hangi özelliğinin doğrudan bir sonucudur?",
+      options: ["Yoğunluk", "Karışabilirlik", "Genleşme", "Sıkıştırılabilirlik", "Basınç"],
+      correct: 2,
+      explain: "Sıcaklık arttıkça gaz tanecikleri hızlanıp birbirinden uzaklaşır; bu genleşme balonun büyümesine, soğukta ise tanecikler yavaşlayıp birbirine yaklaştığından balon küçülür.",
+    },
+    {
+      context: "Mol Kütlesi ve Yoğunluk",
+      chart: {
+        type: "bar",
+        caption: "Aynı sıcaklık ve basınçta dört farklı gazın yoğunluğu (g/L).",
+        series: [{
+          label: "Yoğunluk",
+          data: [
+            { x: "H₂ (M=2)", y: 0.09, color: "#5b8dff" },
+            { x: "He (M=4)", y: 0.18, color: "#2fb8c6" },
+            { x: "N₂ (M=28)", y: 1.25, color: "#ff8a3d" },
+            { x: "CO₂ (M=44)", y: 1.96, color: "#ff5b7f" },
+          ],
+        }],
+        xLabel: "Gaz",
+        yLabel: "Yoğunluk (g/L)",
+        yDomain: [0, 2.2],
+      },
+      text: "Grafikteki dört gaz arasındaki yoğunluk sıralaması hangi ilkeyle açıklanır?",
+      options: [
+        "Aynı sıcaklık ve basınçta eşit hacimdeki gazlar eşit sayıda tanecik içerir (Avogadro ilkesi); mol kütlesi büyük olan gaz aynı hacimde daha ağır basar, dolayısıyla daha yoğundur",
+        "Gazların rengi yoğunluklarını belirler",
+        "Yoğunluk yalnızca sıcaklığa bağlıdır, mol kütlesinin etkisi yoktur",
+        "Daha hızlı hareket eden tanecikler daha yoğundur",
+        "Yoğunluk rastgele bir özelliktir, örüntü yoktur"
+      ],
+      correct: 0,
+      explain: "Avogadro ilkesine göre aynı sıcaklık/basınçta eşit hacimdeki gazlar eşit tanecik sayısı içerir; mol kütlesi büyüdükçe aynı hacimdeki toplam kütle (dolayısıyla yoğunluk) artar — grafikteki sıralama tam olarak mol kütlesi sıralamasıyla örtüşür.",
+    },
   ],
 
   yasalar: [
@@ -1346,6 +1467,129 @@ const QUIZ_RESERVE = {
       options: ["10 L", "16 L", "12 L", "6 L", "14 L"],
       correct: 2,
       explain: "Sabit P, T'de V/n=sabit (Avogadro Yasası) ⇒ 8/2 = V₂/3 ⇒ V₂ = 12 L.",
+    },
+    {
+      context: "Boyle Yasasını Grafikten Okumak",
+      chart: {
+        type: "line",
+        caption: "Sabit sıcaklıkta bir gazın farklı basınçlarda ölçülen hacmi.",
+        series: [{
+          label: "V (L)",
+          color: "#5b8dff",
+          data: [{ x: 1, y: 12 }, { x: 2, y: 6 }, { x: 3, y: 4 }, { x: 4, y: 3 }],
+        }],
+        xLabel: "Basınç (atm)",
+        yLabel: "Hacim (L)",
+        xDomain: [0, 4.5],
+        yDomain: [0, 13],
+      },
+      text: "Grafikteki eğri, doğrusal bir ilişki DEĞİL, bir hiperbol (ters orantı eğrisi) biçimindedir. Bu şekil hangi yasayı ve hangi matematiksel ilişkiyi doğrudan gösterir?",
+      options: [
+        "Charles Yasası; V ile T doğru orantılıdır",
+        "Boyle Yasası; sabit sıcaklıkta P ile V ters orantılıdır (P·V=sabit)",
+        "Gay-Lussac Yasası; P ile T doğru orantılıdır",
+        "Avogadro Yasası; V ile n doğru orantılıdır",
+        "Hiçbiri; grafik rastgele noktalardan oluşur"
+      ],
+      correct: 1,
+      explain: "Her noktada P×V çarpımını hesaplarsan (1×12=12, 2×6=12, 3×4=12, 4×3=12) hep aynı sabiti bulursun — bu, Boyle Yasası'nın (sabit T'de P·V=sabit) grafiksel imzasıdır.",
+    },
+    {
+      context: "Charles Yasasını Grafikten Okumak",
+      chart: {
+        type: "line",
+        caption: "Sabit basınçta bir gazın farklı sıcaklıklarda ölçülen hacmi.",
+        series: [{
+          label: "V (L)",
+          color: "#ff8a3d",
+          data: [{ x: 100, y: 1 }, { x: 200, y: 2 }, { x: 300, y: 3 }, { x: 400, y: 4 }],
+        }],
+        xLabel: "Sıcaklık (K)",
+        yLabel: "Hacim (L)",
+        xDomain: [0, 450],
+        yDomain: [0, 4.5],
+      },
+      text: "Grafikteki doğru orijinden geçmektedir. Bu, Charles Yasası'nın hangi koşulu için geçerlidir ve doğrunun orijinden geçmesi neyi kanıtlar?",
+      options: [
+        "Yalnızca sıcaklık °C cinsinden ölçüldüğünde geçerlidir",
+        "Sıcaklık MUTLAK (Kelvin) ölçekte kullanıldığında V∝T doğru orantısı geçerlidir; doğrunun orijinden geçmesi V/T oranının sabit kaldığını gösterir",
+        "Yalnızca gaz sıvı hâle geçtiğinde geçerlidir",
+        "Basınç değiştiği için geçerlidir",
+        "Grafik yalnızca tesadüfen orijinden geçer, bir anlamı yoktur"
+      ],
+      correct: 1,
+      explain: "Charles Yasası V/T=sabit (sabit P, mutlak sıcaklıkta) şeklindedir; doğru orantı ilişkilerinin grafiği her zaman orijinden geçer. °C ölçeği kullanılsaydı doğru orijinden geçmezdi.",
+    },
+    {
+      context: "Dört Yasa, Dört Kural",
+      table: {
+        caption: "Gaz yasalarının sabit tuttuğu ve değiştirdiği nicelikler.",
+        headers: ["Yasa", "Sabit Tutulan", "İlişki"],
+        rows: [
+          ["Boyle", "n, T", "P ile V ters orantılı"],
+          ["Charles", "n, P", "V ile T doğru orantılı"],
+          ["Gay-Lussac", "n, V", "P ile T doğru orantılı"],
+          ["Avogadro", "P, T", "V ile n doğru orantılı"],
+        ],
+      },
+      text: "Tabloya göre, sabit HACİMDE bir gaz kabı ısıtılırsa iç basıncın artması hangi yasayla açıklanır?",
+      options: ["Boyle Yasası", "Charles Yasası", "Gay-Lussac Yasası", "Avogadro Yasası", "Hiçbiri"],
+      correct: 2,
+      explain: "Gay-Lussac Yasası, sabit n ve V'de P ile T'nin doğru orantılı olduğunu söyler — bu yüzden rijit (sabit hacimli) bir kap ısıtıldığında iç basınç artar.",
+    },
+    {
+      context: "Doğru mu, Yanlış mı?",
+      statements: {
+        intro: "Gaz yasalarıyla ilgili aşağıdaki önermeleri değerlendir:",
+        statements: [
+          "Boyle Yasası, sabit sıcaklık ve mol sayısında geçerlidir.",
+          "Charles Yasası'nda sıcaklık mutlaka Kelvin cinsinden kullanılmalıdır.",
+          "Avogadro Yasası, sabit hacim ve sıcaklıkta mol sayısı ile basınç arasındaki ilişkiyi tanımlar.",
+        ],
+      },
+      text: "Yukarıdaki önermelerden hangileri DOĞRUDUR?",
+      options: ["Yalnız I", "I ve II", "I, II ve III", "Yalnız III", "II ve III"],
+      correct: 1,
+      explain: "I doğrudur (Boyle Yasası'nın koşulu). II doğrudur (V/T oranı yalnızca mutlak sıcaklıkta anlamlıdır). III yanlıştır: Avogadro Yasası sabit BASINÇ ve SICAKLIKTA V ile n arasındaki ilişkiyi tanımlar, hacim ile mol sayısı arasındadır — basınçla değil. Doğru cevap: I ve II.",
+    },
+    {
+      context: "Zeynep ile Kaan Tartışıyor",
+      dialogue: {
+        speakers: [
+          { name: "Kaan", text: "Bir balonu ısıtırsak hem hacmi hem basıncı artar, ikisi de aynı anda büyür." },
+          { name: "Zeynep", text: "Balon esnek olduğu için durum biraz farklı bence..." },
+        ],
+      },
+      text: "Zeynep'in itirazını tamamlayan en doğru açıklama hangisidir?",
+      options: [
+        "Kaan tamamen haklıdır, esnekliğin bir önemi yoktur",
+        "Esnek bir balonda dış basınç sabit kaldığından ısıtınca iç basınç neredeyse sabit kalır, bunun yerine Charles Yasası gereği hacim artar; basınç artışı ancak balon esnemeyi bırakırsa (rijit hâle gelirse) belirginleşir",
+        "Balon ısıtıldığında yalnızca rengi değişir",
+        "Esnek balonlarda gaz yasaları geçerli değildir",
+        "Balon ısıtıldığında mol sayısı azaldığı için hacim küçülür"
+      ],
+      correct: 1,
+      explain: "Esnek bir balonda iç basınç, dış atmosfer basıncına yakın kalmaya eğilimlidir (sabit P); bu koşulda ısıtma öncelikle Charles Yasası'na göre hacmi artırır. Basıncın da belirgin şekilde artması için balonun artık esneyemediği (hacminin sabitlendiği) bir noktaya gelmesi gerekir — o zaman devreye Gay-Lussac Yasası girer.",
+    },
+    {
+      context: "Isıtılan İki Özdeş Kap",
+      gasContainer: {
+        caption: "Aynı hacimli iki kapalı (sabit hacimli, rijit) kapta eşit miktarda gaz, farklı sıcaklıklarda tutuluyor.",
+        vessels: [
+          { label: "1. Kap (300 K)", kind: "fixed", particles: 12, gasColor: "#5b8dff", P: "1 atm", T: "300 K" },
+          { label: "2. Kap (600 K)", kind: "fixed", particles: 12, gasColor: "#ff5b7f", P: "2 atm", T: "600 K" },
+        ],
+      },
+      text: "Şekildeki iki kapta da tanecik sayısı ve hacim aynıyken, 2. kabın basıncının 1. kaptan tam 2 kat fazla olması hangi ilişkiyle uyumludur?",
+      options: [
+        "P/T = sabit (Gay-Lussac Yasası) — sıcaklık 2 katına çıkınca (300→600 K) basınç da 2 katına çıkar",
+        "P×V = sabit (Boyle Yasası) — ama burada hacim sabit olduğu için bu yasa uygulanamaz",
+        "V/n = sabit (Avogadro Yasası)",
+        "Basınç sıcaklıktan tamamen bağımsızdır, bu bir tesadüftür",
+        "Tanecik sayısı 2 katına çıktığı için basınç artmıştır"
+      ],
+      correct: 0,
+      explain: "Sabit hacim ve mol sayısında P/T sabittir (Gay-Lussac Yasası): 1/300 = 2/600. Sıcaklık mutlak ölçekte 2 katına çıkınca taneciklerin ortalama kinetik enerjisi ve dolayısıyla duvara çarpma şiddeti/sıklığı artar, basınç da tam 2 katına çıkar.",
     },
   ],
 
@@ -1390,6 +1634,137 @@ const QUIZ_RESERVE = {
       correct: 0,
       explain: "Yüksek basınçta gaz tanecikleri birbirine çok yaklaşır; ideal gaz varsayımının göz ardı ettiği tanecik hacmi ve tanecikler arası çekim kuvvetleri bu koşulda artık ihmal edilemez, bu yüzden gerçek gaz davranışı idealden sapar.",
     },
+    {
+      context: "Hangi Gaz İdeale En Yakın?",
+      table: {
+        caption: "Dört farklı gazın bulunduğu koşullar.",
+        headers: ["Gaz", "Basınç", "Sıcaklık", "Mol Kütlesi"],
+        rows: [
+          ["K", "50 atm", "200 K", "44 g/mol"],
+          ["L", "0,5 atm", "500 K", "2 g/mol"],
+          ["M", "1 atm", "300 K", "28 g/mol"],
+          ["N", "80 atm", "250 K", "146 g/mol"],
+        ],
+      },
+      text: "Tablodaki dört gazdan hangisi ideal gaz davranışına EN YAKIN sonucu verir?",
+      options: ["K", "L", "M", "N", "Hepsi eşit derecede idealdir"],
+      correct: 1,
+      explain: "Gazlar düşük basınç, yüksek sıcaklık ve küçük mol kütlesinde ideale en çok yaklaşır. L gazı (0,5 atm, 500 K, M=2 g/mol) bu üç koşulu birlikte en iyi sağlayan seçenektir.",
+    },
+    {
+      context: "NŞ'de İki Farklı Gaz",
+      gasContainer: {
+        caption: "Normal şartlarda (0°C, 1 atm) eşit mol sayıdaki iki farklı gaz.",
+        vessels: [
+          { label: "1 mol He", kind: "fixed", particles: 14, gasColor: "#5b8dff", P: "1 atm", T: "273 K", V: "≈22,4 L" },
+          { label: "1 mol CO₂", kind: "fixed", particles: 14, gasColor: "#ff5b7f", P: "1 atm", T: "273 K", V: "≈22,4 L" },
+        ],
+      },
+      text: "Şekildeki iki kabın hacminin birbirine eşit çıkmasının nedeni nedir?",
+      options: [
+        "İdeal gaz denkleminde molar kütle yer almaz; aynı n, P, T'de tüm ideal gazlar aynı hacmi kaplar",
+        "He ve CO₂'nin molar kütleleri tesadüfen birbirine çok yakındır",
+        "Her iki gaz da aynı renktedir",
+        "Kaplar aynı malzemeden yapıldığı için hacimleri eşitlenir",
+        "Bu bir ölçüm hatasıdır, gerçekte hacimler farklı olmalıdır"
+      ],
+      correct: 0,
+      explain: "PV=nRT'de yalnızca n, P, T yer alır — molar kütle (M) denklemde hiç geçmez. Bu yüzden aynı n, P, T koşulunda hangi ideal gaz olursa olsun aynı hacmi kaplar (NŞ'de ≈22,4 L/mol).",
+    },
+    {
+      context: "İzotermleri Karşılaştırmak",
+      chart: {
+        type: "line",
+        caption: "Aynı miktardaki bir gazın iki farklı sabit sıcaklıkta (izoterm) P-V eğrileri.",
+        series: [
+          { label: "T = 300 K", color: "#5b8dff", data: [{ x: 2, y: 12 }, { x: 4, y: 6 }, { x: 6, y: 4 }, { x: 8, y: 3 }] },
+          { label: "T = 500 K", color: "#ff5b7f", data: [{ x: 2, y: 20 }, { x: 4, y: 10 }, { x: 6, y: 6.7 }, { x: 8, y: 5 }] },
+        ],
+        xLabel: "Basınç (atm)",
+        yLabel: "Hacim (L)",
+        xDomain: [0, 9],
+        yDomain: [0, 22],
+      },
+      text: "Grafikte aynı basınç değerinde, 500 K eğrisinin hacmi her zaman 300 K eğrisinden daha büyüktür. Bu gözlem PV=nRT ile nasıl açıklanır?",
+      options: [
+        "Sabit n ve P'de V, T ile doğru orantılıdır (V=nRT/P); sıcaklık arttıkça aynı basınçta hacim de artar",
+        "Sıcaklık arttıkça mol sayısı azalır, bu yüzden hacim artar",
+        "Bu bir ölçüm hatasıdır, iki eğri de aynı olmalıdır",
+        "Sabit basınçta sıcaklığın hacimle hiçbir ilgisi yoktur",
+        "Yüksek sıcaklıkta gaz sıvılaşıp hacmi büyütür"
+      ],
+      correct: 0,
+      explain: "V=nRT/P ifadesinde n ve P sabit tutulduğunda V, T ile doğru orantılıdır. Bu yüzden aynı basınç değerinde daha yüksek sıcaklıktaki izoterm (500 K) her zaman daha büyük bir hacme karşılık gelir.",
+    },
+    {
+      context: "Yükselen Balon, Büyüyen Balon",
+      balloons: {
+        caption: "Bir meteoroloji balonu yerden yükseldikçe dış basınç azalır; balonun boyutu gözlemleniyor.",
+        balloons: [
+          { label: "Yerde (1 atm)", color: "#5b8dff", sizeRatio: 0.6, sub: "Küçük, sıkı" },
+          { label: "Yüksekte (0,25 atm)", color: "#ff5b7f", sizeRatio: 1.3, sub: "Büyük, gergin" },
+        ],
+      },
+      text: "Balonun içindeki gaz miktarı (n) ve sıcaklığı (T) yaklaşık sabit kabul edilirse, balonun yükseldikçe büyümesi ideal gaz denkleminin hangi biçimiyle açıklanır?",
+      options: [
+        "Sabit n, T'de V, 1/P ile doğru orantılıdır (V=nRT/P); dış basınç azaldıkça iç basınç da azalır ve hacim büyür",
+        "Sabit n, T'de V, P ile doğru orantılıdır",
+        "Yükseklikle mol sayısı artar, bu yüzden hacim büyür",
+        "Yükseklikte sıcaklık çok arttığı için balon büyür",
+        "Balonun büyümesi ideal gaz denklemiyle açıklanamaz"
+      ],
+      correct: 0,
+      explain: "V=nRT/P'de n ve T sabitken V, P ile ters (1/P ile doğru) orantılıdır. Yükseklikle dış/iç basınç azaldıkça aynı miktardaki gaz daha büyük bir hacme yayılır ve balon şişer.",
+    },
+    {
+      context: "İdeal Gaz Modelinin Varsayımları",
+      checklist: {
+        intro: "İdeal gaz modeli için aşağıdaki varsayımları değerlendir:",
+        items: [
+          "Gaz taneciklerinin kendi hacmi, kabın hacmine göre ihmal edilebilir kabul edilir.",
+          "Tanecikler arasında çekim veya itme kuvveti olmadığı varsayılır.",
+          "Tanecikler birbirleriyle ve kap duvarıyla esnek çarpışma yapar.",
+          "Gaz taneciklerinin rengi hesaba katılır.",
+          "Taneciklerin ortalama kinetik enerjisi yalnızca mutlak sıcaklığa bağlıdır.",
+        ],
+      },
+      text: "Yukarıdaki 5 ifadeden kaç tanesi ideal gaz modelinin GERÇEK varsayımlarındandır?",
+      options: ["2", "3", "5", "4", "1"],
+      correct: 3,
+      explain: "1, 2, 3 ve 5. ifadeler ideal gaz modelinin temel varsayımlarıdır (4 tanesi). 4. ifade (renk) fiziksel olarak anlamsızdır ve modelin bir parçası değildir.",
+    },
+    {
+      context: "R Sabitinin Farklı Birimleri",
+      matchPairs: {
+        leftLabel: "Birim",
+        rightLabel: "Sayısal Değer",
+        left: ["L·atm/(mol·K)", "J/(mol·K)", "cal/(mol·K)", "L·torr/(mol·K)"],
+        right: ["8,314", "0,082", "62,36", "1,987"],
+      },
+      text: "R sabitinin hangi birimdeki değeri, bu simülasyonda hesaplamalarda kullanılan değerdir?",
+      options: ["8,314", "62,36", "1,987", "0,082", "Hepsi aynı sayısal değere sahiptir"],
+      correct: 3,
+      explain: "R'nin sayısal değeri kullanılan birime göre değişir (R birimden bağımsız TEK bir sabittir, yalnızca ifade edildiği birim değişir). Bu simülasyonda ve hesaplamalarda R≈0,082 L·atm/(mol·K) kullanılır.",
+    },
+    {
+      context: "Deniz ile Efe Tartışıyor",
+      dialogue: {
+        speakers: [
+          { name: "Deniz", text: "PV=nRT her koşulda, her gaz için tam olarak doğru sonuç verir; ideal gaz denklemi mükemmel bir modeldir." },
+          { name: "Efe", text: "Hocamız gerçek gazların bazı koşullarda idealden saptığını söylemişti..." },
+        ],
+      },
+      text: "Efe'nin itirazını destekleyen en doğru açıklama hangisidir?",
+      options: [
+        "Deniz haklıdır, ideal gaz denklemi istisnasız her koşulda geçerlidir",
+        "İdeal gaz denklemi tanecik hacmini ve tanecikler arası çekim kuvvetlerini yok sayar; yüksek basınç ve düşük sıcaklıkta bu ihmaller geçersiz hâle gelir ve gerçek gazlar PV=nRT'den sapar",
+        "Efe haklıdır ama nedeni gazların renkli olmasıdır",
+        "İdeal gaz denklemi yalnızca soy gazlar için geçerlidir",
+        "Sapma yalnızca gaz karışımlarında görülür, saf gazlarda hiç görülmez"
+      ],
+      correct: 1,
+      explain: "İdeal gaz denklemi, tanecik hacmini sıfır ve tanecikler arası kuvvetleri yok sayan basitleştirilmiş bir modeldir. Yüksek basınç (tanecikler sıkışık) ve düşük sıcaklıkta (tanecikler yavaş, çekim kuvvetleri etkili) bu varsayımlar geçersizleşir ve gerçek gaz davranışı idealden sapar.",
+    },
   ],
 
   difuzyon: [
@@ -1426,6 +1801,145 @@ const QUIZ_RESERVE = {
       options: ["Difüzyon", "Efüzyon", "Konveksiyon", "Yoğunlaşma", "Süblimleşme"],
       correct: 1,
       explain: "Efüzyon, bir gazın küçük bir delik veya gözenekten boşluğa ya da düşük basınçlı bir bölgeye kaçmasıdır; tarif edilen olay tam olarak budur.",
+    },
+    {
+      context: "Dört Gazın Efüzyon Hızı",
+      chart: {
+        type: "bar",
+        caption: "Aynı sıcaklık ve basınçta dört gazın bağıl efüzyon hızı (H₂'ye göre normalize edilmiş, H₂=1).",
+        series: [{
+          label: "Bağıl Hız",
+          data: [
+            { x: "H₂ (M=2)", y: 1, color: "#5b8dff" },
+            { x: "He (M=4)", y: 0.71, color: "#2fb8c6" },
+            { x: "O₂ (M=32)", y: 0.25, color: "#ff8a3d" },
+            { x: "CO₂ (M=44)", y: 0.21, color: "#ff5b7f" },
+          ],
+        }],
+        xLabel: "Gaz",
+        yLabel: "Bağıl Efüzyon Hızı",
+        yDomain: [0, 1.1],
+      },
+      text: "Grafikteki bağıl hız sıralaması hangi ilişkiyle birebir uyumludur?",
+      options: [
+        "Efüzyon hızı, mol kütlesinin kareköküyle TERS orantılıdır (Graham Yasası) — mol kütlesi küçüldükçe hız artar",
+        "Efüzyon hızı, mol kütlesiyle doğru orantılıdır",
+        "Efüzyon hızı yalnızca gazın rengine bağlıdır",
+        "Tüm gazlar aynı sıcaklıkta her zaman aynı hızda efüze olur",
+        "Efüzyon hızı yalnızca basınca bağlıdır, mol kütlesinin etkisi yoktur"
+      ],
+      correct: 0,
+      explain: "Graham Yasası'na göre r∝1/√M'dir. H₂ (M=2) en küçük mol kütlesine sahip olduğundan en hızlı efüze olur; mol kütlesi arttıkça (He→O₂→CO₂) hız azalır — grafikteki sıralama bu ters orantıyı birebir yansıtır.",
+    },
+    {
+      context: "He ile SF₆'nın Balon Yarışı",
+      balloons: {
+        caption: "Aynı boyuttaki iki gözenekli balon, biri He (M=4) biri SF₆ (M=146) ile doldurulup aynı süre bekletiliyor.",
+        balloons: [
+          { label: "He (M=4)", color: "#5b8dff", sizeRatio: 0.35, sub: "Neredeyse tamamen sönmüş" },
+          { label: "SF₆ (M=146)", color: "#ff5b7f", sizeRatio: 0.97, sub: "Neredeyse aynı boyutta" },
+        ],
+      },
+      text: "İki balon arasındaki büyüklük farkının bu kadar belirgin olmasının nedeni nedir?",
+      options: [
+        "SF₆'nın mol kütlesi He'ninkinden ÇOK daha büyük olduğundan, Graham Yasası'na göre efüzyon hızı çok daha yavaştır ve balon neredeyse hiç sönmez",
+        "SF₆ molekülleri kauçukla tepkimeye girer",
+        "He balonun içinde sıvılaşır",
+        "SF₆ havadan çok daha soğuktur",
+        "İki balon da aslında aynı hızda söner, gözlem yanıltıcıdır"
+      ],
+      correct: 0,
+      explain: "r_He/r_SF6 = √(146/4) ≈ 6 — He, SF₆'dan yaklaşık 6 kat daha hızlı efüze olur. Bu büyük fark, He balonunun hızla sönerken SF₆ balonunun neredeyse aynı boyutta kalmasını açıklar.",
+    },
+    {
+      context: "Bölme Kalkınca Ne Olur?",
+      gasContainer: {
+        caption: "Ortadan çıkarılabilir bir bölmeyle ayrılmış kapta, sol tarafta X gazı, sağ tarafta boşluk var. Bölme kaldırılıyor.",
+        vessels: [
+          { label: "Bölme Kalkmadan Önce", kind: "fixed", particles: 16, gasColor: "#5b8dff", V: "Sol yarı dolu" },
+          { label: "Bir Süre Sonra", kind: "fixed", particles: 16, gasColor: "#5b8dff", V: "Tüm kaba homojen dağılmış" },
+        ],
+      },
+      text: "Şekildeki olay hangi kavramla adlandırılır ve gaz taneciklerini bu şekilde hareket ettiren nedir?",
+      options: [
+        "Difüzyon; tanecikler yüksek konsantrasyonlu bölgeden düşük konsantrasyonlu bölgeye doğru kendiliğinden, rastgele hareketleriyle yayılır",
+        "Efüzyon; tanecikler yalnızca bir delikten tek tek geçer",
+        "Yoğunlaşma; gaz sıvı hâle geçer",
+        "Erime; katı gaz hâline geçer",
+        "Bu olay yalnızca dış bir kuvvet uygulanırsa gerçekleşir"
+      ],
+      correct: 0,
+      explain: "Bariyer olmaksızın bir gazın boşluğa ya da başka bir bölgeye kendiliğinden yayılması difüzyondur. Tanecikler rastgele (Brown) hareket ettiğinden istatistiksel olarak boş bölgeye doğru net bir yayılma gözlenir; dış kuvvete gerek yoktur.",
+    },
+    {
+      context: "Gazları Efüzyon Hızına Göre Sıralamak",
+      table: {
+        caption: "Dört gazın mol kütlesi ve H₂'ye göre bağıl efüzyon hızı.",
+        headers: ["Gaz", "Mol Kütlesi (g/mol)", "Bağıl Hız (H₂=1)"],
+        rows: [
+          ["H₂", 2, 1],
+          ["N₂", 28, "≈0,27"],
+          ["O₂", 32, "≈0,25"],
+          ["Kr", 84, "≈0,15"],
+        ],
+      },
+      text: "Tablodaki verilere göre, efüzyon hızı en YAVAŞ olan gaz hangisidir ve bu neden böyledir?",
+      options: [
+        "Kr; mol kütlesi en büyük olduğundan Graham Yasası'na göre (r∝1/√M) efüzyon hızı en düşüktür",
+        "H₂; mol kütlesi en küçük olduğundan en yavaştır",
+        "N₂; azot gazı her zaman en yavaş efüze olur",
+        "Hepsi aynı hızda efüze olur, tablo yanlıştır",
+        "O₂; oksijenin kimyasal aktifliği onu yavaşlatır"
+      ],
+      correct: 0,
+      explain: "Graham Yasası'na göre efüzyon hızı mol kütlesinin kareköküyle ters orantılıdır. Kr'nin mol kütlesi (84) tablodaki en büyük değer olduğundan bağıl hızı da en düşüktür.",
+    },
+    {
+      context: "Doğru mu, Yanlış mı?",
+      statements: {
+        intro: "Difüzyon ve efüzyonla ilgili aşağıdaki önermeleri değerlendir:",
+        statements: [
+          "Efüzyon, bir gazın küçük bir delikten düşük basınçlı bir bölgeye kaçmasıdır.",
+          "Difüzyonun gerçekleşmesi için mutlaka bir basınç farkı gerekir.",
+          "Aynı sıcaklıkta mol kütlesi küçük olan gaz, hem difüzyonda hem efüzyonda daha hızlıdır.",
+        ],
+      },
+      text: "Yukarıdaki önermelerden hangileri DOĞRUDUR?",
+      options: ["Yalnız I", "I ve III", "I, II ve III", "Yalnız III", "II ve III"],
+      correct: 1,
+      explain: "I doğrudur (efüzyonun tanımı). II yanlıştır: difüzyon genellikle bir bariyer/basınç farkı olmadan, yalnızca KONSANTRASYON farkıyla kendiliğinden gerçekleşir. III doğrudur (Graham Yasası her iki olay için de geçerlidir). Doğru cevap: I ve III.",
+    },
+    {
+      context: "Terim – Tanım Eşleştirmesi",
+      matchPairs: {
+        leftLabel: "Terim",
+        rightLabel: "Tanım",
+        left: ["Difüzyon", "Efüzyon", "Graham Yasası", "Brown Hareketi"],
+        right: ["Gaz taneciklerinin küçük bir delikten boşluğa kaçışı", "Bir gazın bariyersiz olarak başka bir ortama kendiliğinden yayılması", "Efüzyon/difüzyon hızının mol kütlesinin kareköküyle ters orantılı olması", "Gaz taneciklerinin sürekli, düzensiz, zikzaklı hareketi"],
+      },
+      text: "Yukarıdaki eşleştirmede 'Graham Yasası' ile ilişkilendirilen tanıma göre, mol kütlesi 4 KATINA çıkan bir gazın efüzyon hızı nasıl değişir?",
+      options: ["Yarıya iner", "4 kat artar", "Değişmez", "2 katına çıkar", "16 kat azalır"],
+      correct: 0,
+      explain: "r∝1/√M olduğundan mol kütlesi 4 katına çıkarsa hız 1/√4 = 1/2 katına, yani yarıya iner.",
+    },
+    {
+      context: "Ege ile Nil Tartışıyor",
+      dialogue: {
+        speakers: [
+          { name: "Ege", text: "Difüzyon ve efüzyon aslında aynı şey; ikisi de gazın bir yerden başka bir yere hareketi." },
+          { name: "Nil", text: "Aralarında önemli bir fark olduğunu düşünüyorum..." },
+        ],
+      },
+      text: "Nil'in belirtmek istediği fark en doğru şekilde hangi seçenekte ifade edilmiştir?",
+      options: [
+        "Efüzyon, gazın küçük bir DELİKTEN boşluğa/düşük basınçlı bölgeye kaçışıdır; difüzyon ise genellikle bir bariyer olmadan, KONSANTRASYON farkından kaynaklanan karışmadır — ikisi de Graham Yasası'na uyar ama farklı fiziksel durumları tanımlar",
+        "Ege haklıdır, aralarında hiçbir fark yoktur",
+        "Difüzyon yalnızca sıvılarda, efüzyon yalnızca gazlarda gerçekleşir",
+        "Efüzyon yalnızca yüksek sıcaklıkta, difüzyon yalnızca düşük sıcaklıkta gerçekleşir",
+        "Fark yalnızca isimlendirmeden ibarettir, fiziksel bir ayrım yoktur"
+      ],
+      correct: 0,
+      explain: "Efüzyon, sıkışmış bir gazın küçük bir delikten kaçışıdır (genellikle basınç farkıyla ilişkili); difüzyon ise bir bariyer olmaksızın konsantrasyon farkından kaynaklanan kendiliğinden karışmadır. İkisi de mol kütlesine bağlı olarak Graham Yasası'na uyar, ama tarif ettikleri fiziksel durumlar farklıdır.",
     },
   ],
 };
