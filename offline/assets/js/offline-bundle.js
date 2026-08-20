@@ -503,7 +503,7 @@ function bindJournal(textareaEl, key) {
   });
 }
 
-return { readProgress, writeProgress, markModuleScore, markVisited, renderQuiz, bindJournal };
+return { readProgress, writeProgress, markModuleScore, markVisited, renderQuestionVisual, renderQuiz, bindJournal };
 })();
 
 const __mod_nav = (function({ readProgress }) {

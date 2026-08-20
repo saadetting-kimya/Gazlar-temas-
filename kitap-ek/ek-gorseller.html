@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<title>GazLab 10 — Ders Defteri Eki: Görselli Sorular</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2246%22 fill=%22%232fb8c6%22/></svg>">
+<link rel="stylesheet" href="../assets/css/style.css?v=3" />
+<style>
+  @page { size: A4; margin: 20mm 16mm 18mm; }
+  body { background: #fff; max-width: 720px; margin: 0 auto; padding: 0 4mm; }
+  .ek-cover { padding: 40mm 0 16mm; text-align: center; page-break-after: always; }
+  .ek-cover .eyebrow { display:inline-block; margin-bottom: 14px; }
+  .ek-cover h1 { font-size: 28px; margin: 0 0 10px; }
+  .ek-cover p { max-width: 460px; margin: 0 auto 6px; color: var(--ink-soft); }
+  .ek-unit { margin-top: 4mm; page-break-before: always; }
+  .ek-unit:first-of-type { page-break-before: avoid; }
+  .ek-unit h2 { font-size: 19px; border-bottom: 2px solid var(--gas); padding-bottom: 6px; margin-bottom: 14px; }
+  .ek-q { page-break-inside: avoid; margin-bottom: 22px; border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+  .ek-q-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px; }
+  .ek-q-no { font-family: var(--mono); font-size: 11px; color: var(--ink-faint); font-weight: 700; }
+  .ek-q-ctx { font-size: 12px; color: var(--gas-dark); font-weight: 700; background: rgba(47,184,198,.1); padding: 2px 9px; border-radius: 999px; }
+  .ek-q-text { font-size: 13.5px; color: var(--ink); font-weight: 600; margin: 8px 0 10px; }
+  .ek-opts { display: grid; gap: 5px; font-size: 12.5px; color: var(--ink-soft); }
+  .ek-opts .opt { display:flex; gap:8px; }
+  .ek-opts .letter { font-weight: 800; color: var(--ink-faint); min-width: 16px; }
+  .ek-answer-key { page-break-before: always; }
+  .ek-answer-key h2 { font-size: 19px; border-bottom: 2px solid var(--gas); padding-bottom: 6px; margin-bottom: 14px; }
+  .ek-answer-key .ak-item { font-size: 12.5px; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px dashed var(--line); }
+  .ek-answer-key .ak-item b { color: var(--gas-dark); }
+  .gl-visual { margin: 6px 0 10px; }
+  .gl-chart { max-width: 380px; }
+  .gl-vessel-svg { width: 100px; }
+</style>
+</head>
+<body>
+
+<div class="ek-cover">
+  <span class="eyebrow">GazLab 10 · Ek</span>
+  <h1>Görselli Örnek Sorular</h1>
+  <p>Bu ek, <strong>Gazlar Ders Defteri</strong>'ne destek olarak hazırlanmıştır. Uygulamanın soru havuzuna eklenen kap şekli, çizgi/çubuk grafik, balon karşılaştırması ve önerme (I/II/III) tipi görselli sorulardan seçilmiş örnekleri içerir — defterinizin sonuna ek olarak koyabilirsiniz.</p>
+  <p class="small">Her ünite için 2 örnek soru + sayfa sonunda toplu cevap anahtarı.</p>
+</div>
+
+<div id="content"></div>
+
+<script type="module">
+  import { QUIZ } from "../assets/js/quiz-data.js?v=3";
+  import { renderQuestionVisual } from "../assets/js/quiz-engine.js?v=3";
+
+  const UNITS = [
+    { key: "kmt", title: "Ünite 1 — Gazların Özellikleri ve Kinetik Teori" },
+    { key: "yasalar", title: "Ünite 2 — Gaz Yasaları" },
+    { key: "ideal", title: "Ünite 3 — İdeal Gaz Denklemi" },
+    { key: "difuzyon", title: "Ünite 4 — Difüzyon ve Efüzyon" },
+  ];
+  const VISUAL_FIELDS = ["table", "chart", "compareChart", "statements", "dialogue", "matchPairs", "checklist", "gasContainer", "particleModel", "balloons"];
+  const LETTERS = ["A", "B", "C", "D", "E"];
+
+  const content = document.getElementById("content");
+  const answerKey = [];
+  let globalNo = 0;
+
+  UNITS.forEach(unit => {
+    const questions = (QUIZ[unit.key] || []).filter(q => VISUAL_FIELDS.some(f => q[f]));
+    if (!questions.length) return;
+
+    const section = document.createElement("div");
+    section.className = "ek-unit";
+    section.innerHTML = `<h2>${unit.title}</h2>`;
+
+    questions.forEach(q => {
+      globalNo++;
+      const card = document.createElement("div");
+      card.className = "ek-q";
+      card.innerHTML = `
+        <div class="ek-q-head">
+          <span class="ek-q-no">SORU ${globalNo}</span>
+          ${q.context ? `<span class="ek-q-ctx">${q.context}</span>` : ""}
+        </div>
+      `;
+      const visual = renderQuestionVisual(q);
+      if (visual) card.appendChild(visual);
+      const textEl = document.createElement("div");
+      textEl.className = "ek-q-text";
+      textEl.textContent = q.text;
+      card.appendChild(textEl);
+      const optsEl = document.createElement("div");
+      optsEl.className = "ek-opts";
+      q.options.forEach((opt, i) => {
+        const row = document.createElement("div");
+        row.className = "opt";
+        row.innerHTML = `<span class="letter">${LETTERS[i]})</span><span>${opt}</span>`;
+        optsEl.appendChild(row);
+      });
+      card.appendChild(optsEl);
+      section.appendChild(card);
+
+      answerKey.push({ no: globalNo, unit: unit.title, letter: LETTERS[q.correct], explain: q.explain });
+    });
+
+    content.appendChild(section);
+  });
+
+  const akSection = document.createElement("div");
+  akSection.className = "ek-answer-key";
+  akSection.innerHTML = "<h2>Cevap Anahtarı</h2>";
+  answerKey.forEach(a => {
+    const item = document.createElement("div");
+    item.className = "ak-item";
+    item.innerHTML = `<b>Soru ${a.no}</b> (${a.unit}) — Doğru cevap: <b>${a.letter}</b>. ${a.explain}`;
+    akSection.appendChild(item);
+  });
+  content.appendChild(akSection);
+</script>
+</body>
+</html>

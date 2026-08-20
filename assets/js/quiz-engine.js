@@ -400,7 +400,7 @@ const VISUAL_RENDERERS = {
 
 /** Sorunun tanınan görsel alanlarından (en fazla bir tane beklenir) DOM
     düğümü üretir; hiçbiri yoksa null döner. */
-function renderQuestionVisual(q) {
+export function renderQuestionVisual(q) {
   for (const [field, renderer] of Object.entries(VISUAL_RENDERERS)) {
     if (q[field]) return renderer(q[field]);
   }
