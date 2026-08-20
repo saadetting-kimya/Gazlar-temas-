@@ -97,6 +97,7 @@ const MODULES = [
   ["three", "assets/vendor/three/three.module.js"],
   ["orbitcontrols", "assets/vendor/three/examples/jsm/controls/OrbitControls.js"],
   ["gas_engine", "assets/js/gas-engine.js"],
+  ["report", "assets/js/report.js"],
 ];
 
 const bundleParts = [

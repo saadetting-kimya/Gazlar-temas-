@@ -39,18 +39,54 @@
   </div>
 </section>
 
+<!-- =====================================================
+     ÖĞRENCİ PDF ANALİZ RAPORU
+     ===================================================== -->
+
+<section class="student-report-panel">
+
+  <div class="student-report-head">
+    <h2>📊 Öğrenci Analiz Raporu</h2>
+    <p>Çözdüğün sorular, kazanım başarıların ve yanlışların öğretmen için renkli bir rapora dönüştürülür.</p>
+  </div>
+
+  <div class="student-report-form">
+    <div class="report-field">
+      <label for="reportStudentName">Öğrenci Adı Soyadı</label>
+      <input id="reportStudentName" type="text" placeholder="Ad Soyad">
+    </div>
+    <div class="report-field">
+      <label for="reportStudentClass">Sınıf / Şube</label>
+      <input id="reportStudentClass" type="text" placeholder="11/A">
+    </div>
+    <div class="report-field">
+      <label for="reportStudentNo">Öğrenci No</label>
+      <input id="reportStudentNo" type="text" placeholder="123">
+    </div>
+  </div>
+
+  <button id="createPdfReportBtn" class="btn pdf-report-btn" type="button">🖨️ PDF Raporu Oluştur</button>
+
+</section>
+
+<!-- Yazdırılırken kullanılacak gizli alan -->
+<div id="studentPrintReport" class="student-print-report"></div>
+
 <div id="footer-root"></div>
 
 <script src="assets/js/offline-bundle.js"></script>
 <script>
   const { mountNav, mountFooter } = __mod_nav;
   const { getWrongAnswers, renderQuestionVisual } = __mod_quiz_engine;
+  const { bindStudentReportButton } = __mod_report;
+
 
 
 
 
   mountNav("yanlislarim");
   mountFooter();
+  bindStudentReportButton();
 
   const MODULES = [
     { key: "kmt", title: "Gazların Özellikleri & Kinetik Moleküler Teori", href: "moduller/01-kmt.html" },
