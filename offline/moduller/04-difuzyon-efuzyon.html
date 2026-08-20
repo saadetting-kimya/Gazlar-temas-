@@ -47,17 +47,19 @@
 
 <section class="section tight">
   <div class="container">
-    <div class="controls" style="grid-template-columns:repeat(2,1fr); gap:16px; margin-bottom:22px;">
-      <div class="control-row" style="grid-template-columns:120px 1fr 90px">
-        <label for="gasB">Gaz B</label>
-        <select id="gasB" style="background:#0a1120;color:#e9f2ff;border:1px solid var(--lab-line);border-radius:8px;padding:8px;">
-        </select>
-        <span></span>
-      </div>
-      <div class="control-row" style="grid-template-columns:120px 1fr 90px">
-        <label for="raceT">Sıcaklık</label>
-        <input type="range" id="raceT" min="200" max="500" step="10" value="300" />
-        <output id="raceT-out">300 K</output>
+    <div class="card" style="margin-bottom:22px">
+      <div class="controls" style="grid-template-columns:repeat(2,1fr); gap:16px;">
+        <div class="control-row" style="grid-template-columns:120px 1fr 90px">
+          <label for="gasB" style="color:var(--ink-soft)">Gaz B</label>
+          <select id="gasB" style="background:#0a1120;color:#e9f2ff;border:1px solid var(--lab-line);border-radius:8px;padding:8px;">
+          </select>
+          <span></span>
+        </div>
+        <div class="control-row" style="grid-template-columns:120px 1fr 90px">
+          <label for="raceT" style="color:var(--ink-soft)">Sıcaklık</label>
+          <input type="range" id="raceT" min="200" max="500" step="10" value="300" />
+          <output id="raceT-out" style="color:var(--ink); font-weight:700;">300 K</output>
+        </div>
       </div>
     </div>
 
@@ -66,12 +68,12 @@
       <div class="two-col">
         <div class="lab-panel">
           <div class="lab-head">
-            <div class="lab-title"><span class="dot"></span> Difüzyon Odası</div>
-            <span class="lab-hint">bölme kalkınca gazlar karışır</span>
+            <div class="lab-title"><span class="dot"></span> Difüzyon Düzeneği</div>
+            <span class="lab-hint">musluk açılınca gazlar geniş boyundan karışır</span>
           </div>
           <div class="stage" id="stage-diff"><span class="orbit-hint">🖱 sürükle = döndür</span></div>
           <div class="btnbar">
-            <button class="btn on-dark active" id="btn-diff-start">▶ Bölmeyi Kaldır</button>
+            <button class="btn on-dark active" id="btn-diff-start">▶ Musluğu Aç</button>
             <button class="btn on-dark" id="btn-diff-reset">↺ Sıfırla</button>
           </div>
         </div>
@@ -93,26 +95,27 @@
     <div id="panel-effusion" style="display:none">
       <div class="two-col">
         <div class="lab-panel">
-          <div class="lab-head"><div class="lab-title"><span class="dot"></span> Gaz A · Helyum (M=4)</div></div>
-          <div class="stage" id="stage-effA"><span class="orbit-hint">🖱 döndür</span></div>
+          <div class="lab-head">
+            <div class="lab-title"><span class="dot"></span> Gaz A · Helyum (M=4) <span style="color:var(--ink-soft); font-weight:400">↔</span> <span id="effB-title" style="color:var(--mol-b)">Gaz B</span></div>
+            <span class="lab-hint">musluk açılınca dar boğazdan teker teker sızar</span>
+          </div>
+          <div class="stage" id="stage-eff"><span class="orbit-hint">🖱 sürükle = döndür</span></div>
+          <div class="btnbar">
+            <button class="btn on-dark active" id="btn-eff-start">▶ Musluğu Aç</button>
+            <button class="btn on-dark" id="btn-eff-reset">↺ Sıfırla</button>
+          </div>
         </div>
-        <div class="lab-panel">
-          <div class="lab-head"><div class="lab-title"><span class="dot" style="background:var(--mol-b)"></span> <span id="effB-title">Gaz B</span></div></div>
-          <div class="stage" id="stage-effB"><span class="orbit-hint">🖱 döndür</span></div>
+        <div>
+          <div class="chart-wrap">
+            <div class="chart-label"><span>Karşıya Sızma Oranı</span><span id="eff-elapsed">0,0 sn</span></div>
+            <canvas id="eff-race" height="110"></canvas>
+          </div>
+          <div class="callout real" style="margin-top:16px">
+            <h5>Gözlemini Kaydet</h5>
+            <p>Gözlenen sızma oranı (A%/B%) = <strong id="eff-observed">–</strong><br/>
+            <span class="small">Hangi gaz önde? Bu örüntüyü aşağıdaki "Açıkla" bölümünde adlandıracaksın.</span></p>
+          </div>
         </div>
-      </div>
-      <div class="btnbar" style="margin-top:14px">
-        <button class="btn on-dark active" id="btn-eff-start">▶ Delikleri Aç</button>
-        <button class="btn on-dark" id="btn-eff-reset">↺ Sıfırla</button>
-      </div>
-      <div class="chart-wrap" style="margin-top:14px">
-        <div class="chart-label"><span>Kaçan Tanecik Oranı</span><span id="eff-elapsed">0,0 sn</span></div>
-        <canvas id="eff-race" height="110"></canvas>
-      </div>
-      <div class="callout real" style="margin-top:16px">
-        <h5>Gözlemini Kaydet</h5>
-        <p>Gözlenen kaçış oranı (A%/B%) = <strong id="eff-observed">–</strong><br/>
-        <span class="small">Hangi gaz önde? Bu örüntüyü aşağıdaki "Açıkla" bölümünde adlandıracaksın.</span></p>
       </div>
     </div>
   </div>
@@ -187,7 +190,7 @@
 <script src="../assets/js/offline-bundle.js"></script>
 <script>
   const { mountNav, mountFooter } = __mod_nav;
-  const { GasBox } = __mod_gas_engine;
+  const { BulbApparatus } = __mod_gas_engine;
   const { RaceMeter } = __mod_charts;
   const { renderQuiz, markVisited, bindJournal } = __mod_quiz_engine;
   const { QUIZ } = __mod_quiz_data;
@@ -222,23 +225,20 @@
     raceT = +raceTSlider.value;
     document.getElementById("raceT-out").textContent = `${raceT} K`;
     if (diffBox) diffBox.setTemperature(raceT);
-    if (effA) effA.setTemperature(raceT);
-    if (effB) effB.setTemperature(raceT);
+    if (effBox) effBox.setTemperature(raceT);
   });
 
-  /* ---------------- DİFÜZYON ---------------- */
-  let diffBox = null, diffStarted = false, diffStartTime = 0, diffTimer = null;
+  /* ---------------- DİFÜZYON (geniş boyunlu iki baloncuk) ---------------- */
+  let diffBox = null, diffStarted = false, diffStartTime = 0;
   const diffRace = new RaceMeter(document.getElementById("diff-race"));
 
   function buildDiffBox() {
     if (diffBox) diffBox.dispose();
     const gasB = selectedGas();
-    diffBox = new GasBox(document.getElementById("stage-diff"), {
-      species: [
-        { key: "a", name: "Gaz A (He)", color: "#5b8dff", molarMass: 4, n: 0.6 },
-        { key: "b", name: `Gaz B (${gasB.label})`, color: "#ff5b7f", molarMass: gasB.mass, n: 0.6 },
-      ],
-      volumeL: 16, temperatureK: raceT, showPiston: false, showPartition: true, speedScale: 0.18, vMax: 20,
+    diffBox = new BulbApparatus(document.getElementById("stage-diff"), {
+      speciesA: { name: "Gaz A (He)", color: "#5b8dff", molarMass: 4, n: 2.2 },
+      speciesB: { name: `Gaz B (${gasB.label})`, color: "#ff5b7f", molarMass: gasB.mass, n: 2.2 },
+      temperatureK: raceT, neckMode: "wide", speedScale: 0.3,
     });
     diffBox.start();
     diffStarted = false;
@@ -247,11 +247,8 @@
 
   function updateDiffMeter() {
     if (!diffBox) return;
-    const { mid } = diffBox.getBounds();
-    const spA = diffBox.species.find(s => s.key === "a");
-    const spB = diffBox.species.find(s => s.key === "b");
-    const crossedA = spA.particles.filter(p => p.pos.x > mid).length / spA.particles.length;
-    const crossedB = spB.particles.filter(p => p.pos.x < mid).length / spB.particles.length;
+    const crossedA = diffBox.crossedFraction("a");
+    const crossedB = diffBox.crossedFraction("b");
     diffRace.setRows([
       { label: "Gaz A (He)", value: crossedA * 100, max: 100, color: "#5b8dff", valueLabel: (crossedA * 100).toFixed(0) + "%" },
       { label: "Gaz B", value: crossedB * 100, max: 100, color: "#ff5b7f", valueLabel: (crossedB * 100).toFixed(0) + "%" },
@@ -263,10 +260,10 @@
       document.getElementById("diff-elapsed").textContent = el.toFixed(1) + " sn";
     }
   }
-  diffTimer = setInterval(() => { if (activeTab === "diffusion") updateDiffMeter(); }, 300);
+  setInterval(() => { if (activeTab === "diffusion") updateDiffMeter(); }, 300);
 
   document.getElementById("btn-diff-start").addEventListener("click", () => {
-    diffBox.openPartition();
+    diffBox.openValve();
     diffStarted = true;
     diffStartTime = performance.now();
   });
@@ -277,55 +274,49 @@
     updateDiffMeter();
   });
 
-  /* ---------------- EFÜZYON ---------------- */
-  let effA = null, effB = null, effStarted = false, effStartTime = 0;
-  let escapedA = 0, escapedB = 0, totalA = 1, totalB = 1;
+  /* ---------------- EFÜZYON (dar boğazlı iki baloncuk) ---------------- */
+  let effBox = null, effStarted = false, effStartTime = 0;
   const effRace = new RaceMeter(document.getElementById("eff-race"));
 
-  function buildEffBoxes() {
-    if (effA) effA.dispose();
-    if (effB) effB.dispose();
+  function buildEffBox() {
+    if (effBox) effBox.dispose();
     const gasB = selectedGas();
     document.getElementById("effB-title").textContent = `Gaz B · ${gasB.label}`;
-    effA = new GasBox(document.getElementById("stage-effA"), {
-      species: [{ key: "a", name: "Gaz A (He)", color: "#5b8dff", molarMass: 4, n: 0.85 }],
-      volumeL: 4, temperatureK: raceT, showPiston: false, showHole: true, holeRadius: 1.05, speedScale: 0.42, vMax: 6,
+    effBox = new BulbApparatus(document.getElementById("stage-eff"), {
+      speciesA: { name: "Gaz A (He)", color: "#5b8dff", molarMass: 4, n: 2.2 },
+      speciesB: { name: `Gaz B (${gasB.label})`, color: "#ff5b7f", molarMass: gasB.mass, n: 2.2 },
+      temperatureK: raceT, neckMode: "narrow", speedScale: 0.3,
     });
-    effB = new GasBox(document.getElementById("stage-effB"), {
-      species: [{ key: "b", name: "Gaz B", color: "#ff5b7f", molarMass: gasB.mass, n: 0.85 }],
-      volumeL: 4, temperatureK: raceT, showPiston: false, showHole: true, holeRadius: 1.05, speedScale: 0.42, vMax: 6,
-    });
-    totalA = effA.species[0].particles.length;
-    totalB = effB.species[0].particles.length;
-    escapedA = 0; escapedB = 0; effStarted = false;
-    effA.on("escape", () => { escapedA++; updateEffMeter(); });
-    effB.on("escape", () => { escapedB++; updateEffMeter(); });
-    effA.start(); effB.start();
+    effBox.start();
+    effStarted = false;
     updateEffMeter();
   }
 
   function updateEffMeter() {
-    const pA = (escapedA / totalA) * 100, pB = (escapedB / totalB) * 100;
+    if (!effBox) return;
+    const crossedA = effBox.crossedFraction("a");
+    const crossedB = effBox.crossedFraction("b");
     effRace.setRows([
-      { label: "Gaz A (He)", value: pA, max: 100, color: "#5b8dff", valueLabel: pA.toFixed(0) + "%" },
-      { label: "Gaz B", value: pB, max: 100, color: "#ff5b7f", valueLabel: pB.toFixed(0) + "%" },
+      { label: "Gaz A (He)", value: crossedA * 100, max: 100, color: "#5b8dff", valueLabel: (crossedA * 100).toFixed(0) + "%" },
+      { label: "Gaz B", value: crossedB * 100, max: 100, color: "#ff5b7f", valueLabel: (crossedB * 100).toFixed(0) + "%" },
     ]);
-    const ratio = pB > 2 ? (pA / pB) : 0;
+    const ratio = crossedB > 0.02 ? (crossedA / crossedB) : 0;
     document.getElementById("eff-observed").textContent = ratio > 0 ? ratio.toFixed(2) + "×" : "henüz erken…";
     if (effStarted) {
       const el = (performance.now() - effStartTime) / 1000;
       document.getElementById("eff-elapsed").textContent = el.toFixed(1) + " sn";
     }
   }
-  setInterval(() => { if (activeTab === "effusion" && effStarted) updateEffMeter(); }, 300);
+  setInterval(() => { if (activeTab === "effusion") updateEffMeter(); }, 300);
 
   document.getElementById("btn-eff-start").addEventListener("click", () => {
-    effA.setHoleOpen(true); effB.setHoleOpen(true);
-    effStarted = true; effStartTime = performance.now();
+    effBox.openValve();
+    effStarted = true;
+    effStartTime = performance.now();
   });
   document.getElementById("btn-eff-reset").addEventListener("click", () => {
-    effA.reset(); effB.reset();
-    escapedA = 0; escapedB = 0; effStarted = false;
+    effBox.reset();
+    effStarted = false;
     document.getElementById("eff-elapsed").textContent = "0,0 sn";
     updateEffMeter();
   });
@@ -342,12 +333,12 @@
     document.getElementById("panel-diffusion").style.display = tab === "diffusion" ? "block" : "none";
     document.getElementById("panel-effusion").style.display = tab === "effusion" ? "block" : "none";
     if (tab === "diffusion") {
-      if (effA) { effA.dispose(); effB.dispose(); effA = null; effB = null; }
+      if (effBox) { effBox.dispose(); effBox = null; }
       if (!diffBox) buildDiffBox(); else diffBox.start();
       diffRace.resize();
     } else {
       if (diffBox) { diffBox.dispose(); diffBox = null; }
-      if (!effA) buildEffBoxes(); else { effA.start(); effB.start(); }
+      if (!effBox) buildEffBox(); else effBox.start();
       effRace.resize();
     }
   }
@@ -355,7 +346,7 @@
 
   gasBSelect.addEventListener("change", () => {
     if (activeTab === "diffusion") buildDiffBox();
-    else buildEffBoxes();
+    else buildEffBox();
   });
 
   showTab("diffusion");
@@ -363,8 +354,7 @@
   // Sayfadan ayrılırken açık WebGL bağlamlarını serbest bırak (bfcache/mobil tarayıcı uyumluluğu).
   window.addEventListener("pagehide", () => {
     if (diffBox) diffBox.dispose();
-    if (effA) effA.dispose();
-    if (effB) effB.dispose();
+    if (effBox) effBox.dispose();
   });
 </script>
 </body>
