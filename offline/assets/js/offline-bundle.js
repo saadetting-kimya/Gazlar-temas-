@@ -7,6 +7,12 @@ const __mod_quiz_engine = (function() {
    GazLab 10 — quiz-engine.js
    Bağlam temelli değerlendirme sorularını render eder,
    puanlar ve sonucu localStorage'a kaydeder (ilerleme takibi).
+
+   Görsel bileşenler (renderChart, renderGasContainer, vb.) bir
+   önceki prototip projeden (gazlarlab10) taşınmıştır — saf SVG ile,
+   dış kütüphane olmadan çizilir. Bir sorunun opsiyonel bir görsel
+   alanı (gasContainer/chart/statements/...) varsa, kart şablonunda
+   soru metninden önce otomatik olarak render edilir.
    ========================================================= */
 
 const STORAGE_KEY = "gazlab10_progress";
@@ -30,6 +36,384 @@ function markVisited(moduleKey) {
   writeProgress(p);
 }
 
+/* ================= görsel bileşenler (render*) ================= */
+
+function el(tag, attrs, ...children) {
+  const node = document.createElement(tag);
+  if (attrs) {
+    for (const [k, v] of Object.entries(attrs)) {
+      if (k === "class") node.className = v;
+      else if (k.startsWith("on") && typeof v === "function") node.addEventListener(k.slice(2), v);
+      else node.setAttribute(k, v);
+    }
+  }
+  for (const child of children.flat()) {
+    if (child === null || child === undefined) continue;
+    node.appendChild(typeof child === "string" ? document.createTextNode(child) : child);
+  }
+  return node;
+}
+function svgEl(tag, attrs) {
+  const node = document.createElementNS("http://www.w3.org/2000/svg", tag);
+  if (attrs) for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, v);
+  return node;
+}
+
+const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII"];
+
+function renderDataTable({ headers, rows, caption }) {
+  const wrap = el("div", { class: "gl-visual gl-table-wrap" });
+  if (caption) wrap.appendChild(el("p", { class: "gl-caption" }, caption));
+  const table = el("table", { class: "gl-table" });
+  table.appendChild(el("thead", null, el("tr", null, headers.map((h) => el("th", null, h)))));
+  table.appendChild(el("tbody", null, rows.map((r) => el("tr", null, r.map((c) => el("td", null, String(c)))))));
+  wrap.appendChild(table);
+  return wrap;
+}
+
+/* type: 'bar' | 'line'. series: [{ label, color, data: [{x,y}] }] */
+function chartScale(domainMin, domainMax, rangeMin, rangeMax) {
+  const span = domainMax - domainMin || 1;
+  return (v) => rangeMin + ((v - domainMin) / span) * (rangeMax - rangeMin);
+}
+
+function renderChart({ type = "line", series, xLabel, yLabel, caption, xDomain, yDomain, xTicks, yTicks, width = 460, height = 300 }) {
+  const wrap = el("div", { class: "gl-visual gl-chart-wrap" });
+  if (caption) wrap.appendChild(el("p", { class: "gl-caption" }, caption));
+
+  const padL = 56, padB = 44, padT = 16, padR = 18;
+  const plotW = width - padL - padR;
+  const plotH = height - padT - padB;
+  const svg = svgEl("svg", { viewBox: `0 0 ${width} ${height}`, class: "gl-chart", role: "img", "aria-label": caption || `${xLabel} - ${yLabel}` });
+
+  if (type === "bar") {
+    const s = series[0];
+    const values = s.data.map((d) => d.y);
+    const yMax = yDomain ? yDomain[1] : Math.max(...values) * 1.15;
+    const yScale = chartScale(0, yMax, plotH, 0);
+    const bw = plotW / s.data.length;
+    svg.appendChild(svgEl("line", { x1: padL, y1: padT, x2: padL, y2: padT + plotH, class: "gl-axis" }));
+    svg.appendChild(svgEl("line", { x1: padL, y1: padT + plotH, x2: padL + plotW, y2: padT + plotH, class: "gl-axis" }));
+    s.data.forEach((d, i) => {
+      const x = padL + i * bw + bw * 0.18;
+      const barWidth = bw * 0.64;
+      const y = padT + yScale(d.y);
+      const h = padT + plotH - y;
+      svg.appendChild(svgEl("rect", { x, y, width: barWidth, height: h, fill: d.color || s.color || "var(--gl-accent)", rx: 3 }));
+      const xt = svgEl("text", { x: x + barWidth / 2, y: padT + plotH + 18, class: "gl-tick-x", "text-anchor": "middle" });
+      xt.textContent = String(d.x);
+      svg.appendChild(xt);
+      const vt = svgEl("text", { x: x + barWidth / 2, y: y - 6, class: "gl-bar-value", "text-anchor": "middle" });
+      vt.textContent = String(d.y);
+      svg.appendChild(vt);
+    });
+    const yTickVals = yTicks || [0, yMax / 2, yMax];
+    yTickVals.forEach((t) => {
+      const y = padT + yScale(t);
+      const yt = svgEl("text", { x: padL - 8, y: y + 4, class: "gl-tick-y", "text-anchor": "end" });
+      yt.textContent = Number(t.toFixed(1));
+      svg.appendChild(yt);
+      svg.appendChild(svgEl("line", { x1: padL - 4, y1: y, x2: padL, y2: y, class: "gl-axis" }));
+    });
+  } else {
+    const allX = series.flatMap((s) => s.data.map((d) => d.x));
+    const allY = series.flatMap((s) => s.data.map((d) => d.y));
+    const xMin = xDomain ? xDomain[0] : Math.min(...allX, 0);
+    const xMax = xDomain ? xDomain[1] : Math.max(...allX) * 1.08;
+    const yMin = yDomain ? yDomain[0] : Math.min(...allY, 0);
+    const yMax = yDomain ? yDomain[1] : Math.max(...allY) * 1.12;
+    const xScale = chartScale(xMin, xMax, padL, padL + plotW);
+    const yScale = chartScale(yMin, yMax, padT + plotH, padT);
+
+    svg.appendChild(svgEl("line", { x1: padL, y1: padT, x2: padL, y2: padT + plotH, class: "gl-axis" }));
+    svg.appendChild(svgEl("line", { x1: padL, y1: padT + plotH, x2: padL + plotW, y2: padT + plotH, class: "gl-axis" }));
+
+    (xTicks || [xMin, (xMin + xMax) / 2, xMax]).forEach((t) => {
+      const x = xScale(t);
+      svg.appendChild(svgEl("line", { x1: x, y1: padT + plotH, x2: x, y2: padT + plotH + 4, class: "gl-axis" }));
+      const xt = svgEl("text", { x, y: padT + plotH + 18, class: "gl-tick-x", "text-anchor": "middle" });
+      xt.textContent = Number(t.toFixed(2)).toString();
+      svg.appendChild(xt);
+    });
+    (yTicks || [yMin, (yMin + yMax) / 2, yMax]).forEach((t) => {
+      const y = yScale(t);
+      svg.appendChild(svgEl("line", { x1: padL - 4, y1: y, x2: padL, y2: y, class: "gl-axis" }));
+      const yt = svgEl("text", { x: padL - 8, y: y + 4, class: "gl-tick-y", "text-anchor": "end" });
+      yt.textContent = Number(t.toFixed(2)).toString();
+      svg.appendChild(yt);
+    });
+
+    series.forEach((s) => {
+      const pts = s.data.map((d) => `${xScale(d.x)},${yScale(d.y)}`).join(" ");
+      svg.appendChild(svgEl("polyline", { points: pts, class: "gl-line", style: `stroke:${s.color || "var(--gl-accent)"}` }));
+      s.data.forEach((d) => {
+        svg.appendChild(svgEl("circle", { cx: xScale(d.x), cy: yScale(d.y), r: 4, fill: s.color || "var(--gl-accent)" }));
+      });
+    });
+
+    if (series.length > 1) {
+      const legend = el("div", { class: "gl-legend" });
+      series.forEach((s) => {
+        legend.appendChild(el("span", { class: "gl-legend-item" }, el("span", { class: "gl-legend-dot", style: `background:${s.color || "var(--gl-accent)"}` }), s.label));
+      });
+      wrap.appendChild(legend);
+    }
+  }
+
+  if (xLabel) {
+    const t = svgEl("text", { x: padL + plotW / 2, y: height - 4, class: "gl-axis-label", "text-anchor": "middle" });
+    t.textContent = xLabel;
+    svg.appendChild(t);
+  }
+  if (yLabel) {
+    const t = svgEl("text", { x: 14, y: padT + plotH / 2, class: "gl-axis-label", "text-anchor": "middle", transform: `rotate(-90 14 ${padT + plotH / 2})` });
+    t.textContent = yLabel;
+    svg.appendChild(t);
+  }
+
+  wrap.appendChild(svg);
+  return wrap;
+}
+function renderCompareLineChart(opts) { return renderChart({ ...opts, type: "line" }); }
+
+function renderStatementList({ intro, statements }) {
+  const wrap = el("div", { class: "gl-visual gl-statements" });
+  if (intro) wrap.appendChild(el("p", { class: "gl-caption" }, intro));
+  const list = el("ul", { class: "gl-statement-list" });
+  statements.forEach((s, i) => list.appendChild(el("li", null, el("span", { class: "gl-roman" }, ROMAN[i] || `${i + 1}.`), el("span", null, s))));
+  wrap.appendChild(list);
+  return wrap;
+}
+
+function renderDialogue({ speakers }) {
+  const wrap = el("div", { class: "gl-visual gl-dialogue" });
+  speakers.forEach((s, i) => {
+    wrap.appendChild(el("div", { class: `gl-bubble gl-bubble-${i % 2 === 0 ? "a" : "b"}` }, el("span", { class: "gl-bubble-name" }, s.name), el("span", { class: "gl-bubble-text" }, s.text)));
+  });
+  return wrap;
+}
+
+function renderMatchTable({ left, right, leftLabel, rightLabel }) {
+  const wrap = el("div", { class: "gl-visual gl-match" });
+  const table = el("table", { class: "gl-match-table" });
+  table.appendChild(el("thead", null, el("tr", null, el("th", null, leftLabel || "Sütun A"), el("th", null, rightLabel || "Sütun B"))));
+  const maxLen = Math.max(left.length, right.length);
+  const tbody = el("tbody");
+  for (let i = 0; i < maxLen; i++) {
+    tbody.appendChild(el("tr", null, el("td", null, left[i] ? `${i + 1}. ${left[i]}` : ""), el("td", null, right[i] ? `${String.fromCharCode(97 + i)}) ${right[i]}` : "")));
+  }
+  table.appendChild(tbody);
+  wrap.appendChild(table);
+  return wrap;
+}
+
+function renderChecklist({ items, intro }) {
+  const wrap = el("div", { class: "gl-visual gl-checklist" });
+  if (intro) wrap.appendChild(el("p", { class: "gl-caption" }, intro));
+  const list = el("ul", { class: "gl-checklist-list" });
+  items.forEach((it) => list.appendChild(el("li", null, el("span", { class: "gl-checkbox" }, "▢"), el("span", null, it))));
+  wrap.appendChild(list);
+  return wrap;
+}
+
+/* gradyan/renk yardımcıları — kap/balon görselleri düz dolgu yerine
+   gradyanla üç boyutlu (camsı silindir / parlak balon) görünür. */
+let glGradSeq = 0;
+function nextGradId(prefix) { glGradSeq += 1; return `gl-${prefix}-${glGradSeq}`; }
+function addLinearGrad(defs, id, stops, coords) {
+  const grad = svgEl("linearGradient", { id, ...(coords || { x1: "0%", y1: "0%", x2: "100%", y2: "0%" }) });
+  stops.forEach(([offset, color, opacity]) => {
+    const attrs = { offset, "stop-color": color };
+    if (opacity !== undefined) attrs["stop-opacity"] = opacity;
+    grad.appendChild(svgEl("stop", attrs));
+  });
+  defs.appendChild(grad);
+}
+function addRadialGrad(defs, id, stops, coords) {
+  const grad = svgEl("radialGradient", { id, ...(coords || { cx: "35%", cy: "30%", r: "75%" }) });
+  stops.forEach(([offset, color, opacity]) => {
+    const attrs = { offset, "stop-color": color };
+    if (opacity !== undefined) attrs["stop-opacity"] = opacity;
+    grad.appendChild(svgEl("stop", attrs));
+  });
+  defs.appendChild(grad);
+}
+function mixHex(hex, target, amt) {
+  if (!hex || hex[0] !== "#" || hex.length !== 7) return null;
+  const r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
+  return `rgb(${Math.round(r + (target[0] - r) * amt)},${Math.round(g + (target[1] - g) * amt)},${Math.round(b + (target[2] - b) * amt)})`;
+}
+function lighten(hex, amt) { return mixHex(hex, [255, 255, 255], amt ?? 0.4) || "#eef4fb"; }
+function darken(hex, amt) { return mixHex(hex, [0, 0, 0], amt ?? 0.35) || "#5c6b7d"; }
+
+function drawParticles(svg, defs, cx, topY, bottomY, width, count, color) {
+  const n = Math.max(0, Math.min(60, count || 12));
+  const cols = Math.ceil(Math.sqrt(n * (width / (bottomY - topY || 1))));
+  const rows = Math.ceil(n / cols) || 1;
+  const usableW = width * 0.7;
+  const usableH = (bottomY - topY) * 0.82;
+  const baseColor = color || "#2f7fc4";
+  const sheenId = nextGradId("sheen");
+  addRadialGrad(defs, sheenId, [["0%", "#ffffff", 0.95], ["70%", "#ffffff", 0.25], ["100%", "#ffffff", 0]], { cx: "35%", cy: "30%", r: "65%" });
+  let placed = 0;
+  for (let r = 0; r < rows && placed < n; r++) {
+    for (let c = 0; c < cols && placed < n; c++) {
+      const jitterX = (Math.sin(placed * 12.9898) * 0.5 + 0.5) * (usableW / cols) * 0.5;
+      const jitterY = (Math.cos(placed * 78.233) * 0.5 + 0.5) * (usableH / rows) * 0.5;
+      const x = cx - usableW / 2 + (c + 0.5) * (usableW / cols) + jitterX - usableW / cols / 4;
+      const y = topY + (bottomY - topY) * 0.09 + (r + 0.5) * (usableH / rows) + jitterY - usableH / rows / 4;
+      svg.appendChild(svgEl("circle", { cx: x, cy: y, r: 4.4, fill: baseColor, stroke: "rgba(20,30,45,0.35)", "stroke-width": 0.6 }));
+      svg.appendChild(svgEl("circle", { cx: x, cy: y, r: 4.4, fill: `url(#${sheenId})` }));
+      placed++;
+    }
+  }
+}
+
+/* vessels: [{ label, kind: 'fixed'|'piston', fillRatio, particles, P, V, T, n, gasColor, particleColor, weight }] */
+function renderVesselSvg(v) {
+  const w = 140, h = 224;
+  const svg = svgEl("svg", { viewBox: `0 0 ${w} ${h}`, class: "gl-vessel-svg" });
+  const defs = svgEl("defs");
+  svg.appendChild(defs);
+
+  const cx = w / 2, wallW = 76, rx = wallW / 2, ry = 11, topY = 34, bottomY = h - 30;
+  const fillRatio = v.fillRatio ?? 0.6;
+  const gasTopY = v.kind === "piston" ? topY + (bottomY - topY) * (1 - fillRatio) : topY;
+
+  const wallGradId = nextGradId("wall");
+  addLinearGrad(defs, wallGradId, [["0%", "#aebbc9"], ["16%", "#f2f7fb"], ["46%", "#dbe5ef"], ["78%", "#c1cedc"], ["100%", "#93a3b6"]]);
+  const wallDark = "#6b7a8c";
+  const capGradId = nextGradId("cap");
+  addLinearGrad(defs, capGradId, [["0%", "#c7d3e0"], ["50%", "#fbfdff"], ["100%", "#a7b5c6"]]);
+
+  const gasBase = v.gasColor && v.gasColor[0] === "#" ? v.gasColor : "#6fa8dc";
+  const gasLight = lighten(gasBase, 0.55), gasDark = darken(gasBase, 0.3);
+  const gasGradId = nextGradId("gas");
+  addLinearGrad(defs, gasGradId, [["0%", gasDark, 0.55], ["20%", gasLight, 0.55], ["55%", gasBase, 0.45], ["100%", gasDark, 0.55]]);
+  const gasCapGradId = nextGradId("gascap");
+  addRadialGrad(defs, gasCapGradId, [["0%", gasLight, 0.75], ["100%", gasBase, 0.5]], { cx: "40%", cy: "35%", r: "70%" });
+
+  svg.appendChild(svgEl("ellipse", { cx, cy: bottomY, rx, ry, fill: darken("#c1cedc", 0.25), stroke: wallDark, "stroke-width": 1.4 }));
+  svg.appendChild(svgEl("rect", { x: cx - rx, y: topY, width: wallW, height: bottomY - topY, fill: `url(#${wallGradId})`, stroke: "none" }));
+  svg.appendChild(svgEl("line", { x1: cx - rx, y1: topY, x2: cx - rx, y2: bottomY, stroke: wallDark, "stroke-width": 1.4 }));
+  svg.appendChild(svgEl("line", { x1: cx + rx, y1: topY, x2: cx + rx, y2: bottomY, stroke: wallDark, "stroke-width": 1.4 }));
+
+  const grx = rx - 4, gry = ry - 2.5;
+  if (bottomY - gasTopY > 2) {
+    svg.appendChild(svgEl("rect", { x: cx - grx, y: gasTopY, width: grx * 2, height: bottomY - gasTopY - gry * 0.4, fill: `url(#${gasGradId})` }));
+    svg.appendChild(svgEl("ellipse", { cx, cy: bottomY - gry * 0.4, rx: grx, ry: gry, fill: gasDark, opacity: 0.55 }));
+    svg.appendChild(svgEl("ellipse", { cx, cy: gasTopY, rx: grx, ry: gry, fill: `url(#${gasCapGradId})`, stroke: darken(gasBase, 0.4), "stroke-width": 1 }));
+    drawParticles(svg, defs, cx, gasTopY, bottomY, wallW, v.particles ?? 12, v.particleColor);
+  }
+
+  svg.appendChild(svgEl("ellipse", { cx, cy: topY, rx, ry, fill: `url(#${capGradId})`, stroke: wallDark, "stroke-width": 1.4 }));
+
+  if (v.kind === "piston") {
+    const pistonGradId = nextGradId("piston");
+    addLinearGrad(defs, pistonGradId, [["0%", "#7c8898"], ["20%", "#e8edf3"], ["55%", "#aab6c4"], ["100%", "#5f6b7a"]]);
+    svg.appendChild(svgEl("rect", { x: cx - grx - 2, y: gasTopY - 9, width: (grx + 2) * 2, height: 9, fill: `url(#${pistonGradId})`, stroke: wallDark, "stroke-width": 1 }));
+    svg.appendChild(svgEl("ellipse", { cx, cy: gasTopY - 9, rx: grx + 2, ry: gry, fill: `url(#${pistonGradId})`, stroke: wallDark, "stroke-width": 1 }));
+    svg.appendChild(svgEl("rect", { x: cx - 4, y: 6, width: 8, height: Math.max(0, gasTopY - 9 - 6), fill: `url(#${pistonGradId})` }));
+    if (v.weight) {
+      const weightGradId = nextGradId("weight");
+      addLinearGrad(defs, weightGradId, [["0%", "#4a5361"], ["30%", "#8b97a6"], ["100%", "#333c47"]]);
+      svg.appendChild(svgEl("rect", { x: cx - 16, y: 4, width: 32, height: 15, rx: 2, fill: `url(#${weightGradId})`, stroke: "#2b323b", "stroke-width": 1 }));
+    }
+  }
+  return svg;
+}
+
+function renderGasContainer({ vessels, caption }) {
+  const wrap = el("div", { class: "gl-visual gl-vessels" });
+  if (caption) wrap.appendChild(el("p", { class: "gl-caption" }, caption));
+  const row = el("div", { class: "gl-vessel-row" });
+  vessels.forEach((v) => {
+    const svg = renderVesselSvg(v);
+    const labelLines = [];
+    if (v.P !== undefined) labelLines.push(`P = ${v.P}`);
+    if (v.V !== undefined) labelLines.push(`V = ${v.V}`);
+    if (v.T !== undefined) labelLines.push(`T = ${v.T}`);
+    if (v.n !== undefined) labelLines.push(`n = ${v.n}`);
+    const cell = el("div", { class: "gl-vessel-cell" }, svg);
+    if (v.label) cell.appendChild(el("div", { class: "gl-vessel-label" }, v.label));
+    if (labelLines.length) cell.appendChild(el("div", { class: "gl-vessel-values" }, labelLines.join(" · ")));
+    row.appendChild(cell);
+  });
+  wrap.appendChild(row);
+  return wrap;
+}
+
+/* basit karşılaştırmalı tanecik/yoğunluk kutuları (madde hâli, yoğunluk vb) */
+function renderParticleModel({ boxes, caption }) {
+  const wrap = el("div", { class: "gl-visual gl-particle-boxes" });
+  if (caption) wrap.appendChild(el("p", { class: "gl-caption" }, caption));
+  const row = el("div", { class: "gl-vessel-row" });
+  boxes.forEach((b) => {
+    const w = 120, h = 120;
+    const svg = svgEl("svg", { viewBox: `0 0 ${w} ${h}`, class: "gl-vessel-svg" });
+    const defs = svgEl("defs");
+    svg.appendChild(defs);
+    const boxGradId = nextGradId("box");
+    addLinearGrad(defs, boxGradId, [["0%", "#dde5ee"], ["50%", "#f7fafd"], ["100%", "#c3cedb"]], { x1: "0%", y1: "0%", x2: "100%", y2: "100%" });
+    svg.appendChild(svgEl("rect", { x: 6, y: 6, width: w - 12, height: h - 12, rx: 6, fill: `url(#${boxGradId})`, stroke: "#6b7a8c", "stroke-width": 1.4 }));
+    svg.appendChild(svgEl("rect", { x: 8, y: 8, width: w - 16, height: (h - 16) * 0.28, rx: 5, fill: "#ffffff", opacity: 0.35 }));
+    drawParticles(svg, defs, w / 2, 10, h - 10, w - 12, b.count, b.color);
+    row.appendChild(el("div", { class: "gl-vessel-cell" }, svg, el("div", { class: "gl-vessel-label" }, b.label)));
+  });
+  wrap.appendChild(row);
+  return wrap;
+}
+
+/* parlak, gradyanlı (ideal esnek balon) görünümünde balonlar */
+function renderBalloonCompare({ balloons, caption }) {
+  const wrap = el("div", { class: "gl-visual gl-balloons" });
+  if (caption) wrap.appendChild(el("p", { class: "gl-caption" }, caption));
+  const row = el("div", { class: "gl-vessel-row" });
+  balloons.forEach((b) => {
+    const size = 60 * (b.sizeRatio ?? 1);
+    const w = 130, h = 160;
+    const svg = svgEl("svg", { viewBox: `0 0 ${w} ${h}`, class: "gl-vessel-svg" });
+    const defs = svgEl("defs");
+    svg.appendChild(defs);
+    const cx = w / 2, cy = 20 + size;
+    const base = b.color && b.color[0] === "#" ? b.color : "#1f6fb2";
+    const light = lighten(base, 0.55), dark = darken(base, 0.35);
+    const balloonGradId = nextGradId("balloon");
+    addRadialGrad(defs, balloonGradId, [["0%", light], ["55%", base], ["100%", dark]], { cx: "32%", cy: "28%", r: "75%" });
+    svg.appendChild(svgEl("path", { d: `M ${cx - 5} ${cy + size - 2} L ${cx + 5} ${cy + size - 2} L ${cx} ${cy + size + 8} Z`, fill: dark }));
+    svg.appendChild(svgEl("ellipse", { cx, cy, rx: size * 0.82, ry: size, fill: `url(#${balloonGradId})`, stroke: dark, "stroke-width": 1.2 }));
+    svg.appendChild(svgEl("ellipse", { cx: cx - size * 0.32, cy: cy - size * 0.42, rx: size * 0.22, ry: size * 0.32, fill: "#ffffff", opacity: 0.55 }));
+    svg.appendChild(svgEl("line", { x1: cx, y1: cy + size + 8, x2: cx, y2: h - 6, class: "gl-balloon-string" }));
+    row.appendChild(el("div", { class: "gl-vessel-cell" }, svg, el("div", { class: "gl-vessel-label" }, b.label), b.sub ? el("div", { class: "gl-vessel-values" }, b.sub) : null));
+  });
+  wrap.appendChild(row);
+  return wrap;
+}
+
+const VISUAL_RENDERERS = {
+  table: renderDataTable,
+  chart: renderChart,
+  compareChart: renderCompareLineChart,
+  statements: renderStatementList,
+  dialogue: renderDialogue,
+  matchPairs: renderMatchTable,
+  checklist: renderChecklist,
+  gasContainer: renderGasContainer,
+  particleModel: renderParticleModel,
+  balloons: renderBalloonCompare,
+};
+
+/** Sorunun tanınan görsel alanlarından (en fazla bir tane beklenir) DOM
+    düğümü üretir; hiçbiri yoksa null döner. */
+function renderQuestionVisual(q) {
+  for (const [field, renderer] of Object.entries(VISUAL_RENDERERS)) {
+    if (q[field]) return renderer(q[field]);
+  }
+  return null;
+}
+
+/* ================= quiz mantığı ================= */
+
 function renderQuiz(hostEl, questions, moduleKey) {
   hostEl.innerHTML = "";
   const wrap = document.createElement("div");
@@ -46,10 +430,15 @@ function renderQuiz(hostEl, questions, moduleKey) {
         <span class="qn">SORU ${qi + 1}/${questions.length}</span>
         ${q.context ? `<span class="qctx">${q.context}</span>` : ""}
       </div>
+      <div class="qvisual"></div>
       <div class="qtext">${q.text}</div>
       <div class="qopts"></div>
       <div class="qfeedback"></div>
     `;
+    const visual = renderQuestionVisual(q);
+    if (visual) card.querySelector(".qvisual").appendChild(visual);
+    else card.querySelector(".qvisual").remove();
+
     const optsEl = card.querySelector(".qopts");
     const fbEl = card.querySelector(".qfeedback");
 
@@ -254,6 +643,46 @@ const QUIZ = {
       correct: 0,
       explain: "Gazların hacmi koşullara (sıcaklık, basınç) bağlı olarak kolayca değiştiğinden aynı gazın yoğunluğu da değişir. Bu yüzden yoğunluk, katılardaki gibi gazlar için sabit/ayırt edici bir özellik olarak kullanılamaz.",
     },
+    {
+      context: "İki Kap, İki Basınç",
+      gasContainer: {
+        caption: "Aynı hacim ve sıcaklıktaki iki kapalı kapta farklı sayıda gaz taneciği bulunuyor.",
+        vessels: [
+          { label: "1. Kap", kind: "fixed", particles: 8, gasColor: "#5b8dff", P: "düşük" },
+          { label: "2. Kap", kind: "fixed", particles: 24, gasColor: "#ff5b7f", P: "yüksek" },
+        ],
+      },
+      text: "Şekildeki 1. ve 2. kap aynı hacimde ve aynı sıcaklıktayken, 2. kabın iç basıncının 1. kaptan büyük olmasının KMT'ye göre temel nedeni nedir?",
+      options: [
+        "2. kaptaki tanecik sayısı daha fazla olduğundan, kap duvarına birim zamanda çarpan tanecik sayısı da fazladır",
+        "2. kaptaki tanecikler daha yavaş hareket ettiği için",
+        "2. kabın duvarları daha ince olduğu için",
+        "2. kaptaki gaz daha soğuk olduğu için tanecikler birbirine yapışır",
+        "Kapların rengi basıncı doğrudan etkiler",
+      ],
+      correct: 0,
+      explain: "Gaz basıncı, taneciklerin kap duvarına yaptığı çarpışmalardan doğar. Sabit hacim ve sıcaklıkta tanecik (madde) miktarı arttıkça birim zamanda duvara çarpan tanecik sayısı artar, bu da basıncı yükseltir.",
+    },
+    {
+      context: "Aynı Kutu, Farklı Hâl",
+      particleModel: {
+        caption: "Aynı boyuttaki iki kapalı kutuda eşit sayıda tanecik bulunuyor: biri katı, biri gaz hâlinde paketlenmiş.",
+        boxes: [
+          { label: "Katı", count: 42, color: "#2fb8c6" },
+          { label: "Gaz", count: 8, color: "#5b8dff" },
+        ],
+      },
+      text: "Şekildeki katı kutusunda tanecikler birbirine bitişik dururken, gaz kutusunda taneciklerin arasında büyük boşluklar var. Bu görsel fark, gazların hangi özelliğini DOĞRUDAN açıklar?",
+      options: [
+        "Gazların sıvı ve katılardan farklı olarak kolayca sıkıştırılabilmesini",
+        "Gazların her zaman renksiz olmasını",
+        "Gazların katılardan daha ağır olmasını",
+        "Gazların yalnızca yüksek sıcaklıkta var olabilmesini",
+        "Gazların elektrik iletmemesini",
+      ],
+      correct: 0,
+      explain: "Katıda tanecikler birbirine bitişik, boşluksuzdur; gazda ise tanecikler arasında büyük boşluklar vardır. Bu boşluk, gazın dış basınç uygulandığında kolayca sıkışabilmesinin (sıkıştırılabilirlik) doğrudan nedenidir.",
+    },
   ],
 
   yasalar: [
@@ -323,6 +752,48 @@ const QUIZ = {
       ],
       correct: 2,
       explain: "Gaz taneciklerinin her yöne sürekli, doğrusal ve zikzaklı hareketine Brown (Bravn) hareketi denir. Tanecikler birbirleri ve kabın çeperleriyle esnek çarpışma yaptığı için yön değişir ama toplam enerji ve hız korunur; hareket bu yüzden durmaz.",
+    },
+    {
+      context: "Grafikten Charles Yasasını Okumak",
+      chart: {
+        type: "line",
+        caption: "Sabit basınçta, aynı miktardaki bir gazın farklı sıcaklıklarda esnek bir pistonla ölçülen hacmi.",
+        series: [
+          {
+            label: "Hacim (L)",
+            color: "var(--gl-accent)",
+            data: [{ x: 200, y: 2 }, { x: 300, y: 3 }, { x: 400, y: 4 }],
+          },
+        ],
+        xLabel: "Sıcaklık (K)",
+        yLabel: "Hacim (L)",
+        xDomain: [0, 650],
+        yDomain: [0, 6.5],
+      },
+      text: "Grafikteki doğrusal eğilim korunursa, sıcaklık 600 K'ye çıkarıldığında gazın hacmi yaklaşık kaç L olur?",
+      options: ["5 L", "8 L", "6 L", "4,5 L", "12 L"],
+      correct: 2,
+      explain: "Grafikteki noktalar V/T = 0,01 L/K sabit oranını verir (Charles Yasası, sabit basınçta V∝T). T=600 K için V = 0,01 × 600 = 6 L. Doğru orantı, doğrunun orijinden geçmesinden de okunabilir.",
+    },
+    {
+      context: "Sıkıştırma Deneyi",
+      gasContainer: {
+        caption: "Aynı miktardaki gaz, sabit sıcaklıkta bir pistonla sıkıştırılıyor.",
+        vessels: [
+          { label: "Başlangıç", kind: "piston", fillRatio: 0.82, particles: 10, gasColor: "#5b8dff", P: "1 atm", V: "6 L" },
+          { label: "Sıkıştırılmış", kind: "piston", fillRatio: 0.27, particles: 10, gasColor: "#ff5b7f", P: "3 atm", V: "2 L" },
+        ],
+      },
+      text: "Şekildeki iki durumda da tanecik sayısı ve sıcaklık aynıdır. Bu gözlem hangi gaz yasasıyla birebir uyumludur?",
+      options: [
+        "Boyle Yasası (P₁V₁ = P₂V₂): 1 atm × 6 L = 3 atm × 2 L, her iki durumda da PV = 6 sabit kalır",
+        "Charles Yasası, çünkü sıcaklık değişmiştir",
+        "Avogadro Yasası, çünkü tanecik sayısı değişmiştir",
+        "Gay-Lussac Yasası, çünkü hacim sabit kalmıştır",
+        "Hiçbiri; hacmin küçülmesi yalnızca pistonun ağırlığından kaynaklanır",
+      ],
+      correct: 0,
+      explain: "Sabit sıcaklık ve mol sayısında P·V çarpımı sabit kalır (Boyle Yasası): 1 atm × 6 L = 6 = 3 atm × 2 L. Piston sıkıştırdıkça tanecikler birbirine yaklaşır, çarpışma sıklığı ve dolayısıyla basınç artar.",
     },
   ],
 
@@ -419,6 +890,38 @@ const QUIZ = {
       options: ["≈0,33 atm", "≈0,66 atm", "≈1,3 atm", "≈2,6 atm", "≈0,16 atm"],
       correct: 1,
       explain: "P=nRT/V=(0,5×0,082×400)/25=16,4/25≈0,66 atm.",
+    },
+    {
+      context: "Üç Kap, Üç Basınç",
+      gasContainer: {
+        caption: "K, L, M kaplarındaki gazların mol sayısı, hacmi ve sıcaklığı etiketlerde verilmiştir.",
+        vessels: [
+          { label: "K", kind: "fixed", particles: 10, gasColor: "#5b8dff", n: "1 mol", V: "10 L", T: "300 K" },
+          { label: "L", kind: "fixed", particles: 20, gasColor: "#ff5b7f", n: "2 mol", V: "10 L", T: "300 K" },
+          { label: "M", kind: "fixed", particles: 10, gasColor: "#2fb8c6", n: "1 mol", V: "6 L", T: "300 K" },
+        ],
+      },
+      text: "K, L ve M kaplarındaki gazların basınçları PV=nRT'ye göre büyükten küçüğe nasıl sıralanır?",
+      options: ["L > M > K", "K > L > M", "M > L > K", "L > K > M", "Üçü de eşittir"],
+      correct: 0,
+      explain: "P=nRT/V ⇒ P_K=(1×0,082×300)/10≈2,46 atm; P_L=(2×0,082×300)/10≈4,92 atm; P_M=(1×0,082×300)/6≈4,10 atm. Sıralama: L > M > K.",
+    },
+    {
+      context: "Tabloda Bir Hata Var",
+      table: {
+        caption: "Aynı gazdan alınan dört örneğin ölçülen n, V, T değerleri ve hesaplanan P değerleri (R≈0,082 L·atm/(mol·K)).",
+        headers: ["Örnek", "n (mol)", "V (L)", "T (K)", "P (atm)"],
+        rows: [
+          ["A", 1, 10, 300, "2,46"],
+          ["B", 2, 20, 300, "2,46"],
+          ["C", 1, 5, 300, "4,92"],
+          ["D", 1, 10, 600, "5,00"],
+        ],
+      },
+      text: "Tablodaki P değerlerinden hangisi PV=nRT ile HESAPLANAMAZ, yani verilen n, V, T ile tutarsızdır?",
+      options: ["Örnek A", "Örnek B", "Örnek C", "Örnek D", "Hepsi tutarlıdır"],
+      correct: 3,
+      explain: "D için doğru değer P=nRT/V=(1×0,082×600)/10=4,92 atm olmalıdır; tabloda yazan 5,00 atm bu değerle uyuşmuyor. A, B, C değerleri PV=nRT ile birebir tutarlıdır (B'de n ve V birlikte 2 katına çıktığından P değişmez).",
     },
   ],
 
@@ -521,6 +1024,41 @@ const QUIZ = {
       options: ["72 g/mol", "24 g/mol", "8/3 g/mol", "3 g/mol", "64 g/mol"],
       correct: 0,
       explain: "Efüzyon SÜRESİ, hızla TERS orantılıdır: X 3 kat yavaş efüze oluyorsa r_X/r_Y=1/3. Graham Yasası'ndan r_X/r_Y=√(M_Y/M_X) ⇒ 1/3=√(8/M_X) ⇒ 1/9=8/M_X ⇒ M_X=72 g/mol.",
+    },
+    {
+      context: "İki Balon, Aynı Süre",
+      balloons: {
+        caption: "Aynı boyutta, aynı ince gözenekli kauçuktan yapılmış iki balon aynı odada aynı süre bekletiliyor.",
+        balloons: [
+          { label: "He (M=4)", color: "#5b8dff", sizeRatio: 0.55, sub: "Belirgin şekilde küçülmüş" },
+          { label: "Ar (M=40)", color: "#ff5b7f", sizeRatio: 0.92, sub: "Neredeyse aynı boyutta" },
+        ],
+      },
+      text: "Şekildeki gözleme göre He dolu balonun Ar dolu balondan çok daha fazla küçülmesinin nedeni nedir?",
+      options: [
+        "He, mol kütlesi küçük olduğu için gözeneklerden Ar'dan daha hızlı efüze olur",
+        "He balonun kauçuğunu eritir",
+        "Ar havadan ağır olduğu için balonun içinde birikip kalır",
+        "He ile Ar arasında kimyasal tepkime olur",
+        "İki balon da aynı hızda küçülür, gözlem yanıltıcıdır",
+      ],
+      correct: 0,
+      explain: "Graham Yasası'na göre efüzyon hızı 1/√M ile orantılıdır. He'nin mol kütlesi (4) Ar'ınkinden (40) çok küçük olduğundan He tanecikleri gözeneklerden çok daha hızlı kaçar; bu yüzden He balonu aynı sürede belirgin şekilde küçülür.",
+    },
+    {
+      context: "Doğru mu, Yanlış mı?",
+      statements: {
+        intro: "Difüzyon ve efüzyon ile ilgili aşağıdaki önermeleri değerlendiriniz.",
+        statements: [
+          "Aynı sıcaklıkta, mol kütlesi küçük olan tanecikler difüzyon ve efüzyonda daha hızlı yayılır.",
+          "Efüzyon, bir gazın bariyer olmaksızın başka bir gazla karışmasıdır.",
+          "Aynı sıcaklıkta iki farklı gazın tanecik başına ortalama kinetik enerjisi birbirine eşittir.",
+        ],
+      },
+      text: "Yukarıdaki önermelerden hangileri doğrudur?",
+      options: ["Yalnız I", "I ve III", "I, II ve III", "Yalnız III", "II ve III"],
+      correct: 1,
+      explain: "I doğrudur (Graham Yasası). II yanlıştır: tarif edilen olay difüzyondur, efüzyon küçük bir delikten kaçıştır. III doğrudur: aynı sıcaklıkta tüm gazların ortalama kinetik enerjisi (½mv²'nin ortalaması) mol kütlesinden bağımsız olarak eşittir — hız farkı kütleden kaynaklanır. Doğru cevap: I ve III.",
     },
   ],
 };
@@ -56218,9 +56756,354 @@ class BulbApparatus {
   }
 }
 
+/* =========================================================
+   EffusionFlask — tek cam balon + dar ağızlık, boşluğa kaçış
+   Difüzyondan (iki dolu baloncuğun birbirine karışması) kavramsal
+   olarak farklı bir düzenek: efüzyonun gerçek tanımına uygun olarak
+   İKİ gaz TEK bir balonda karışık başlar ve ORTAK, dar bir ağızlıktan
+   açık boşluğa (vakuma) kaçar — hangi gazın daha çok/hızlı kaçtığı,
+   ağızlık önünde büyüyen görünür bir yığınla izlenir. Bu hem görsel
+   hem kavramsal olarak BulbApparatus'un iki-baloncuklu difüzyon
+   düzeneğinden bilinçli olarak ayrışır.
+   ========================================================= */
+
+const FLASK_NOZZLE_LEN = 1.0;
+const FLASK_NOZZLE_HALF = 0.3; // her zaman dar — efüzyon tanımı gereği küçük bir delik
+
+class EffusionFlask {
+  /**
+   * @param {HTMLElement} host
+   * @param {Object} opts
+   *  speciesA, speciesB: {name,color,molarMass,n} — ikisi de aynı balonda karışık başlar
+   *  temperatureK, speedScale
+   */
+  constructor(host, opts = {}) {
+    this.host = host;
+    this.opts = opts;
+    this.flaskX = -(FLASK_NOZZLE_LEN / 2 + BULB_BOX_HALF);
+    this.species = [
+      { ...opts.speciesA, key: "a", colorObj: speciesColor(opts.speciesA.color), particles: [], mesh: null },
+      { ...opts.speciesB, key: "b", colorObj: speciesColor(opts.speciesB.color), particles: [], mesh: null },
+    ];
+    this.temperatureK = opts.temperatureK ?? 300;
+    this.speedScale = opts.speedScale ?? 1;
+    this.valveOpen = false;
+    this._raf = null;
+    this._clock = new THREE.Clock();
+
+    this._buildScene();
+    this._buildApparatus();
+    this._buildParticles();
+    this._onResize = this._onResize.bind(this);
+    this._ro = new ResizeObserver(this._onResize);
+    this._ro.observe(host);
+    this._onResize();
+  }
+
+  _buildScene() {
+    const scene = new THREE.Scene();
+    this.scene = scene;
+
+    const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 260);
+    camera.position.set(2.6, 3.4, 8.2);
+    this.camera = camera;
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.05;
+    this.renderer = renderer;
+    this.host.appendChild(renderer.domElement);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.minDistance = 4;
+    controls.maxDistance = 24;
+    controls.target.set(0.4, 0.25, 0);
+    controls.maxPolarAngle = Math.PI * 0.49;
+    this.controls = controls;
+
+    const hemi = new THREE.HemisphereLight(0xbcd4ff, 0x0a1120, 0.9);
+    scene.add(hemi);
+    const dir = new THREE.DirectionalLight(0xffffff, 1.35);
+    dir.position.set(4, 9, 4);
+    scene.add(dir);
+    const rim = new THREE.PointLight(0x2fb8c6, 6, 24);
+    rim.position.set(-4, 2, -4);
+    scene.add(rim);
+
+    const grid = new THREE.GridHelper(20, 20, 0x1c2b45, 0x141f36);
+    grid.position.set(0.4, -BULB_R - 0.34, 0);
+    scene.add(grid);
+  }
+
+  _onResize() {
+    const w = this.host.clientWidth, h = this.host.clientHeight;
+    if (!w || !h) return;
+    this.renderer.setSize(w, h, false);
+    this.camera.aspect = w / h;
+    this.camera.updateProjectionMatrix();
+  }
+
+  _buildApparatus() {
+    this.group = new THREE.Group();
+    this.scene.add(this.group);
+
+    const glassMat = new THREE.MeshPhysicalMaterial({
+      color: 0x8fd8e0, transparent: true, opacity: 0.1,
+      roughness: 0.05, metalness: 0, side: THREE.DoubleSide, depthWrite: false,
+    });
+    const edgeMat = new THREE.LineBasicMaterial({ color: 0x2fb8c6, transparent: true, opacity: 0.85 });
+
+    const geo = new THREE.SphereGeometry(BULB_R, 28, 20);
+    const mesh = new THREE.Mesh(geo, glassMat);
+    mesh.position.x = this.flaskX;
+    this.group.add(mesh);
+    const edges = new THREE.LineSegments(new THREE.EdgesGeometry(geo, 20), edgeMat);
+    edges.position.x = this.flaskX;
+    this.group.add(edges);
+
+    const nozzleVisualR = FLASK_NOZZLE_HALF * 1.4;
+    const nozzleGeo = new THREE.CylinderGeometry(nozzleVisualR, nozzleVisualR, FLASK_NOZZLE_LEN, 24, 1, true);
+    const nozzleMat = new THREE.MeshPhysicalMaterial({ color: 0x8fd8e0, transparent: true, opacity: 0.16, roughness: 0.05, side: THREE.DoubleSide, depthWrite: false });
+    const nozzle = new THREE.Mesh(nozzleGeo, nozzleMat);
+    nozzle.rotation.z = Math.PI / 2;
+    this.group.add(nozzle);
+
+    const valveR = nozzleVisualR * 1.3;
+    const valveGeo = new THREE.CylinderGeometry(valveR, valveR, 0.5, 20);
+    this._valveMat = new THREE.MeshStandardMaterial({ color: 0xff5b4d, metalness: 0.55, roughness: 0.35, emissive: 0x551500, emissiveIntensity: 0.3 });
+    const valveBody = new THREE.Mesh(valveGeo, this._valveMat);
+    valveBody.rotation.z = Math.PI / 2;
+    this.group.add(valveBody);
+
+    const handleGeo = new THREE.BoxGeometry(0.09, 0.62, 0.09);
+    const handleMat = new THREE.MeshStandardMaterial({ color: 0xd8dee8, metalness: 0.7, roughness: 0.3 });
+    const handle = new THREE.Mesh(handleGeo, handleMat);
+    handle.position.y = 0.4;
+    this.group.add(handle);
+    this._valveHandle = handle;
+    this._syncValveVisual();
+
+    const baseGeo = new THREE.BoxGeometry(9, 0.3, 3.2);
+    const baseMat = new THREE.MeshStandardMaterial({ color: 0x11192b, roughness: 0.7, metalness: 0.2 });
+    const base = new THREE.Mesh(baseGeo, baseMat);
+    base.position.set(0.4, -BULB_R - 0.35, 0);
+    this.scene.add(base);
+  }
+
+  _syncValveVisual() {
+    this._valveMat.color.set(this.valveOpen ? 0x2fbf6e : 0xff5b4d);
+    this._valveMat.emissive.set(this.valveOpen ? 0x0a3320 : 0x551500);
+    this._valveHandle.rotation.z = this.valveOpen ? Math.PI / 2 : 0;
+  }
+
+  /** Kaçan taneciğin ağızlık önünde sabitleneceği, büyüyen görünür yığın konumu. */
+  _pileSlot(sp, index) {
+    const spacing = sp.radius * 2 + 0.06;
+    const cols = 4, rowsPerLayer = 8, perLayer = cols * rowsPerLayer;
+    const layer = Math.floor(index / perLayer);
+    const within = index % perLayer;
+    const col = within % cols;
+    const row = Math.floor(within / cols);
+    return new THREE.Vector3(
+      FLASK_NOZZLE_LEN / 2 + 0.5 + sp.radius + layer * spacing,
+      -BULB_BOX_HALF * 0.6 + row * spacing * 0.6,
+      -((cols - 1) / 2) * spacing + col * spacing
+    );
+  }
+
+  _spawnPoint(sp) {
+    const r = sp.radius;
+    const half = BULB_BOX_HALF - r;
+    return new THREE.Vector3(
+      this.flaskX + THREE.MathUtils.randFloat(-half, half),
+      THREE.MathUtils.randFloat(-half, half),
+      THREE.MathUtils.randFloat(-half, half)
+    );
+  }
+
+  _buildParticles() {
+    this.species.forEach((sp) => {
+      const geo = new THREE.SphereGeometry(1, 12, 10);
+      const mat = new THREE.MeshStandardMaterial({ color: sp.colorObj, roughness: 0.35, metalness: 0.15, emissive: sp.colorObj, emissiveIntensity: 0.18 });
+      const mesh = new THREE.InstancedMesh(geo, mat, MAX_PARTICLES);
+      mesh.count = 0;
+      this.group.add(mesh);
+      sp.mesh = mesh;
+      sp.radius = THREE.MathUtils.clamp(0.1 + (sp.molarMass || 20) / 900, 0.1, 0.22);
+      sp._escapeCount = 0;
+      const target = Math.max(2, Math.min(MAX_PARTICLES, Math.round((sp.n || 1) * PARTICLES_PER_MOL)));
+      sp.particles = [];
+      for (let i = 0; i < target; i++) {
+        sp.particles.push({ pos: this._spawnPoint(sp), dir: new THREE.Vector3().randomDirection(), speedFactor: THREE.MathUtils.randFloat(0.82, 1.18), escaped: false, zone: "flask" });
+      }
+      sp.mesh.count = sp.particles.length;
+    });
+  }
+
+  currentSpeed(sp) {
+    const M = sp.molarMass || 20;
+    return SPEED_K * this.speedScale * Math.sqrt(this.temperatureK / M);
+  }
+
+  setTemperature(t) { this.temperatureK = THREE.MathUtils.clamp(t, 50, 1200); }
+
+  openValve() { this.valveOpen = true; this._syncValveVisual(); }
+  closeValve() { this.valveOpen = false; this._syncValveVisual(); }
+
+  /** Bir tür anahtarının (key) kaçmış tanecik oranı — yalnızca artan bir sayaç. */
+  escapedFraction(key) {
+    const sp = this.species.find(s => s.key === key);
+    if (!sp || !sp.particles.length) return 0;
+    return sp._escapeCount / sp.particles.length;
+  }
+
+  reset() {
+    this.valveOpen = false;
+    this._syncValveVisual();
+    this.species.forEach(sp => {
+      sp._escapeCount = 0;
+      sp.particles.forEach(p => { p.pos.copy(this._spawnPoint(sp)); p.escaped = false; p.zone = "flask"; });
+    });
+  }
+
+  /* Tanecik başına saklanan p.zone ("flask"|"nozzle"), balondan ağızlığa geçişin
+     YALNIZCA musluk açıkken VE dar pencerenin içindeyken gerçekleşmesini garanti
+     eder — konum bazlı anlık kontrol, ağızlık x-aralığına giren her taneciği
+     hizasından bağımsız içeri "sızdıran" bir hataya yol açardı (bkz. BulbApparatus). */
+  _stepGas(dt) {
+    const dummy = new THREE.Object3D();
+    this.species.forEach((sp) => {
+      const vBase = this.currentSpeed(sp);
+      const r = sp.radius;
+      const half = BULB_BOX_HALF - r;
+      const nh = FLASK_NOZZLE_HALF - r;
+      const faceNeck = -(FLASK_NOZZLE_LEN / 2);
+      const faceOuter = this.flaskX - half;
+      let visibleIdx = 0;
+
+      sp.particles.forEach((p) => {
+        if (p.escaped) {
+          dummy.position.copy(p.pos);
+          dummy.scale.setScalar(r);
+          dummy.updateMatrix();
+          sp.mesh.setMatrixAt(visibleIdx, dummy.matrix);
+          visibleIdx++;
+          return;
+        }
+
+        const speed = vBase * p.speedFactor;
+        p.pos.addScaledVector(p.dir, speed * dt);
+
+        if (p.zone === "nozzle") {
+          if (p.pos.y > nh) { p.pos.y = nh; p.dir.y *= -1; }
+          if (p.pos.y < -nh) { p.pos.y = -nh; p.dir.y *= -1; }
+          if (p.pos.z > nh) { p.pos.z = nh; p.dir.z *= -1; }
+          if (p.pos.z < -nh) { p.pos.z = -nh; p.dir.z *= -1; }
+          if (p.pos.x < faceNeck) {
+            p.zone = "flask";
+          } else if (p.pos.x > FLASK_NOZZLE_LEN / 2) {
+            p.escaped = true;
+            p.pos.copy(this._pileSlot(sp, sp._escapeCount++));
+          }
+        } else {
+          if (p.pos.x < faceOuter) { p.pos.x = faceOuter; if (p.dir.x < 0) p.dir.x *= -1; }
+          if (p.pos.y > half) { p.pos.y = half; p.dir.y *= -1; }
+          if (p.pos.y < -half) { p.pos.y = -half; p.dir.y *= -1; }
+          if (p.pos.z > half) { p.pos.z = half; p.dir.z *= -1; }
+          if (p.pos.z < -half) { p.pos.z = -half; p.dir.z *= -1; }
+
+          if (p.pos.x > faceNeck) {
+            const withinWindow = Math.abs(p.pos.y) <= nh && Math.abs(p.pos.z) <= nh;
+            if (this.valveOpen && withinWindow) {
+              p.zone = "nozzle";
+            } else {
+              p.pos.x = faceNeck; if (p.dir.x > 0) p.dir.x *= -1;
+            }
+          }
+        }
+
+        if (p.escaped) {
+          dummy.position.copy(p.pos);
+          dummy.scale.setScalar(r);
+          dummy.updateMatrix();
+          sp.mesh.setMatrixAt(visibleIdx, dummy.matrix);
+          visibleIdx++;
+          return;
+        }
+
+        dummy.position.copy(p.pos);
+        dummy.scale.setScalar(r);
+        dummy.updateMatrix();
+        sp.mesh.setMatrixAt(visibleIdx, dummy.matrix);
+        visibleIdx++;
+      });
+      sp.mesh.count = visibleIdx;
+      sp.mesh.instanceMatrix.needsUpdate = true;
+    });
+    this._resolveCollisions();
+  }
+
+  _resolveCollisions() {
+    const all = [];
+    this.species.forEach(sp => sp.particles.forEach(p => { if (!p.escaped) all.push({ p, r: sp.radius, m: sp.molarMass || 20 }); }));
+    const n = all.length;
+    for (let i = 0; i < n; i++) {
+      for (let j = i + 1; j < n; j++) {
+        const A = all[i], B = all[j];
+        const dx = B.p.pos.x - A.p.pos.x, dy = B.p.pos.y - A.p.pos.y, dz = B.p.pos.z - A.p.pos.z;
+        const dist2 = dx * dx + dy * dy + dz * dz;
+        const minDist = A.r + B.r;
+        if (dist2 > minDist * minDist || dist2 < 1e-6) continue;
+        const dist = Math.sqrt(dist2);
+        const nx = dx / dist, ny = dy / dist, nz = dz / dist;
+        const overlap = (minDist - dist) / 2;
+        A.p.pos.x -= nx * overlap; A.p.pos.y -= ny * overlap; A.p.pos.z -= nz * overlap;
+        B.p.pos.x += nx * overlap; B.p.pos.y += ny * overlap; B.p.pos.z += nz * overlap;
+
+        const va = A.p.dir.clone().multiplyScalar(this.currentSpeed({ molarMass: A.m }) * A.p.speedFactor);
+        const vb = B.p.dir.clone().multiplyScalar(this.currentSpeed({ molarMass: B.m }) * B.p.speedFactor);
+        const rvx = va.x - vb.x, rvy = va.y - vb.y, rvz = va.z - vb.z;
+        const velAlongNormal = rvx * nx + rvy * ny + rvz * nz;
+        if (velAlongNormal > 0) continue;
+        const invA = 1 / A.m, invB = 1 / B.m;
+        const j2 = (-2 * velAlongNormal) / (invA + invB);
+        const ix = j2 * nx, iy = j2 * ny, iz = j2 * nz;
+        va.x += ix * invA; va.y += iy * invA; va.z += iz * invA;
+        vb.x -= ix * invB; vb.y -= iy * invB; vb.z -= iz * invB;
+        const sa = va.length(), sb = vb.length();
+        if (sa > 1e-4) { A.p.dir.copy(va).normalize(); A.p.speedFactor = sa / this.currentSpeed({ molarMass: A.m }); }
+        if (sb > 1e-4) { B.p.dir.copy(vb).normalize(); B.p.speedFactor = sb / this.currentSpeed({ molarMass: B.m }); }
+      }
+    }
+  }
+
+  start() {
+    if (this._raf) return;
+    const loop = () => {
+      this._raf = requestAnimationFrame(loop);
+      const dt = Math.min(this._clock.getDelta(), 0.05);
+      this._stepGas(dt);
+      this.controls.update();
+      this.renderer.render(this.scene, this.camera);
+    };
+    loop();
+  }
+  stop() { if (this._raf) cancelAnimationFrame(this._raf); this._raf = null; }
+  dispose() {
+    this.stop();
+    this._ro.disconnect();
+    this.renderer.dispose();
+    this.host.innerHTML = "";
+  }
+}
+
 // Ders kitabı kısaltılmış dönüşümü kullanır: T(K) = t(°C) + 273.
 function celsiusToKelvin(c) { return c + 273; }
 function kelvinToCelsius(k) { return k - 273; }
 
-return { R_CONST, PARTICLES_PER_MOL, MAX_PARTICLES, SCENE_BOUNDS, GasBox, BulbApparatus, celsiusToKelvin, kelvinToCelsius };
+return { R_CONST, PARTICLES_PER_MOL, MAX_PARTICLES, SCENE_BOUNDS, GasBox, BulbApparatus, EffusionFlask, celsiusToKelvin, kelvinToCelsius };
 })(__mod_three, __mod_orbitcontrols);

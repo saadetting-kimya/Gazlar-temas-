@@ -975,6 +975,351 @@ export class BulbApparatus {
   }
 }
 
+/* =========================================================
+   EffusionFlask — tek cam balon + dar ağızlık, boşluğa kaçış
+   Difüzyondan (iki dolu baloncuğun birbirine karışması) kavramsal
+   olarak farklı bir düzenek: efüzyonun gerçek tanımına uygun olarak
+   İKİ gaz TEK bir balonda karışık başlar ve ORTAK, dar bir ağızlıktan
+   açık boşluğa (vakuma) kaçar — hangi gazın daha çok/hızlı kaçtığı,
+   ağızlık önünde büyüyen görünür bir yığınla izlenir. Bu hem görsel
+   hem kavramsal olarak BulbApparatus'un iki-baloncuklu difüzyon
+   düzeneğinden bilinçli olarak ayrışır.
+   ========================================================= */
+
+const FLASK_NOZZLE_LEN = 1.0;
+const FLASK_NOZZLE_HALF = 0.3; // her zaman dar — efüzyon tanımı gereği küçük bir delik
+
+export class EffusionFlask {
+  /**
+   * @param {HTMLElement} host
+   * @param {Object} opts
+   *  speciesA, speciesB: {name,color,molarMass,n} — ikisi de aynı balonda karışık başlar
+   *  temperatureK, speedScale
+   */
+  constructor(host, opts = {}) {
+    this.host = host;
+    this.opts = opts;
+    this.flaskX = -(FLASK_NOZZLE_LEN / 2 + BULB_BOX_HALF);
+    this.species = [
+      { ...opts.speciesA, key: "a", colorObj: speciesColor(opts.speciesA.color), particles: [], mesh: null },
+      { ...opts.speciesB, key: "b", colorObj: speciesColor(opts.speciesB.color), particles: [], mesh: null },
+    ];
+    this.temperatureK = opts.temperatureK ?? 300;
+    this.speedScale = opts.speedScale ?? 1;
+    this.valveOpen = false;
+    this._raf = null;
+    this._clock = new THREE.Clock();
+
+    this._buildScene();
+    this._buildApparatus();
+    this._buildParticles();
+    this._onResize = this._onResize.bind(this);
+    this._ro = new ResizeObserver(this._onResize);
+    this._ro.observe(host);
+    this._onResize();
+  }
+
+  _buildScene() {
+    const scene = new THREE.Scene();
+    this.scene = scene;
+
+    const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 260);
+    camera.position.set(2.6, 3.4, 8.2);
+    this.camera = camera;
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.05;
+    this.renderer = renderer;
+    this.host.appendChild(renderer.domElement);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.minDistance = 4;
+    controls.maxDistance = 24;
+    controls.target.set(0.4, 0.25, 0);
+    controls.maxPolarAngle = Math.PI * 0.49;
+    this.controls = controls;
+
+    const hemi = new THREE.HemisphereLight(0xbcd4ff, 0x0a1120, 0.9);
+    scene.add(hemi);
+    const dir = new THREE.DirectionalLight(0xffffff, 1.35);
+    dir.position.set(4, 9, 4);
+    scene.add(dir);
+    const rim = new THREE.PointLight(0x2fb8c6, 6, 24);
+    rim.position.set(-4, 2, -4);
+    scene.add(rim);
+
+    const grid = new THREE.GridHelper(20, 20, 0x1c2b45, 0x141f36);
+    grid.position.set(0.4, -BULB_R - 0.34, 0);
+    scene.add(grid);
+  }
+
+  _onResize() {
+    const w = this.host.clientWidth, h = this.host.clientHeight;
+    if (!w || !h) return;
+    this.renderer.setSize(w, h, false);
+    this.camera.aspect = w / h;
+    this.camera.updateProjectionMatrix();
+  }
+
+  _buildApparatus() {
+    this.group = new THREE.Group();
+    this.scene.add(this.group);
+
+    const glassMat = new THREE.MeshPhysicalMaterial({
+      color: 0x8fd8e0, transparent: true, opacity: 0.1,
+      roughness: 0.05, metalness: 0, side: THREE.DoubleSide, depthWrite: false,
+    });
+    const edgeMat = new THREE.LineBasicMaterial({ color: 0x2fb8c6, transparent: true, opacity: 0.85 });
+
+    const geo = new THREE.SphereGeometry(BULB_R, 28, 20);
+    const mesh = new THREE.Mesh(geo, glassMat);
+    mesh.position.x = this.flaskX;
+    this.group.add(mesh);
+    const edges = new THREE.LineSegments(new THREE.EdgesGeometry(geo, 20), edgeMat);
+    edges.position.x = this.flaskX;
+    this.group.add(edges);
+
+    const nozzleVisualR = FLASK_NOZZLE_HALF * 1.4;
+    const nozzleGeo = new THREE.CylinderGeometry(nozzleVisualR, nozzleVisualR, FLASK_NOZZLE_LEN, 24, 1, true);
+    const nozzleMat = new THREE.MeshPhysicalMaterial({ color: 0x8fd8e0, transparent: true, opacity: 0.16, roughness: 0.05, side: THREE.DoubleSide, depthWrite: false });
+    const nozzle = new THREE.Mesh(nozzleGeo, nozzleMat);
+    nozzle.rotation.z = Math.PI / 2;
+    this.group.add(nozzle);
+
+    const valveR = nozzleVisualR * 1.3;
+    const valveGeo = new THREE.CylinderGeometry(valveR, valveR, 0.5, 20);
+    this._valveMat = new THREE.MeshStandardMaterial({ color: 0xff5b4d, metalness: 0.55, roughness: 0.35, emissive: 0x551500, emissiveIntensity: 0.3 });
+    const valveBody = new THREE.Mesh(valveGeo, this._valveMat);
+    valveBody.rotation.z = Math.PI / 2;
+    this.group.add(valveBody);
+
+    const handleGeo = new THREE.BoxGeometry(0.09, 0.62, 0.09);
+    const handleMat = new THREE.MeshStandardMaterial({ color: 0xd8dee8, metalness: 0.7, roughness: 0.3 });
+    const handle = new THREE.Mesh(handleGeo, handleMat);
+    handle.position.y = 0.4;
+    this.group.add(handle);
+    this._valveHandle = handle;
+    this._syncValveVisual();
+
+    const baseGeo = new THREE.BoxGeometry(9, 0.3, 3.2);
+    const baseMat = new THREE.MeshStandardMaterial({ color: 0x11192b, roughness: 0.7, metalness: 0.2 });
+    const base = new THREE.Mesh(baseGeo, baseMat);
+    base.position.set(0.4, -BULB_R - 0.35, 0);
+    this.scene.add(base);
+  }
+
+  _syncValveVisual() {
+    this._valveMat.color.set(this.valveOpen ? 0x2fbf6e : 0xff5b4d);
+    this._valveMat.emissive.set(this.valveOpen ? 0x0a3320 : 0x551500);
+    this._valveHandle.rotation.z = this.valveOpen ? Math.PI / 2 : 0;
+  }
+
+  /** Kaçan taneciğin ağızlık önünde sabitleneceği, büyüyen görünür yığın konumu. */
+  _pileSlot(sp, index) {
+    const spacing = sp.radius * 2 + 0.06;
+    const cols = 4, rowsPerLayer = 8, perLayer = cols * rowsPerLayer;
+    const layer = Math.floor(index / perLayer);
+    const within = index % perLayer;
+    const col = within % cols;
+    const row = Math.floor(within / cols);
+    return new THREE.Vector3(
+      FLASK_NOZZLE_LEN / 2 + 0.5 + sp.radius + layer * spacing,
+      -BULB_BOX_HALF * 0.6 + row * spacing * 0.6,
+      -((cols - 1) / 2) * spacing + col * spacing
+    );
+  }
+
+  _spawnPoint(sp) {
+    const r = sp.radius;
+    const half = BULB_BOX_HALF - r;
+    return new THREE.Vector3(
+      this.flaskX + THREE.MathUtils.randFloat(-half, half),
+      THREE.MathUtils.randFloat(-half, half),
+      THREE.MathUtils.randFloat(-half, half)
+    );
+  }
+
+  _buildParticles() {
+    this.species.forEach((sp) => {
+      const geo = new THREE.SphereGeometry(1, 12, 10);
+      const mat = new THREE.MeshStandardMaterial({ color: sp.colorObj, roughness: 0.35, metalness: 0.15, emissive: sp.colorObj, emissiveIntensity: 0.18 });
+      const mesh = new THREE.InstancedMesh(geo, mat, MAX_PARTICLES);
+      mesh.count = 0;
+      this.group.add(mesh);
+      sp.mesh = mesh;
+      sp.radius = THREE.MathUtils.clamp(0.1 + (sp.molarMass || 20) / 900, 0.1, 0.22);
+      sp._escapeCount = 0;
+      const target = Math.max(2, Math.min(MAX_PARTICLES, Math.round((sp.n || 1) * PARTICLES_PER_MOL)));
+      sp.particles = [];
+      for (let i = 0; i < target; i++) {
+        sp.particles.push({ pos: this._spawnPoint(sp), dir: new THREE.Vector3().randomDirection(), speedFactor: THREE.MathUtils.randFloat(0.82, 1.18), escaped: false, zone: "flask" });
+      }
+      sp.mesh.count = sp.particles.length;
+    });
+  }
+
+  currentSpeed(sp) {
+    const M = sp.molarMass || 20;
+    return SPEED_K * this.speedScale * Math.sqrt(this.temperatureK / M);
+  }
+
+  setTemperature(t) { this.temperatureK = THREE.MathUtils.clamp(t, 50, 1200); }
+
+  openValve() { this.valveOpen = true; this._syncValveVisual(); }
+  closeValve() { this.valveOpen = false; this._syncValveVisual(); }
+
+  /** Bir tür anahtarının (key) kaçmış tanecik oranı — yalnızca artan bir sayaç. */
+  escapedFraction(key) {
+    const sp = this.species.find(s => s.key === key);
+    if (!sp || !sp.particles.length) return 0;
+    return sp._escapeCount / sp.particles.length;
+  }
+
+  reset() {
+    this.valveOpen = false;
+    this._syncValveVisual();
+    this.species.forEach(sp => {
+      sp._escapeCount = 0;
+      sp.particles.forEach(p => { p.pos.copy(this._spawnPoint(sp)); p.escaped = false; p.zone = "flask"; });
+    });
+  }
+
+  /* Tanecik başına saklanan p.zone ("flask"|"nozzle"), balondan ağızlığa geçişin
+     YALNIZCA musluk açıkken VE dar pencerenin içindeyken gerçekleşmesini garanti
+     eder — konum bazlı anlık kontrol, ağızlık x-aralığına giren her taneciği
+     hizasından bağımsız içeri "sızdıran" bir hataya yol açardı (bkz. BulbApparatus). */
+  _stepGas(dt) {
+    const dummy = new THREE.Object3D();
+    this.species.forEach((sp) => {
+      const vBase = this.currentSpeed(sp);
+      const r = sp.radius;
+      const half = BULB_BOX_HALF - r;
+      const nh = FLASK_NOZZLE_HALF - r;
+      const faceNeck = -(FLASK_NOZZLE_LEN / 2);
+      const faceOuter = this.flaskX - half;
+      let visibleIdx = 0;
+
+      sp.particles.forEach((p) => {
+        if (p.escaped) {
+          dummy.position.copy(p.pos);
+          dummy.scale.setScalar(r);
+          dummy.updateMatrix();
+          sp.mesh.setMatrixAt(visibleIdx, dummy.matrix);
+          visibleIdx++;
+          return;
+        }
+
+        const speed = vBase * p.speedFactor;
+        p.pos.addScaledVector(p.dir, speed * dt);
+
+        if (p.zone === "nozzle") {
+          if (p.pos.y > nh) { p.pos.y = nh; p.dir.y *= -1; }
+          if (p.pos.y < -nh) { p.pos.y = -nh; p.dir.y *= -1; }
+          if (p.pos.z > nh) { p.pos.z = nh; p.dir.z *= -1; }
+          if (p.pos.z < -nh) { p.pos.z = -nh; p.dir.z *= -1; }
+          if (p.pos.x < faceNeck) {
+            p.zone = "flask";
+          } else if (p.pos.x > FLASK_NOZZLE_LEN / 2) {
+            p.escaped = true;
+            p.pos.copy(this._pileSlot(sp, sp._escapeCount++));
+          }
+        } else {
+          if (p.pos.x < faceOuter) { p.pos.x = faceOuter; if (p.dir.x < 0) p.dir.x *= -1; }
+          if (p.pos.y > half) { p.pos.y = half; p.dir.y *= -1; }
+          if (p.pos.y < -half) { p.pos.y = -half; p.dir.y *= -1; }
+          if (p.pos.z > half) { p.pos.z = half; p.dir.z *= -1; }
+          if (p.pos.z < -half) { p.pos.z = -half; p.dir.z *= -1; }
+
+          if (p.pos.x > faceNeck) {
+            const withinWindow = Math.abs(p.pos.y) <= nh && Math.abs(p.pos.z) <= nh;
+            if (this.valveOpen && withinWindow) {
+              p.zone = "nozzle";
+            } else {
+              p.pos.x = faceNeck; if (p.dir.x > 0) p.dir.x *= -1;
+            }
+          }
+        }
+
+        if (p.escaped) {
+          dummy.position.copy(p.pos);
+          dummy.scale.setScalar(r);
+          dummy.updateMatrix();
+          sp.mesh.setMatrixAt(visibleIdx, dummy.matrix);
+          visibleIdx++;
+          return;
+        }
+
+        dummy.position.copy(p.pos);
+        dummy.scale.setScalar(r);
+        dummy.updateMatrix();
+        sp.mesh.setMatrixAt(visibleIdx, dummy.matrix);
+        visibleIdx++;
+      });
+      sp.mesh.count = visibleIdx;
+      sp.mesh.instanceMatrix.needsUpdate = true;
+    });
+    this._resolveCollisions();
+  }
+
+  _resolveCollisions() {
+    const all = [];
+    this.species.forEach(sp => sp.particles.forEach(p => { if (!p.escaped) all.push({ p, r: sp.radius, m: sp.molarMass || 20 }); }));
+    const n = all.length;
+    for (let i = 0; i < n; i++) {
+      for (let j = i + 1; j < n; j++) {
+        const A = all[i], B = all[j];
+        const dx = B.p.pos.x - A.p.pos.x, dy = B.p.pos.y - A.p.pos.y, dz = B.p.pos.z - A.p.pos.z;
+        const dist2 = dx * dx + dy * dy + dz * dz;
+        const minDist = A.r + B.r;
+        if (dist2 > minDist * minDist || dist2 < 1e-6) continue;
+        const dist = Math.sqrt(dist2);
+        const nx = dx / dist, ny = dy / dist, nz = dz / dist;
+        const overlap = (minDist - dist) / 2;
+        A.p.pos.x -= nx * overlap; A.p.pos.y -= ny * overlap; A.p.pos.z -= nz * overlap;
+        B.p.pos.x += nx * overlap; B.p.pos.y += ny * overlap; B.p.pos.z += nz * overlap;
+
+        const va = A.p.dir.clone().multiplyScalar(this.currentSpeed({ molarMass: A.m }) * A.p.speedFactor);
+        const vb = B.p.dir.clone().multiplyScalar(this.currentSpeed({ molarMass: B.m }) * B.p.speedFactor);
+        const rvx = va.x - vb.x, rvy = va.y - vb.y, rvz = va.z - vb.z;
+        const velAlongNormal = rvx * nx + rvy * ny + rvz * nz;
+        if (velAlongNormal > 0) continue;
+        const invA = 1 / A.m, invB = 1 / B.m;
+        const j2 = (-2 * velAlongNormal) / (invA + invB);
+        const ix = j2 * nx, iy = j2 * ny, iz = j2 * nz;
+        va.x += ix * invA; va.y += iy * invA; va.z += iz * invA;
+        vb.x -= ix * invB; vb.y -= iy * invB; vb.z -= iz * invB;
+        const sa = va.length(), sb = vb.length();
+        if (sa > 1e-4) { A.p.dir.copy(va).normalize(); A.p.speedFactor = sa / this.currentSpeed({ molarMass: A.m }); }
+        if (sb > 1e-4) { B.p.dir.copy(vb).normalize(); B.p.speedFactor = sb / this.currentSpeed({ molarMass: B.m }); }
+      }
+    }
+  }
+
+  start() {
+    if (this._raf) return;
+    const loop = () => {
+      this._raf = requestAnimationFrame(loop);
+      const dt = Math.min(this._clock.getDelta(), 0.05);
+      this._stepGas(dt);
+      this.controls.update();
+      this.renderer.render(this.scene, this.camera);
+    };
+    loop();
+  }
+  stop() { if (this._raf) cancelAnimationFrame(this._raf); this._raf = null; }
+  dispose() {
+    this.stop();
+    this._ro.disconnect();
+    this.renderer.dispose();
+    this.host.innerHTML = "";
+  }
+}
+
 // Ders kitabı kısaltılmış dönüşümü kullanır: T(K) = t(°C) + 273.
 export function celsiusToKelvin(c) { return c + 273; }
 export function kelvinToCelsius(k) { return k - 273; }
