@@ -159,7 +159,7 @@
   const { GasBox, ElasticBalloon } = __mod_gas_engine;
   const { TraceChart } = __mod_charts;
   const { renderQuiz, markVisited, bindJournal } = __mod_quiz_engine;
-  const { QUIZ } = __mod_quiz_data;
+  const { QUIZ, QUIZ_RESERVE } = __mod_quiz_data;
   const { mountUnitConverter } = __mod_unit_converter;
 
 
@@ -173,7 +173,7 @@
   mountFooter();
   markVisited("yasalar");
   bindJournal(document.getElementById("journal2"), "yasalar");
-  renderQuiz(document.getElementById("quiz-host"), QUIZ.yasalar, "yasalar");
+  renderQuiz(document.getElementById("quiz-host"), QUIZ.yasalar, "yasalar", QUIZ_RESERVE.yasalar);
   mountUnitConverter(document.getElementById("unit-converter-host"));
 
   const LAWS = {

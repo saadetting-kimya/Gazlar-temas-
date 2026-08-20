@@ -230,14 +230,14 @@
 <script type="module">
   import { mountNav, mountFooter } from "../assets/js/nav.js?v=3";
   import { GasBox, R_CONST } from "../assets/js/gas-engine.js?v=3";
-  import { renderQuiz, markVisited, bindJournal } from "../assets/js/quiz-engine.js?v=3";
-  import { QUIZ } from "../assets/js/quiz-data.js?v=3";
+  import { renderQuiz, markVisited, bindJournal } from "../assets/js/quiz-engine.js?v=4";
+  import { QUIZ, QUIZ_RESERVE } from "../assets/js/quiz-data.js?v=4";
 
   mountNav("ideal");
   mountFooter();
   markVisited("ideal");
   bindJournal(document.getElementById("journal3"), "ideal");
-  renderQuiz(document.getElementById("quiz-host"), QUIZ.ideal, "ideal");
+  renderQuiz(document.getElementById("quiz-host"), QUIZ.ideal, "ideal", QUIZ_RESERVE.ideal);
 
   /* ================= REHBERLİ MOD ================= */
   const VARS = {

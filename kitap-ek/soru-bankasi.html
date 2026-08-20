@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<title>GazLab 10 — Soru Bankası</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2246%22 fill=%22%232fb8c6%22/></svg>">
+<link rel="stylesheet" href="../assets/css/style.css?v=4" />
+<style>
+  @page { size: A4; margin: 18mm 15mm; }
+  body { background: #fff; max-width: 700px; margin: 0 auto; }
+
+  .sb-cover { min-height: 240mm; display: flex; flex-direction: column; justify-content: center; page-break-after: always; }
+  .sb-cover .eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; color: var(--gas-dark); text-transform: uppercase; font-weight: 800; }
+  .sb-cover h1 { font-size: 34px; margin: 10px 0 4px; color: var(--ink); }
+  .sb-cover .sub { font-size: 14.5px; color: var(--ink-soft); max-width: 480px; margin-bottom: 30px; }
+  .sb-cover-bar { height: 6px; width: 90px; border-radius: 3px; background: linear-gradient(90deg, var(--gas), var(--gas-dark)); margin-bottom: 22px; }
+  .sb-toc { display: grid; gap: 10px; margin-top: 10px; }
+  .sb-toc-row { display: flex; align-items: baseline; gap: 10px; font-size: 13.5px; color: var(--ink); border-bottom: 1px dotted var(--line); padding-bottom: 6px; }
+  .sb-toc-row .n { font-family: var(--mono); font-weight: 800; color: var(--gas-dark); min-width: 20px; }
+  .sb-toc-row .cnt { margin-left: auto; font-family: var(--mono); font-size: 11.5px; color: var(--ink-faint); }
+  .sb-cover-foot { margin-top: 34px; font-size: 11.5px; color: var(--ink-faint); }
+
+  .sb-unit-title { page-break-before: always; padding-top: 6mm; margin-bottom: 18px; }
+  .sb-unit-title .eyebrow { font-family: var(--mono); font-size: 11.5px; color: var(--gas-dark); font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
+  .sb-unit-title h2 { font-size: 22px; margin: 6px 0 0; color: var(--ink); }
+
+  .ek-tag { font-size: 10.5px; color: var(--ink-faint); font-family: var(--mono); margin-bottom: 10px; }
+  .ek-q { page-break-inside: avoid; margin-bottom: 20px; }
+  .ek-q-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px; }
+  .ek-q-no { font-family: var(--mono); font-size: 11px; color: var(--ink-faint); font-weight: 700; }
+  .ek-q-ctx { font-size: 12px; color: var(--gas-dark); font-weight: 700; background: rgba(47,184,198,.1); padding: 2px 9px; border-radius: 999px; }
+  .ek-q-text { font-size: 13.5px; color: var(--ink); font-weight: 600; margin: 8px 0 10px; }
+  .ek-opts { display: grid; gap: 5px; font-size: 12.5px; color: var(--ink-soft); margin-bottom: 10px; }
+  .ek-opts .opt { display:flex; gap:8px; }
+  .ek-opts .letter { font-weight: 800; color: var(--ink-faint); min-width: 16px; }
+  .ek-answer { font-size: 12px; background: var(--surface-2); border-left: 3px solid var(--gas); border-radius: 6px; padding: 8px 12px; }
+  .ek-answer b { color: var(--gas-dark); }
+  .gl-visual { margin: 6px 0 10px; }
+  .gl-chart { max-width: 380px; }
+  .gl-vessel-svg { width: 100px; }
+</style>
+</head>
+<body>
+<div id="content"></div>
+
+<script type="module">
+  import { QUIZ, QUIZ_RESERVE } from "../assets/js/quiz-data.js?v=4";
+  import { renderQuestionVisual } from "../assets/js/quiz-engine.js?v=4";
+
+  const UNITS = [
+    { key: "kmt", no: "1", title: "Gazların Özellikleri ve Kinetik Moleküler Teori" },
+    { key: "yasalar", no: "2", title: "Gaz Yasaları" },
+    { key: "ideal", no: "3", title: "İdeal Gaz Denklemi" },
+    { key: "difuzyon", no: "4", title: "Graham Difüzyon ve Efüzyon Yasası" },
+  ];
+  const LETTERS = ["A", "B", "C", "D", "E"];
+
+  const content = document.getElementById("content");
+
+  // ---- Kapak + içindekiler ----
+  const totalCount = UNITS.reduce((s, u) => s + QUIZ[u.key].length + QUIZ_RESERVE[u.key].length, 0);
+  const cover = document.createElement("div");
+  cover.className = "sb-cover";
+  cover.innerHTML = `
+    <span class="eyebrow">GazLab 10 · Gazlar Teması</span>
+    <div class="sb-cover-bar"></div>
+    <h1>Soru Bankası</h1>
+    <p class="sub">Uygulamadaki dört modülün tüm değerlendirme sorularını (görünen + yedek havuzu birlikte) ve cevap anahtarını bir arada içeren tam liste. Uygulama içinde her modülde bu bankadan rastgele 5 soru gösterilir; yanlış cevaplanan bir sorunun yerine aynı bankadan başka bir soru önerilir.</p>
+    <div class="sb-toc">
+      ${UNITS.map(u => `
+        <div class="sb-toc-row">
+          <span class="n">Ü${u.no}</span>
+          <span>${u.title}</span>
+          <span class="cnt">${QUIZ[u.key].length + QUIZ_RESERVE[u.key].length} soru</span>
+        </div>
+      `).join("")}
+    </div>
+    <div class="sb-cover-foot">Toplam ${totalCount} soru · 5 seçenekli çoktan seçmeli · cevap anahtarı her sorunun altında</div>
+  `;
+  content.appendChild(cover);
+
+  // ---- Her ünite için tüm sorular ----
+  UNITS.forEach((u) => {
+    const unitTitle = document.createElement("div");
+    unitTitle.className = "sb-unit-title";
+    unitTitle.innerHTML = `
+      <span class="eyebrow">Ünite ${u.no}</span>
+      <h2>${u.title}</h2>
+    `;
+    content.appendChild(unitTitle);
+
+    const bank = [...QUIZ[u.key], ...QUIZ_RESERVE[u.key]];
+    bank.forEach((q, i) => {
+      const card = document.createElement("div");
+      card.className = "ek-q";
+      card.innerHTML = `
+        <div class="ek-q-head">
+          <span class="ek-q-no">SORU ${i + 1}</span>
+          ${q.context ? `<span class="ek-q-ctx">${q.context}</span>` : ""}
+        </div>
+      `;
+      const visual = renderQuestionVisual(q);
+      if (visual) card.appendChild(visual);
+      const textEl = document.createElement("div");
+      textEl.className = "ek-q-text";
+      textEl.textContent = q.text;
+      card.appendChild(textEl);
+      const optsEl = document.createElement("div");
+      optsEl.className = "ek-opts";
+      q.options.forEach((opt, oi) => {
+        const row = document.createElement("div");
+        row.className = "opt";
+        row.innerHTML = `<span class="letter">${LETTERS[oi]})</span><span>${opt}</span>`;
+        optsEl.appendChild(row);
+      });
+      card.appendChild(optsEl);
+      const ans = document.createElement("div");
+      ans.className = "ek-answer";
+      ans.innerHTML = `<b>Cevap: ${LETTERS[q.correct]}</b> — ${q.explain}`;
+      card.appendChild(ans);
+      content.appendChild(card);
+    });
+  });
+</script>
+</body>
+</html>

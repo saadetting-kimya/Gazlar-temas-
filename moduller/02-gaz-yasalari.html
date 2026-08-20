@@ -163,15 +163,15 @@
   import { mountNav, mountFooter } from "../assets/js/nav.js?v=3";
   import { GasBox, ElasticBalloon } from "../assets/js/gas-engine.js?v=3";
   import { TraceChart } from "../assets/js/charts.js?v=3";
-  import { renderQuiz, markVisited, bindJournal } from "../assets/js/quiz-engine.js?v=3";
-  import { QUIZ } from "../assets/js/quiz-data.js?v=3";
+  import { renderQuiz, markVisited, bindJournal } from "../assets/js/quiz-engine.js?v=4";
+  import { QUIZ, QUIZ_RESERVE } from "../assets/js/quiz-data.js?v=4";
   import { mountUnitConverter } from "../assets/js/unit-converter.js?v=3";
 
   mountNav("yasalar");
   mountFooter();
   markVisited("yasalar");
   bindJournal(document.getElementById("journal2"), "yasalar");
-  renderQuiz(document.getElementById("quiz-host"), QUIZ.yasalar, "yasalar");
+  renderQuiz(document.getElementById("quiz-host"), QUIZ.yasalar, "yasalar", QUIZ_RESERVE.yasalar);
   mountUnitConverter(document.getElementById("unit-converter-host"));
 
   const LAWS = {

@@ -434,33 +434,58 @@ function clearWrongAnswer(moduleKey, question) {
 
 /* ================= quiz mantığı ================= */
 
-export function renderQuiz(hostEl, questions, moduleKey) {
+/** Diziyi karıştırıp yeni bir dizi döner (Fisher-Yates). Orijinal diziyi değiştirmez. */
+function shuffled(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+export function renderQuiz(hostEl, questions, moduleKey, reserveQuestions = [], shownCount = 5) {
   hostEl.innerHTML = "";
   const wrap = document.createElement("div");
   wrap.className = "quiz";
   hostEl.appendChild(wrap);
 
+  // Bu modülün TÜM soru bankası (ana havuz + yedek havuz). Ekranda aynı
+  // anda yalnızca shownCount (varsayılan 5) kart gösterilir — atomlab9'daki
+  // "5'erli" düzenle tutarlı olsun diye — geri kalan sorular ekrana hiç
+  // çıkmadan "yeni soru dene" için bekleyen bir havuzda tutulur.
+  const fullBank = [...questions, ...reserveQuestions];
+  const shown = shuffled(fullBank).slice(0, Math.min(shownCount, fullBank.length));
+
   // Her slotun (kart) EN SON cevabı — bir kart yedek soruyla değiştirilip
   // yeniden cevaplanabildiği için ilerleme, toplam tıklama değil, slot
   // başına en güncel sonuca göre sayılır (aksi hâlde yeniden deneme
   // "yanıtlandı" sayacını sorulardan fazla artırıp modül hiç tamamlanamaz).
-  const slotResults = new Array(questions.length).fill(null);
+  const slotResults = new Array(shown.length).fill(null);
 
-  /** Aynı kazanımın (modülün) havuzundan, bu slotta zaten yanlış cevaplanmış
-      sorulardan farklı rastgele bir soru seçer — "aynı kazanımdan başka bir
-      soru dene". excludeTexts, bu deneme zincirinde daha önce yanlış
-      cevaplanan tüm soruları kapsar (aynı sorunun tekrar önerilmesini önler). */
-  function pickReplacement(excludeTexts) {
-    const others = questions.filter(q => !excludeTexts.includes(q.text));
+  // Ekrandaki her kartta O AN gösterilen sorunun metni. Yedek soru
+  // fullBank'tan seçilirken, ekranda o an BAŞKA bir kartta görünen hiçbir
+  // soru bir daha önerilmez (bkz. pickReplacement).
+  const currentlyShown = shown.map(q => q.text);
+
+  /** Bu slotta (kart) zaten yanlış cevaplanmış sorulardan ve ekranda o an
+      BAŞKA bir kartta görünen sorulardan farklı, aynı kazanımın havuzundan
+      rastgele bir soru seçer — "aynı kazanımdan başka bir soru dene". */
+  function pickReplacement(card) {
+    const slotIdx = +card.dataset.slot - 1;
+    const exclude = new Set(card._wrongChain.map(wq => wq.text));
+    currentlyShown.forEach((t, i) => { if (i !== slotIdx && t) exclude.add(t); });
+    const others = fullBank.filter(q => !exclude.has(q.text));
     if (!others.length) return null;
     return others[Math.floor(Math.random() * others.length)];
   }
 
   function mountCard(card, q) {
+    currentlyShown[+card.dataset.slot - 1] = q.text;
     card.dataset.done = "";
     card.innerHTML = `
       <div class="qhead">
-        <span class="qn">SORU ${card.dataset.slot}/${questions.length}</span>
+        <span class="qn">SORU ${card.dataset.slot}/${shown.length}</span>
         ${q.context ? `<span class="qctx">${q.context}</span>` : ""}
       </div>
       <div class="qvisual"></div>
@@ -506,16 +531,27 @@ export function renderQuiz(hostEl, questions, moduleKey) {
         }
 
         if (!isCorrect) {
-          const nextQ = pickReplacement(card._wrongChain.map((wq) => wq.text));
-          if (nextQ) {
-            const btn = document.createElement("button");
-            btn.className = "btn";
-            btn.style.marginTop = "10px";
-            btn.textContent = "Bu kazanımdan yeni bir soru dene →";
-            btn.addEventListener("click", () => mountCard(card, nextQ));
-            fbEl.appendChild(document.createElement("br"));
-            fbEl.appendChild(btn);
-          }
+          // Yedek soru, düğmeye BASILDIĞI anda seçilir (burada değil) —
+          // aksi hâlde birden fazla kart art arda (düğmeye hiç basılmadan)
+          // yanlış cevaplanırsa her biri, henüz ekrana yansımamış diğer
+          // kartların o an bilinmeyen gelecekteki seçimlerinden habersiz,
+          // "o an görünenler" hâlâ eskiyken karar verir — bu da aynı yedek
+          // sorunun birden fazla karta önerilmesine yol açar.
+          const btn = document.createElement("button");
+          btn.className = "btn";
+          btn.style.marginTop = "10px";
+          btn.textContent = "Bu kazanımdan yeni bir soru dene →";
+          btn.addEventListener("click", () => {
+            const nextQ = pickReplacement(card);
+            if (nextQ) {
+              mountCard(card, nextQ);
+            } else {
+              btn.disabled = true;
+              btn.textContent = "Bu kazanımda başka yedek soru kalmadı";
+            }
+          });
+          fbEl.appendChild(document.createElement("br"));
+          fbEl.appendChild(btn);
         }
         updateSummary();
       });
@@ -523,7 +559,7 @@ export function renderQuiz(hostEl, questions, moduleKey) {
     });
   }
 
-  questions.forEach((q, qi) => {
+  shown.forEach((q, qi) => {
     const card = document.createElement("div");
     card.className = "qcard";
     card.dataset.slot = qi + 1;
@@ -542,12 +578,12 @@ export function renderQuiz(hostEl, questions, moduleKey) {
     summary.innerHTML = `
       <div>
         <div class="small" style="color:#b7c6e6">İlerleme</div>
-        <div class="score">${answered}/${questions.length} yanıtlandı · <span>${correct}</span> doğru</div>
+        <div class="score">${answered}/${shown.length} yanıtlandı · <span>${correct}</span> doğru</div>
       </div>
-      ${answered === questions.length ? `<div class="badge-live" style="color:#7CE0A8">Modül tamamlandı</div>` : ""}
+      ${answered === shown.length ? `<div class="badge-live" style="color:#7CE0A8">Modül tamamlandı</div>` : ""}
     `;
-    if (answered === questions.length && moduleKey) {
-      markModuleScore(moduleKey, correct, questions.length);
+    if (answered === shown.length && moduleKey) {
+      markModuleScore(moduleKey, correct, shown.length);
     }
   }
   updateSummary();
