@@ -73,9 +73,10 @@ function getReportDate() {
 function calculateGeneralReportStats(learning) {
   let attempts = 0, correct = 0, wrong = 0;
   Object.values(learning || {}).forEach((item) => {
-    attempts += Number(item?.attempts || 0);
-    correct += Number(item?.correct || 0);
-    wrong += Number(item?.wrong || 0);
+    if (!item || typeof item !== "object") return;
+    attempts += Number(item.attempts || 0);
+    correct += Number(item.correct || 0);
+    wrong += Number(item.wrong || 0);
   });
   const percentage = attempts > 0 ? Math.round((correct / attempts) * 100) : 0;
   return { attempts, correct, wrong, percentage };
@@ -86,7 +87,8 @@ function calculateGeneralReportStats(learning) {
 function createModuleReportRows(learning) {
   const moduleData = {};
   Object.values(learning || {}).forEach((kazanimData) => {
-    const modules = kazanimData?.modules || {};
+    if (!kazanimData || typeof kazanimData !== "object") return;
+    const modules = kazanimData.modules && typeof kazanimData.modules === "object" ? kazanimData.modules : {};
     Object.entries(modules).forEach(([moduleKey, data]) => {
       if (!moduleData[moduleKey]) moduleData[moduleKey] = { attempts: 0, correct: 0, wrong: 0 };
       moduleData[moduleKey].attempts += Number(data?.attempts || 0);
@@ -119,15 +121,15 @@ function createModuleReportRows(learning) {
 /* ================= kazanım raporu ================= */
 
 function createKazanımReportRows(learning) {
-  const entries = Object.entries(learning || {});
+  const entries = Object.entries(learning || {}).filter(([, data]) => data && typeof data === "object");
   if (entries.length === 0) {
     return `<tr><td colspan="6">Henüz kazanım verisi bulunmuyor.</td></tr>`;
   }
 
   return entries.map(([kazanim, data]) => {
-    const attempts = Number(data?.attempts || 0);
-    const correct = Number(data?.correct || 0);
-    const wrong = Number(data?.wrong || 0);
+    const attempts = Number(data.attempts || 0);
+    const correct = Number(data.correct || 0);
+    const wrong = Number(data.wrong || 0);
     const percentage = attempts > 0 ? Math.round((correct / attempts) * 100) : 0;
     const status = getReportStatus(correct, attempts);
     return `
@@ -148,14 +150,21 @@ function createKazanımReportRows(learning) {
 function createWrongQuestionRows(errors) {
   const rows = [];
   Object.entries(errors || {}).forEach(([moduleKey, moduleErrors]) => {
-    Object.values(moduleErrors || {}).forEach((item) => {
+    // moduleErrors beklenen şekilde ({soru metni: kayıt}) değilse (ör. eski
+    // bir şemadan kalma bozuk veri) bu modülü sessizce atla — boş/anlamsız
+    // satır üretmek yerine hiç göstermemek daha doğrudur.
+    if (!moduleErrors || typeof moduleErrors !== "object" || Array.isArray(moduleErrors)) return;
+    Object.values(moduleErrors).forEach((item) => {
+      // Geçerli bir kayıt her zaman bir soru metni (text) içerir; içermeyen
+      // (ör. bozuk/eski şemadan kalma) kayıtları atla.
+      if (!item || typeof item !== "object" || !item.text) return;
       rows.push({
         module: getReportModuleName(moduleKey),
-        kazanim: item?.kazanim || "Kazanım belirtilmemiş",
-        context: item?.context || "",
-        question: item?.text || "",
-        wrongCount: Number(item?.wrongCount || 1),
-        explain: item?.explain || "",
+        kazanim: item.kazanim || "Kazanım belirtilmemiş",
+        context: item.context || "",
+        question: item.text,
+        wrongCount: Number(item.wrongCount || 1),
+        explain: item.explain || "",
       });
     });
   });
