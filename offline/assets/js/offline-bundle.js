@@ -542,6 +542,15 @@ function renderQuiz(hostEl, questions, moduleKey, reserveQuestions = [], shownCo
   // "yanıtlandı" sayacını sorulardan fazla artırıp modül hiç tamamlanamaz).
   const slotResults = new Array(shown.length).fill(null);
 
+  // Yukarıdaki slotResults yalnızca "5 slotun her biri en az bir kez
+  // cevaplandı mı" sorusuna bakar (modül tamamlanma rozetini tetiklemek
+  // için). Ama bir slot yanlış cevaplanıp yedek soruyla değiştirildiğinde
+  // öğrenci gerçekte BİRDEN FAZLA soru çözmüş olur — alttaki özet bunu da
+  // göstermeli, yoksa "5/5" sayısı yedeklerle çözülen ekstra soruları
+  // yutar ve rapordaki toplam da yanlış görünür.
+  let totalAnswered = 0;
+  let totalCorrect = 0;
+
   // Ekrandaki her kartta O AN gösterilen sorunun metni. Yedek soru
   // fullBank'tan seçilirken, ekranda o an BAŞKA bir kartta görünen hiçbir
   // soru bir daha önerilmez (bkz. pickReplacement).
@@ -594,6 +603,8 @@ function renderQuiz(hostEl, questions, moduleKey, reserveQuestions = [], shownCo
         const isCorrect = oi === q.correct;
         if (!isCorrect) o.classList.add("wrong");
         slotResults[+card.dataset.slot - 1] = isCorrect;
+        totalAnswered++;
+        if (isCorrect) totalCorrect++;
         fbEl.classList.add("show", isCorrect ? "ok" : "no");
         fbEl.textContent = (isCorrect ? "✓ Doğru — " : "✕ Tekrar düşün — ") + (q.explain || "");
 
@@ -659,10 +670,12 @@ function renderQuiz(hostEl, questions, moduleKey, reserveQuestions = [], shownCo
   function updateSummary() {
     const answered = slotResults.filter(r => r !== null).length;
     const correct = slotResults.filter(r => r === true).length;
+    const extraTries = totalAnswered - answered;
     summary.innerHTML = `
       <div>
         <div class="small" style="color:#b7c6e6">İlerleme</div>
         <div class="score">${answered}/${shown.length} yanıtlandı · <span>${correct}</span> doğru</div>
+        ${extraTries > 0 ? `<div class="small" style="color:#b7c6e6; margin-top:4px;">Toplam ${totalAnswered} soru denedin (${totalCorrect} doğru) — yedek sorular dahil</div>` : ""}
       </div>
       ${answered === shown.length ? `<div class="badge-live" style="color:#7CE0A8">Modül tamamlandı</div>` : ""}
     `;
@@ -713,7 +726,7 @@ const LINKS = [
   { href: link("index.html"), label: "Ana Sayfa", key: "home", num: "" },
   { href: link("moduller/01-kmt.html"), label: "Özellikler & KMT", key: "kmt", num: "1" },
   { href: link("moduller/02-gaz-yasalari.html"), label: "Gaz Yasaları", key: "yasalar", num: "2" },
-  { href: link("moduller/03-ideal-gaz.html"), label: "İdeal Gaz & Serbest Mod", key: "ideal", num: "3" },
+  { href: link("moduller/03-ideal-gaz.html"), label: "İdeal Gaz Yasası", key: "ideal", num: "3" },
   { href: link("moduller/04-difuzyon-efuzyon.html"), label: "Difüzyon & Efüzyon", key: "difuzyon", num: "4" },
   { href: link("Gazlar%20Ders%20Defteri.pdf"), label: "📘 Ders Defteri (PDF)", key: "kitap", num: "" },
   { href: link("Soru%20Bankas%C4%B1.pdf"), label: "📚 Soru Bankası (PDF)", key: "sorubankasi", num: "" },
