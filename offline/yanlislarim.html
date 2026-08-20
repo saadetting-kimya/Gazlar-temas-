@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Yanlışlarım — GazLab 10</title>
+<meta name="description" content="Modüllerde yanlış işaretlediğin sorular ve kişisel hata analiz raporun." />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2246%22 fill=%22%232fb8c6%22/></svg>">
+<link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+
+<div id="nav-root"></div>
+
+<header class="hero">
+  <div class="container">
+    <span class="eyebrow">Kişisel Hata Takibi</span>
+    <h1>Yanlışlarım</h1>
+    <p class="lead">Modüllerdeki sorularda yanlış işaretlediğin seçenekler burada toplanır (yalnızca bu tarayıcıda saklanır, kimseyle paylaşılmaz). Bir soruyu doğru cevapladığında bu listeden otomatik kalkar; yanlış yaptığın her soru için sana aynı kazanımdan yeni bir soru da önerilir.</p>
+  </div>
+</header>
+
+<section class="section tight" id="report-section">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Analiz Raporu</span>
+      <h2>Hata Dağılımın</h2>
+    </div>
+    <div id="report-host"></div>
+  </div>
+</section>
+
+<section class="section" id="list-section">
+  <div class="container">
+    <div id="wrong-list"></div>
+    <div id="empty-msg" class="card" style="display:none; text-align:center;">
+      <p style="margin-bottom:0;">Henüz yanlış işaretlediğin bir soru yok — ya hiç modül çözmedin ya da hepsini doğru yaptın 🎉</p>
+    </div>
+  </div>
+</section>
+
+<div id="footer-root"></div>
+
+<script src="assets/js/offline-bundle.js"></script>
+<script>
+  const { mountNav, mountFooter } = __mod_nav;
+  const { getWrongAnswers, renderQuestionVisual } = __mod_quiz_engine;
+
+
+
+
+  mountNav("yanlislarim");
+  mountFooter();
+
+  const MODULES = [
+    { key: "kmt", title: "Gazların Özellikleri & Kinetik Moleküler Teori", href: "moduller/01-kmt.html" },
+    { key: "yasalar", title: "Gaz Yasaları", href: "moduller/02-gaz-yasalari.html" },
+    { key: "ideal", title: "İdeal Gaz Yasası", href: "moduller/03-ideal-gaz.html" },
+    { key: "difuzyon", title: "Graham Difüzyon ve Efüzyon Yasası", href: "moduller/04-difuzyon-efuzyon.html" },
+  ];
+  const LETTERS = ["A", "B", "C", "D", "E"];
+
+  const perModule = MODULES.map((m) => ({ ...m, entries: getWrongAnswers(m.key) }));
+  const total = perModule.reduce((sum, m) => sum + m.entries.length, 0);
+
+  renderReport(perModule, total);
+  renderList(perModule, total);
+
+  function renderReport(perModule, total) {
+    const host = document.getElementById("report-host");
+    if (total === 0) {
+      host.innerHTML = `<div class="card"><p class="small" style="margin-bottom:0;">Rapor oluşturmak için önce bir modülde soru çöz.</p></div>`;
+      return;
+    }
+    const maxCount = Math.max(...perModule.map((m) => m.entries.length));
+    const rows = perModule
+      .map((m) => {
+        const pct = maxCount ? Math.round((m.entries.length / maxCount) * 100) : 0;
+        return `
+          <div class="chart-label">
+            <span>${m.title}</span>
+            <span>${m.entries.length} yanlış</span>
+          </div>
+          <div class="chart-wrap" style="padding:6px 10px;">
+            <div style="height:14px; border-radius:7px; background:linear-gradient(90deg,var(--gas),var(--gas-dark)); width:${m.entries.length ? Math.max(pct, 6) : 0}%; transition:width .3s;"></div>
+          </div>
+        `;
+      })
+      .join("");
+    const worst = perModule.slice().sort((a, b) => b.entries.length - a.entries.length)[0];
+    host.innerHTML = `
+      <div class="grid grid-2" style="margin-bottom:18px;">
+        <div class="card">
+          <span class="small">Toplam kayıtlı yanlış</span>
+          <div class="quiz-summary" style="margin-top:6px; padding:0; background:none; border:none;">
+            <div class="score">${total}</div>
+          </div>
+        </div>
+        <div class="card">
+          <span class="small">En çok hata yapılan modül</span>
+          <div style="font-weight:800; font-size:16px; margin-top:8px; color:var(--ink);">
+            ${worst.entries.length > 0 ? worst.title : "—"}
+          </div>
+        </div>
+      </div>
+      <div class="card">${rows}</div>
+    `;
+  }
+
+  function renderList(perModule, total) {
+    const list = document.getElementById("wrong-list");
+    perModule.forEach((m) => {
+      if (!m.entries.length) return;
+      const section = document.createElement("div");
+      section.className = "section-head";
+      section.style.marginTop = "8px";
+      section.innerHTML = `
+        <h2 style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+          ${m.title}
+          <span class="qctx" style="font-size:12px;">${m.entries.length} yanlış</span>
+          <a href="${m.href}" class="btn small" style="margin-left:auto;">Bu kazanımı tekrar çöz →</a>
+        </h2>
+      `;
+      list.appendChild(section);
+
+      m.entries.forEach((e) => {
+        const q = e.question;
+        const card = document.createElement("div");
+        card.className = "qcard";
+        card.style.marginBottom = "14px";
+        card.innerHTML = `
+          <div class="qhead">
+            <span class="qn">YANLIŞ · ${new Date(e.at).toLocaleDateString("tr-TR")}</span>
+            ${q.context ? `<span class="qctx">${q.context}</span>` : ""}
+          </div>
+          <div class="qvisual"></div>
+          <div class="qtext">${q.text}</div>
+          <div class="qopts"></div>
+          <div class="qfeedback show no"><strong>Açıklama: </strong>${q.explain || ""}</div>
+        `;
+        const visual = renderQuestionVisual(q);
+        if (visual) card.querySelector(".qvisual").appendChild(visual);
+        else card.querySelector(".qvisual").remove();
+
+        const optsEl = card.querySelector(".qopts");
+        q.options.forEach((opt, oi) => {
+          const o = document.createElement("div");
+          o.className = "qopt disabled";
+          if (oi === q.correct) o.classList.add("correct");
+          if (oi === e.chosen && e.chosen !== q.correct) o.classList.add("wrong");
+          o.innerHTML = `<span class="bullet">${LETTERS[oi]}</span><span>${opt}</span>`;
+          optsEl.appendChild(o);
+        });
+
+        list.appendChild(card);
+      });
+    });
+
+    if (total === 0) document.getElementById("empty-msg").style.display = "block";
+  }
+</script>
+</body>
+</html>
