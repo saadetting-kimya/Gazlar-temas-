@@ -449,6 +449,22 @@ const LEARNING_KEY = "gazlab10_learning";
 const HISTORY_KEY = "gazlab10_learning_history";
 const REPORT_ERROR_KEY = "gazlab10_errors";
 
+// Geliştirme sürecinde bu üç anahtarın şekli birkaç kez değişti; bazı
+// tarayıcılarda eski (artık uyumsuz) veriler hâlâ localStorage'da kalmış
+// olabilir ve "Öğrenci Analiz Raporu"nda Modül/Kazanım/Bağlam sütunlarının
+// boş ya da anlamsız (ör. "0", "Kazanım belirtilmemiş") görünmesine yol
+// açar. Şema sürümü her değiştiğinde bu üç anahtar bir kere temizlenir —
+// kullanıcı hiçbir şey yapmadan, sayfa ilk yüklendiğinde otomatik düzelir.
+const REPORT_SCHEMA_VERSION = "2";
+try {
+  if (localStorage.getItem("gazlab10_report_schema_v") !== REPORT_SCHEMA_VERSION) {
+    localStorage.removeItem(LEARNING_KEY);
+    localStorage.removeItem(HISTORY_KEY);
+    localStorage.removeItem(REPORT_ERROR_KEY);
+    localStorage.setItem("gazlab10_report_schema_v", REPORT_SCHEMA_VERSION);
+  }
+} catch { /* localStorage kapalı/engelli olabilir */ }
+
 function reportSafeParse(key, fallback) {
   try {
     const raw = localStorage.getItem(key);
