@@ -68,6 +68,46 @@ export const QUIZ = {
       correct: 0,
       explain: "Gazların hacmi koşullara (sıcaklık, basınç) bağlı olarak kolayca değiştiğinden aynı gazın yoğunluğu da değişir. Bu yüzden yoğunluk, katılardaki gibi gazlar için sabit/ayırt edici bir özellik olarak kullanılamaz.",
     },
+    {
+      context: "İki Kap, İki Basınç",
+      gasContainer: {
+        caption: "Aynı hacim ve sıcaklıktaki iki kapalı kapta farklı sayıda gaz taneciği bulunuyor.",
+        vessels: [
+          { label: "1. Kap", kind: "fixed", particles: 8, gasColor: "#5b8dff", P: "düşük" },
+          { label: "2. Kap", kind: "fixed", particles: 24, gasColor: "#ff5b7f", P: "yüksek" },
+        ],
+      },
+      text: "Şekildeki 1. ve 2. kap aynı hacimde ve aynı sıcaklıktayken, 2. kabın iç basıncının 1. kaptan büyük olmasının KMT'ye göre temel nedeni nedir?",
+      options: [
+        "2. kaptaki tanecik sayısı daha fazla olduğundan, kap duvarına birim zamanda çarpan tanecik sayısı da fazladır",
+        "2. kaptaki tanecikler daha yavaş hareket ettiği için",
+        "2. kabın duvarları daha ince olduğu için",
+        "2. kaptaki gaz daha soğuk olduğu için tanecikler birbirine yapışır",
+        "Kapların rengi basıncı doğrudan etkiler",
+      ],
+      correct: 0,
+      explain: "Gaz basıncı, taneciklerin kap duvarına yaptığı çarpışmalardan doğar. Sabit hacim ve sıcaklıkta tanecik (madde) miktarı arttıkça birim zamanda duvara çarpan tanecik sayısı artar, bu da basıncı yükseltir.",
+    },
+    {
+      context: "Aynı Kutu, Farklı Hâl",
+      particleModel: {
+        caption: "Aynı boyuttaki iki kapalı kutuda eşit sayıda tanecik bulunuyor: biri katı, biri gaz hâlinde paketlenmiş.",
+        boxes: [
+          { label: "Katı", count: 42, color: "#2fb8c6" },
+          { label: "Gaz", count: 8, color: "#5b8dff" },
+        ],
+      },
+      text: "Şekildeki katı kutusunda tanecikler birbirine bitişik dururken, gaz kutusunda taneciklerin arasında büyük boşluklar var. Bu görsel fark, gazların hangi özelliğini DOĞRUDAN açıklar?",
+      options: [
+        "Gazların sıvı ve katılardan farklı olarak kolayca sıkıştırılabilmesini",
+        "Gazların her zaman renksiz olmasını",
+        "Gazların katılardan daha ağır olmasını",
+        "Gazların yalnızca yüksek sıcaklıkta var olabilmesini",
+        "Gazların elektrik iletmemesini",
+      ],
+      correct: 0,
+      explain: "Katıda tanecikler birbirine bitişik, boşluksuzdur; gazda ise tanecikler arasında büyük boşluklar vardır. Bu boşluk, gazın dış basınç uygulandığında kolayca sıkışabilmesinin (sıkıştırılabilirlik) doğrudan nedenidir.",
+    },
   ],
 
   yasalar: [
@@ -137,6 +177,48 @@ export const QUIZ = {
       ],
       correct: 2,
       explain: "Gaz taneciklerinin her yöne sürekli, doğrusal ve zikzaklı hareketine Brown (Bravn) hareketi denir. Tanecikler birbirleri ve kabın çeperleriyle esnek çarpışma yaptığı için yön değişir ama toplam enerji ve hız korunur; hareket bu yüzden durmaz.",
+    },
+    {
+      context: "Grafikten Charles Yasasını Okumak",
+      chart: {
+        type: "line",
+        caption: "Sabit basınçta, aynı miktardaki bir gazın farklı sıcaklıklarda esnek bir pistonla ölçülen hacmi.",
+        series: [
+          {
+            label: "Hacim (L)",
+            color: "var(--gl-accent)",
+            data: [{ x: 200, y: 2 }, { x: 300, y: 3 }, { x: 400, y: 4 }],
+          },
+        ],
+        xLabel: "Sıcaklık (K)",
+        yLabel: "Hacim (L)",
+        xDomain: [0, 650],
+        yDomain: [0, 6.5],
+      },
+      text: "Grafikteki doğrusal eğilim korunursa, sıcaklık 600 K'ye çıkarıldığında gazın hacmi yaklaşık kaç L olur?",
+      options: ["5 L", "8 L", "6 L", "4,5 L", "12 L"],
+      correct: 2,
+      explain: "Grafikteki noktalar V/T = 0,01 L/K sabit oranını verir (Charles Yasası, sabit basınçta V∝T). T=600 K için V = 0,01 × 600 = 6 L. Doğru orantı, doğrunun orijinden geçmesinden de okunabilir.",
+    },
+    {
+      context: "Sıkıştırma Deneyi",
+      gasContainer: {
+        caption: "Aynı miktardaki gaz, sabit sıcaklıkta bir pistonla sıkıştırılıyor.",
+        vessels: [
+          { label: "Başlangıç", kind: "piston", fillRatio: 0.82, particles: 10, gasColor: "#5b8dff", P: "1 atm", V: "6 L" },
+          { label: "Sıkıştırılmış", kind: "piston", fillRatio: 0.27, particles: 10, gasColor: "#ff5b7f", P: "3 atm", V: "2 L" },
+        ],
+      },
+      text: "Şekildeki iki durumda da tanecik sayısı ve sıcaklık aynıdır. Bu gözlem hangi gaz yasasıyla birebir uyumludur?",
+      options: [
+        "Boyle Yasası (P₁V₁ = P₂V₂): 1 atm × 6 L = 3 atm × 2 L, her iki durumda da PV = 6 sabit kalır",
+        "Charles Yasası, çünkü sıcaklık değişmiştir",
+        "Avogadro Yasası, çünkü tanecik sayısı değişmiştir",
+        "Gay-Lussac Yasası, çünkü hacim sabit kalmıştır",
+        "Hiçbiri; hacmin küçülmesi yalnızca pistonun ağırlığından kaynaklanır",
+      ],
+      correct: 0,
+      explain: "Sabit sıcaklık ve mol sayısında P·V çarpımı sabit kalır (Boyle Yasası): 1 atm × 6 L = 6 = 3 atm × 2 L. Piston sıkıştırdıkça tanecikler birbirine yaklaşır, çarpışma sıklığı ve dolayısıyla basınç artar.",
     },
   ],
 
@@ -233,6 +315,38 @@ export const QUIZ = {
       options: ["≈0,33 atm", "≈0,66 atm", "≈1,3 atm", "≈2,6 atm", "≈0,16 atm"],
       correct: 1,
       explain: "P=nRT/V=(0,5×0,082×400)/25=16,4/25≈0,66 atm.",
+    },
+    {
+      context: "Üç Kap, Üç Basınç",
+      gasContainer: {
+        caption: "K, L, M kaplarındaki gazların mol sayısı, hacmi ve sıcaklığı etiketlerde verilmiştir.",
+        vessels: [
+          { label: "K", kind: "fixed", particles: 10, gasColor: "#5b8dff", n: "1 mol", V: "10 L", T: "300 K" },
+          { label: "L", kind: "fixed", particles: 20, gasColor: "#ff5b7f", n: "2 mol", V: "10 L", T: "300 K" },
+          { label: "M", kind: "fixed", particles: 10, gasColor: "#2fb8c6", n: "1 mol", V: "6 L", T: "300 K" },
+        ],
+      },
+      text: "K, L ve M kaplarındaki gazların basınçları PV=nRT'ye göre büyükten küçüğe nasıl sıralanır?",
+      options: ["L > M > K", "K > L > M", "M > L > K", "L > K > M", "Üçü de eşittir"],
+      correct: 0,
+      explain: "P=nRT/V ⇒ P_K=(1×0,082×300)/10≈2,46 atm; P_L=(2×0,082×300)/10≈4,92 atm; P_M=(1×0,082×300)/6≈4,10 atm. Sıralama: L > M > K.",
+    },
+    {
+      context: "Tabloda Bir Hata Var",
+      table: {
+        caption: "Aynı gazdan alınan dört örneğin ölçülen n, V, T değerleri ve hesaplanan P değerleri (R≈0,082 L·atm/(mol·K)).",
+        headers: ["Örnek", "n (mol)", "V (L)", "T (K)", "P (atm)"],
+        rows: [
+          ["A", 1, 10, 300, "2,46"],
+          ["B", 2, 20, 300, "2,46"],
+          ["C", 1, 5, 300, "4,92"],
+          ["D", 1, 10, 600, "5,00"],
+        ],
+      },
+      text: "Tablodaki P değerlerinden hangisi PV=nRT ile HESAPLANAMAZ, yani verilen n, V, T ile tutarsızdır?",
+      options: ["Örnek A", "Örnek B", "Örnek C", "Örnek D", "Hepsi tutarlıdır"],
+      correct: 3,
+      explain: "D için doğru değer P=nRT/V=(1×0,082×600)/10=4,92 atm olmalıdır; tabloda yazan 5,00 atm bu değerle uyuşmuyor. A, B, C değerleri PV=nRT ile birebir tutarlıdır (B'de n ve V birlikte 2 katına çıktığından P değişmez).",
     },
   ],
 
@@ -335,6 +449,41 @@ export const QUIZ = {
       options: ["72 g/mol", "24 g/mol", "8/3 g/mol", "3 g/mol", "64 g/mol"],
       correct: 0,
       explain: "Efüzyon SÜRESİ, hızla TERS orantılıdır: X 3 kat yavaş efüze oluyorsa r_X/r_Y=1/3. Graham Yasası'ndan r_X/r_Y=√(M_Y/M_X) ⇒ 1/3=√(8/M_X) ⇒ 1/9=8/M_X ⇒ M_X=72 g/mol.",
+    },
+    {
+      context: "İki Balon, Aynı Süre",
+      balloons: {
+        caption: "Aynı boyutta, aynı ince gözenekli kauçuktan yapılmış iki balon aynı odada aynı süre bekletiliyor.",
+        balloons: [
+          { label: "He (M=4)", color: "#5b8dff", sizeRatio: 0.55, sub: "Belirgin şekilde küçülmüş" },
+          { label: "Ar (M=40)", color: "#ff5b7f", sizeRatio: 0.92, sub: "Neredeyse aynı boyutta" },
+        ],
+      },
+      text: "Şekildeki gözleme göre He dolu balonun Ar dolu balondan çok daha fazla küçülmesinin nedeni nedir?",
+      options: [
+        "He, mol kütlesi küçük olduğu için gözeneklerden Ar'dan daha hızlı efüze olur",
+        "He balonun kauçuğunu eritir",
+        "Ar havadan ağır olduğu için balonun içinde birikip kalır",
+        "He ile Ar arasında kimyasal tepkime olur",
+        "İki balon da aynı hızda küçülür, gözlem yanıltıcıdır",
+      ],
+      correct: 0,
+      explain: "Graham Yasası'na göre efüzyon hızı 1/√M ile orantılıdır. He'nin mol kütlesi (4) Ar'ınkinden (40) çok küçük olduğundan He tanecikleri gözeneklerden çok daha hızlı kaçar; bu yüzden He balonu aynı sürede belirgin şekilde küçülür.",
+    },
+    {
+      context: "Doğru mu, Yanlış mı?",
+      statements: {
+        intro: "Difüzyon ve efüzyon ile ilgili aşağıdaki önermeleri değerlendiriniz.",
+        statements: [
+          "Aynı sıcaklıkta, mol kütlesi küçük olan tanecikler difüzyon ve efüzyonda daha hızlı yayılır.",
+          "Efüzyon, bir gazın bariyer olmaksızın başka bir gazla karışmasıdır.",
+          "Aynı sıcaklıkta iki farklı gazın tanecik başına ortalama kinetik enerjisi birbirine eşittir.",
+        ],
+      },
+      text: "Yukarıdaki önermelerden hangileri doğrudur?",
+      options: ["Yalnız I", "I ve III", "I, II ve III", "Yalnız III", "II ve III"],
+      correct: 1,
+      explain: "I doğrudur (Graham Yasası). II yanlıştır: tarif edilen olay difüzyondur, efüzyon küçük bir delikten kaçıştır. III doğrudur: aynı sıcaklıkta tüm gazların ortalama kinetik enerjisi (½mv²'nin ortalaması) mol kütlesinden bağımsız olarak eşittir — hız farkı kütleden kaynaklanır. Doğru cevap: I ve III.",
     },
   ],
 };
