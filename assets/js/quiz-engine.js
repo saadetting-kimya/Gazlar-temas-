@@ -432,6 +432,80 @@ function clearWrongAnswer(moduleKey, question) {
   localStorage.setItem(key, JSON.stringify(list));
 }
 
+/* ================= öğrenci analiz raporu (atomlab9 ile aynı sistem) =================
+   AtomLab 9'daki "Öğrenci Analiz Raporu" ile birebir aynı rapor motorunu
+   besleyen veri katmanı. Bu uygulamada her modül zaten tek bir kazanıma
+   (KİM.10.1.8–1.11) karşılık geldiği için "kazanım" burada modül başına
+   sabit bir kazanım koduna eşleniyor. */
+
+const KAZANIM_BY_MODULE = {
+  kmt: "KİM.10.1.8",
+  yasalar: "KİM.10.1.9",
+  ideal: "KİM.10.1.10",
+  difuzyon: "KİM.10.1.11",
+};
+
+const LEARNING_KEY = "gazlab10_learning";
+const HISTORY_KEY = "gazlab10_learning_history";
+const REPORT_ERROR_KEY = "gazlab10_errors";
+
+function reportSafeParse(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? (JSON.parse(raw) ?? fallback) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function reportSafeSave(key, value) {
+  try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* depolama dolu/engelli olabilir */ }
+}
+
+/** Kazanım bazlı öğrenme istatistiğine + genel geçmişe her cevabı (doğru/yanlış) kaydeder. */
+function registerAnswer(question, isCorrect, moduleKey) {
+  const kazanim = KAZANIM_BY_MODULE[moduleKey] || "Kazanım belirtilmemiş";
+  const learning = reportSafeParse(LEARNING_KEY, {});
+  if (!learning[kazanim]) {
+    learning[kazanim] = { kazanim, attempts: 0, correct: 0, wrong: 0, modules: {} };
+  }
+  const data = learning[kazanim];
+  data.attempts++;
+  if (isCorrect) data.correct++; else data.wrong++;
+  if (!data.modules[moduleKey]) data.modules[moduleKey] = { attempts: 0, correct: 0, wrong: 0 };
+  data.modules[moduleKey].attempts++;
+  if (isCorrect) data.modules[moduleKey].correct++; else data.modules[moduleKey].wrong++;
+  reportSafeSave(LEARNING_KEY, learning);
+
+  const history = reportSafeParse(HISTORY_KEY, []);
+  history.push({ time: Date.now(), moduleKey, kazanim, correct: isCorrect, question: question.text || "", context: question.context || "" });
+  if (history.length > 500) history.splice(0, history.length - 500);
+  reportSafeSave(HISTORY_KEY, history);
+}
+
+/** Rapordaki "Yanlış Soruların Ayrıntılı Analizi" tablosunu besleyen kayıt. */
+function saveWrongQuestionForReport(moduleKey, question) {
+  const kazanim = KAZANIM_BY_MODULE[moduleKey] || "Kazanım belirtilmemiş";
+  const errors = reportSafeParse(REPORT_ERROR_KEY, {});
+  if (!errors[moduleKey]) errors[moduleKey] = {};
+  const key = question.text;
+  if (!errors[moduleKey][key]) {
+    errors[moduleKey][key] = {
+      context: question.context || "",
+      kazanim,
+      text: question.text || "",
+      correct: question.correct,
+      explain: question.explain || "",
+      wrongCount: 1,
+      lastWrong: Date.now(),
+    };
+  } else {
+    errors[moduleKey][key].wrongCount = (errors[moduleKey][key].wrongCount || 0) + 1;
+    errors[moduleKey][key].lastWrong = Date.now();
+  }
+  reportSafeSave(REPORT_ERROR_KEY, errors);
+}
+
 /* ================= quiz mantığı ================= */
 
 /** Diziyi karıştırıp yeni bir dizi döner (Fisher-Yates). Orijinal diziyi değiştirmez. */
@@ -518,6 +592,8 @@ export function renderQuiz(hostEl, questions, moduleKey, reserveQuestions = [], 
         fbEl.classList.add("show", isCorrect ? "ok" : "no");
         fbEl.textContent = (isCorrect ? "✓ Doğru — " : "✕ Tekrar düşün — ") + (q.explain || "");
 
+        if (moduleKey) registerAnswer(q, isCorrect, moduleKey);
+
         // Bu slotta bu zincir boyunca yanlış cevaplanan TÜM sorular (ilk soru
         // + varsa denenen yedekler) — aynı kazanımdan bir soruyu doğru
         // cevaplamak önceki hataları "Yanlışlarım" listesinden temizler ve
@@ -526,7 +602,10 @@ export function renderQuiz(hostEl, questions, moduleKey, reserveQuestions = [], 
           if (moduleKey) card._wrongChain.forEach((wq) => clearWrongAnswer(moduleKey, wq));
           card._wrongChain.length = 0;
         } else {
-          if (moduleKey) saveWrongAnswer(moduleKey, q, oi);
+          if (moduleKey) {
+            saveWrongAnswer(moduleKey, q, oi);
+            saveWrongQuestionForReport(moduleKey, q);
+          }
           card._wrongChain.push(q);
         }
 

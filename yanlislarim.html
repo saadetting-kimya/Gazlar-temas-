@@ -6,7 +6,7 @@
 <title>Yanlışlarım — GazLab 10</title>
 <meta name="description" content="Modüllerde yanlış işaretlediğin sorular ve kişisel hata analiz raporun." />
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2246%22 fill=%22%232fb8c6%22/></svg>">
-<link rel="stylesheet" href="assets/css/style.css?v=3" />
+<link rel="stylesheet" href="assets/css/style.css?v=4" />
 </head>
 <body>
 
@@ -39,14 +39,49 @@
   </div>
 </section>
 
+<!-- =====================================================
+     ÖĞRENCİ PDF ANALİZ RAPORU
+     ===================================================== -->
+
+<section class="student-report-panel">
+
+  <div class="student-report-head">
+    <h2>📊 Öğrenci Analiz Raporu</h2>
+    <p>Çözdüğün sorular, kazanım başarıların ve yanlışların öğretmen için renkli bir rapora dönüştürülür.</p>
+  </div>
+
+  <div class="student-report-form">
+    <div class="report-field">
+      <label for="reportStudentName">Öğrenci Adı Soyadı</label>
+      <input id="reportStudentName" type="text" placeholder="Ad Soyad">
+    </div>
+    <div class="report-field">
+      <label for="reportStudentClass">Sınıf / Şube</label>
+      <input id="reportStudentClass" type="text" placeholder="11/A">
+    </div>
+    <div class="report-field">
+      <label for="reportStudentNo">Öğrenci No</label>
+      <input id="reportStudentNo" type="text" placeholder="123">
+    </div>
+  </div>
+
+  <button id="createPdfReportBtn" class="btn pdf-report-btn" type="button">🖨️ PDF Raporu Oluştur</button>
+
+</section>
+
+<!-- Yazdırılırken kullanılacak gizli alan -->
+<div id="studentPrintReport" class="student-print-report"></div>
+
 <div id="footer-root"></div>
 
 <script type="module">
   import { mountNav, mountFooter } from "./assets/js/nav.js?v=3";
   import { getWrongAnswers, renderQuestionVisual } from "./assets/js/quiz-engine.js?v=4";
+  import { bindStudentReportButton } from "./assets/js/report.js?v=1";
 
   mountNav("yanlislarim");
   mountFooter();
+  bindStudentReportButton();
 
   const MODULES = [
     { key: "kmt", title: "Gazların Özellikleri & Kinetik Moleküler Teori", href: "moduller/01-kmt.html" },
