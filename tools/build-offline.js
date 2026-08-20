@@ -140,6 +140,7 @@ function convertHtml(srcPath, depth) {
 }
 
 write("index.html", convertHtml("index.html", 0));
+write("yanlislarim.html", convertHtml("yanlislarim.html", 0));
 for (const name of fs.readdirSync(path.join(ROOT, "moduller"))) {
   if (!name.endsWith(".html")) continue;
   write(`moduller/${name}`, convertHtml(`moduller/${name}`, 1));

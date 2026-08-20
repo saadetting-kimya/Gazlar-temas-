@@ -412,6 +412,31 @@ function renderQuestionVisual(q) {
   return null;
 }
 
+/* ================= yanlışlarım (hata takibi) ================= */
+
+function wrongAnswersKey(moduleKey) { return `gazlab10-wrong-${moduleKey}`; }
+
+/** Bir modülün kaydedilmiş yanlışlarını döner — Yanlışlarım sayfası bunu okur. */
+function getWrongAnswers(moduleKey) {
+  try { return JSON.parse(localStorage.getItem(wrongAnswersKey(moduleKey)) || "[]"); }
+  catch { return []; }
+}
+
+function saveWrongAnswer(moduleKey, question, chosenIndex) {
+  const key = wrongAnswersKey(moduleKey);
+  const list = getWrongAnswers(moduleKey);
+  const entry = { question, chosen: chosenIndex, at: Date.now() };
+  const i = list.findIndex(e => e.question.text === question.text);
+  if (i >= 0) list[i] = entry; else list.push(entry);
+  localStorage.setItem(key, JSON.stringify(list));
+}
+
+function clearWrongAnswer(moduleKey, question) {
+  const key = wrongAnswersKey(moduleKey);
+  const list = getWrongAnswers(moduleKey).filter(e => e.question.text !== question.text);
+  localStorage.setItem(key, JSON.stringify(list));
+}
+
 /* ================= quiz mantığı ================= */
 
 function renderQuiz(hostEl, questions, moduleKey) {
@@ -420,14 +445,27 @@ function renderQuiz(hostEl, questions, moduleKey) {
   wrap.className = "quiz";
   hostEl.appendChild(wrap);
 
-  const state = { answered: 0, correct: 0 };
+  // Her slotun (kart) EN SON cevabı — bir kart yedek soruyla değiştirilip
+  // yeniden cevaplanabildiği için ilerleme, toplam tıklama değil, slot
+  // başına en güncel sonuca göre sayılır (aksi hâlde yeniden deneme
+  // "yanıtlandı" sayacını sorulardan fazla artırıp modül hiç tamamlanamaz).
+  const slotResults = new Array(questions.length).fill(null);
 
-  questions.forEach((q, qi) => {
-    const card = document.createElement("div");
-    card.className = "qcard";
+  /** Aynı kazanımın (modülün) havuzundan, bu slotta zaten yanlış cevaplanmış
+      sorulardan farklı rastgele bir soru seçer — "aynı kazanımdan başka bir
+      soru dene". excludeTexts, bu deneme zincirinde daha önce yanlış
+      cevaplanan tüm soruları kapsar (aynı sorunun tekrar önerilmesini önler). */
+  function pickReplacement(excludeTexts) {
+    const others = questions.filter(q => !excludeTexts.includes(q.text));
+    if (!others.length) return null;
+    return others[Math.floor(Math.random() * others.length)];
+  }
+
+  function mountCard(card, q) {
+    card.dataset.done = "";
     card.innerHTML = `
       <div class="qhead">
-        <span class="qn">SORU ${qi + 1}/${questions.length}</span>
+        <span class="qn">SORU ${card.dataset.slot}/${questions.length}</span>
         ${q.context ? `<span class="qctx">${q.context}</span>` : ""}
       </div>
       <div class="qvisual"></div>
@@ -456,15 +494,47 @@ function renderQuiz(hostEl, questions, moduleKey) {
         });
         const isCorrect = oi === q.correct;
         if (!isCorrect) o.classList.add("wrong");
-        state.answered++;
-        if (isCorrect) state.correct++;
+        slotResults[+card.dataset.slot - 1] = isCorrect;
         fbEl.classList.add("show", isCorrect ? "ok" : "no");
         fbEl.textContent = (isCorrect ? "✓ Doğru — " : "✕ Tekrar düşün — ") + (q.explain || "");
+
+        // Bu slotta bu zincir boyunca yanlış cevaplanan TÜM sorular (ilk soru
+        // + varsa denenen yedekler) — aynı kazanımdan bir soruyu doğru
+        // cevaplamak önceki hataları "Yanlışlarım" listesinden temizler ve
+        // aynı sorunun yeniden yedek olarak önerilmesini engeller.
+        if (isCorrect) {
+          if (moduleKey) card._wrongChain.forEach((wq) => clearWrongAnswer(moduleKey, wq));
+          card._wrongChain.length = 0;
+        } else {
+          if (moduleKey) saveWrongAnswer(moduleKey, q, oi);
+          card._wrongChain.push(q);
+        }
+
+        if (!isCorrect) {
+          const nextQ = pickReplacement(card._wrongChain.map((wq) => wq.text));
+          if (nextQ) {
+            const btn = document.createElement("button");
+            btn.className = "btn";
+            btn.style.marginTop = "10px";
+            btn.textContent = "Bu kazanımdan yeni bir soru dene →";
+            btn.addEventListener("click", () => mountCard(card, nextQ));
+            fbEl.appendChild(document.createElement("br"));
+            fbEl.appendChild(btn);
+          }
+        }
         updateSummary();
       });
       optsEl.appendChild(o);
     });
+  }
+
+  questions.forEach((q, qi) => {
+    const card = document.createElement("div");
+    card.className = "qcard";
+    card.dataset.slot = qi + 1;
+    card._wrongChain = [];
     wrap.appendChild(card);
+    mountCard(card, q);
   });
 
   const summary = document.createElement("div");
@@ -472,15 +542,17 @@ function renderQuiz(hostEl, questions, moduleKey) {
   wrap.appendChild(summary);
 
   function updateSummary() {
+    const answered = slotResults.filter(r => r !== null).length;
+    const correct = slotResults.filter(r => r === true).length;
     summary.innerHTML = `
       <div>
         <div class="small" style="color:#b7c6e6">İlerleme</div>
-        <div class="score">${state.answered}/${questions.length} yanıtlandı · <span>${state.correct}</span> doğru</div>
+        <div class="score">${answered}/${questions.length} yanıtlandı · <span>${correct}</span> doğru</div>
       </div>
-      ${state.answered === questions.length ? `<div class="badge-live" style="color:#7CE0A8">Modül tamamlandı</div>` : ""}
+      ${answered === questions.length ? `<div class="badge-live" style="color:#7CE0A8">Modül tamamlandı</div>` : ""}
     `;
-    if (state.answered === questions.length && moduleKey) {
-      markModuleScore(moduleKey, state.correct, questions.length);
+    if (answered === questions.length && moduleKey) {
+      markModuleScore(moduleKey, correct, questions.length);
     }
   }
   updateSummary();
@@ -503,7 +575,7 @@ function bindJournal(textareaEl, key) {
   });
 }
 
-return { readProgress, writeProgress, markModuleScore, markVisited, renderQuestionVisual, renderQuiz, bindJournal };
+return { readProgress, writeProgress, markModuleScore, markVisited, renderQuestionVisual, getWrongAnswers, renderQuiz, bindJournal };
 })();
 
 const __mod_nav = (function({ readProgress }) {
@@ -529,6 +601,7 @@ const LINKS = [
   { href: link("moduller/03-ideal-gaz.html"), label: "İdeal Gaz & Serbest Mod", key: "ideal", num: "3" },
   { href: link("moduller/04-difuzyon-efuzyon.html"), label: "Difüzyon & Efüzyon", key: "difuzyon", num: "4" },
   { href: link("Gazlar%20Ders%20Defteri.pdf"), label: "📘 Ders Defteri (PDF)", key: "kitap", num: "" },
+  { href: link("yanlislarim.html"), label: "❌ Yanlışlarım", key: "yanlislarim", num: "" },
 ];
 
 function mountNav(activeKey) {
