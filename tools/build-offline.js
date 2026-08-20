@@ -111,13 +111,11 @@ write("assets/js/offline-bundle.js", bundleParts.join("\n\n"));
 // ---- CSS'i kopyala ----
 write("assets/css/style.css", read("assets/css/style.css"));
 
-// ---- Ders defteri PDF'lerini kopyala (varsa) ----
-const pdfNames = ["Gazlar Ders Defteri.pdf", "Gazlar Ders Defteri - Ek Gorseller.pdf"];
-for (const pdfName of pdfNames) {
-  if (fs.existsSync(path.join(ROOT, pdfName))) {
-    fs.mkdirSync(OUT, { recursive: true });
-    fs.copyFileSync(path.join(ROOT, pdfName), path.join(OUT, pdfName));
-  }
+// ---- Ders defteri PDF'ini kopyala (varsa) ----
+const pdfName = "Gazlar Ders Defteri.pdf";
+if (fs.existsSync(path.join(ROOT, pdfName))) {
+  fs.mkdirSync(OUT, { recursive: true });
+  fs.copyFileSync(path.join(ROOT, pdfName), path.join(OUT, pdfName));
 }
 
 // ---- HTML sayfalarını dönüştür ----
