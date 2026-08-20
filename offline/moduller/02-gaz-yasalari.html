@@ -156,7 +156,7 @@
 <script src="../assets/js/offline-bundle.js"></script>
 <script>
   const { mountNav, mountFooter } = __mod_nav;
-  const { GasBox } = __mod_gas_engine;
+  const { GasBox, ElasticBalloon } = __mod_gas_engine;
   const { TraceChart } = __mod_charts;
   const { renderQuiz, markVisited, bindJournal } = __mod_quiz_engine;
   const { QUIZ } = __mod_quiz_data;
@@ -178,7 +178,7 @@
 
   const LAWS = {
     boyle: {
-      label: "Boyle Yasası", pair: "P–V (sabit T, n)", showPiston: true,
+      label: "Boyle Yasası", pair: "P–V (sabit T, n)", showPiston: true, vessel: "box",
       lockedText: "Sabit: T = 300 K, n = 0,4 mol", context: "🎒 Dağa çıkan bir cips paketi gibi — dış basınç değişince gazın hacmi tepki verir.",
       formula: "P·V = sabit → basınç ile hacim ters orantılıdır.",
       n: 0.4, T: 300, P: null, V: 5, vMax: 10,
@@ -186,7 +186,7 @@
       chart: { xLabel: "V (L)", yLabel: "P (atm)", xMax: 10, yMax: 12, xKey: "V", yKey: "P" },
     },
     charles: {
-      label: "Charles Yasası", pair: "V–T (sabit P, n)", showPiston: true,
+      label: "Charles Yasası", pair: "V–T (sabit P, n)", showPiston: true, vessel: "balloon",
       lockedText: "Sabit: P = 1,2 atm, n = 0,3 mol", context: "🎈 Dondurucuya konan bir balon gibi — sıcaklık düşünce hacim küçülür.",
       formula: "V/T = sabit → hacim ile mutlak sıcaklık doğru orantılıdır.",
       n: 0.3, T: 300, P: 1.2, V: null, vMax: 12,
@@ -194,7 +194,7 @@
       chart: { xLabel: "T (K)", yLabel: "V (L)", xMax: 600, yMax: 14, xKey: "T", yKey: "V" },
     },
     gaylussac: {
-      label: "Gay-Lussac Yasası", pair: "P–T (sabit V, n)", showPiston: false,
+      label: "Gay-Lussac Yasası", pair: "P–T (sabit V, n)", showPiston: false, vessel: "box",
       lockedText: "Sabit: V = 5 L (sızdırmaz kap), n = 0,3 mol", context: "🚗 Güneşte bekleyen bir araba lastiği gibi — hacim sabitken sıcaklık artınca basınç yükselir.",
       formula: "P/T = sabit → basınç ile mutlak sıcaklık doğru orantılıdır.",
       n: 0.3, T: 300, P: null, V: 5, vMax: 8,
@@ -202,7 +202,7 @@
       chart: { xLabel: "T (K)", yLabel: "P (atm)", xMax: 900, yMax: 5, xKey: "T", yKey: "P" },
     },
     avogadro: {
-      label: "Avogadro Yasası", pair: "V–n (sabit P, T)", showPiston: true,
+      label: "Avogadro Yasası", pair: "V–n (sabit P, T)", showPiston: true, vessel: "balloon",
       lockedText: "Sabit: P = 2 atm, T = 300 K", context: "🎈 Şişirilen bir balon gibi — üflenen her ek gaz miktarı hacmi büyütür.",
       formula: "V/n = sabit → hacim ile madde miktarı doğru orantılıdır.",
       n: null, T: 300, P: 2, V: null, vMax: 14,
@@ -239,7 +239,8 @@
     document.getElementById("stage-host").appendChild(host);
     stages[key] = host;
     const s = computeState(key);
-    const box = new GasBox(host, {
+    const Vessel = cfg.vessel === "balloon" ? ElasticBalloon : GasBox;
+    const box = new Vessel(host, {
       species: [{ key: "a", name: "Gaz", color: "#2fb8c6", molarMass: 29, n: s.n }],
       volumeL: s.V, temperatureK: s.T, showPiston: cfg.showPiston, vMin: 1, vMax: cfg.vMax,
     });

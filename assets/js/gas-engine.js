@@ -1320,6 +1320,282 @@ export class EffusionFlask {
   }
 }
 
+/* =========================================================
+   ElasticBalloon — sabit (atmosfer) basınçta serbestçe şişip
+   sönen ideal elastik balon. GasBox'ın büyüyen dikdörtgen kutu +
+   sabit-konum piston modelinden bilinçli olarak farklı bir görsel
+   dil kullanır: burada kabın KENDİSİ (küre) hacimle birlikte
+   büyür/küçülür ve yere sabit bir noktadan iple bağlıdır — kutu
+   sabit kalıp içindeki gazın yalnızca bir kısmını doldurmaz.
+   Charles (V-T) ve Avogadro (V-n) yasaları gibi SABİT BASINÇTA
+   hacmin serbestçe değiştiği senaryolar için kullanılır.
+   ========================================================= */
+
+const BALLOON_R_REF = 1.55;
+const BALLOON_V_REF = 6; // L — bu hacimde görsel yarıçap BALLOON_R_REF olur
+const BALLOON_GROUND_Y = -2.0;
+const BALLOON_KNOT = 0.16;
+
+export class ElasticBalloon {
+  /**
+   * @param {HTMLElement} host
+   * @param {Object} opts
+   *  species: [{key,name,color,molarMass,n}] (tek tür beklenir)
+   *  volumeL, temperatureK, vMin, vMax, speedScale
+   */
+  constructor(host, opts = {}) {
+    this.host = host;
+    this.opts = opts;
+    this.species = (opts.species || []).map(s => ({ ...s, colorObj: speciesColor(s.color), particles: [], mesh: null }));
+    this.vMin = opts.vMin ?? 1;
+    this.vMax = opts.vMax ?? 14;
+    this.volumeL = opts.volumeL ?? 6;
+    this.temperatureK = opts.temperatureK ?? 300;
+    this.speedScale = opts.speedScale ?? 1;
+    this._raf = null;
+    this._clock = new THREE.Clock();
+
+    this._buildScene();
+    this._buildBalloon();
+    this._buildParticles();
+    this._onResize = this._onResize.bind(this);
+    this._ro = new ResizeObserver(this._onResize);
+    this._ro.observe(host);
+    this._onResize();
+    this._syncGeometry();
+  }
+
+  _radiusFor(v) { return BALLOON_R_REF * Math.cbrt(THREE.MathUtils.clamp(v, this.vMin, this.vMax) / BALLOON_V_REF); }
+  get radius() { return this._radiusFor(this.volumeL); }
+  get centerY() { return BALLOON_GROUND_Y + BALLOON_KNOT + this.radius; }
+
+  _buildScene() {
+    const scene = new THREE.Scene();
+    this.scene = scene;
+    const rMax = this._radiusFor(this.vMax);
+    const camY = BALLOON_GROUND_Y + BALLOON_KNOT + rMax;
+    const scaleF = Math.max(1, rMax / 1.6);
+
+    const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 260);
+    camera.position.set(2.6 * scaleF, camY + rMax * 0.5, 6.4 * scaleF);
+    this.camera = camera;
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.05;
+    this.renderer = renderer;
+    this.host.appendChild(renderer.domElement);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.minDistance = 3;
+    controls.maxDistance = 22;
+    controls.target.set(0, camY * 0.55, 0);
+    controls.maxPolarAngle = Math.PI * 0.49;
+    this.controls = controls;
+
+    const hemi = new THREE.HemisphereLight(0xbcd4ff, 0x0a1120, 0.9);
+    scene.add(hemi);
+    const dir = new THREE.DirectionalLight(0xffffff, 1.35);
+    dir.position.set(4, 9, 4);
+    scene.add(dir);
+    const rim = new THREE.PointLight(0x2fb8c6, 6, 24);
+    rim.position.set(-4, 2, -4);
+    scene.add(rim);
+
+    const grid = new THREE.GridHelper(20, 20, 0x1c2b45, 0x141f36);
+    grid.position.set(0, BALLOON_GROUND_Y - 0.02, 0);
+    scene.add(grid);
+  }
+
+  _onResize() {
+    const w = this.host.clientWidth, h = this.host.clientHeight;
+    if (!w || !h) return;
+    this.renderer.setSize(w, h, false);
+    this.camera.aspect = w / h;
+    this.camera.updateProjectionMatrix();
+  }
+
+  _buildBalloon() {
+    this.group = new THREE.Group();
+    this.scene.add(this.group);
+
+    const sp = this.species[0] || {};
+    const base = sp.color && sp.color[0] === "#" ? sp.color : "#5b8dff";
+    const baseColor = new THREE.Color(base);
+    const dark = baseColor.clone().lerp(new THREE.Color(0x000000), 0.35);
+
+    const geo = new THREE.SphereGeometry(1, 40, 28);
+    const mat = new THREE.MeshPhysicalMaterial({
+      color: baseColor, roughness: 0.25, metalness: 0.05, transparent: true, opacity: 0.5,
+      transmission: 0.15, clearcoat: 0.4, clearcoatRoughness: 0.3, side: THREE.DoubleSide, depthWrite: false,
+    });
+    this._skin = new THREE.Mesh(geo, mat);
+    this.group.add(this._skin);
+
+    const highlightGeo = new THREE.SphereGeometry(1, 24, 16, 0, Math.PI * 0.7, 0, Math.PI * 0.5);
+    const highlightMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.18, depthWrite: false });
+    this._highlight = new THREE.Mesh(highlightGeo, highlightMat);
+    this._highlight.rotation.set(0.5, -0.6, 0.3);
+    this.group.add(this._highlight);
+
+    const knotGeo = new THREE.ConeGeometry(0.14, BALLOON_KNOT * 1.6, 16);
+    const knotMat = new THREE.MeshStandardMaterial({ color: dark, roughness: 0.4, metalness: 0.1 });
+    this._knot = new THREE.Mesh(knotGeo, knotMat);
+    this.group.add(this._knot);
+
+    const stringMat = new THREE.LineBasicMaterial({ color: 0x5c6b7d });
+    const stringGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, -1, 0)]);
+    this._string = new THREE.Line(stringGeo, stringMat);
+    this.scene.add(this._string);
+
+    const baseGeo = new THREE.CylinderGeometry(2.6, 2.8, 0.3, 40);
+    const baseMat = new THREE.MeshStandardMaterial({ color: 0x11192b, roughness: 0.7, metalness: 0.2 });
+    const baseMesh = new THREE.Mesh(baseGeo, baseMat);
+    baseMesh.position.set(0, BALLOON_GROUND_Y - 0.17, 0);
+    this.scene.add(baseMesh);
+  }
+
+  _syncGeometry() {
+    const r = this.radius;
+    const cy = this.centerY;
+    this.group.position.set(0, cy, 0);
+    this._skin.scale.setScalar(r);
+    this._highlight.scale.setScalar(r * 0.97);
+    this._knot.position.set(0, -r - BALLOON_KNOT * 0.5, 0);
+    this._string.geometry.setFromPoints([
+      new THREE.Vector3(0, -r - BALLOON_KNOT, 0),
+      new THREE.Vector3(0, BALLOON_GROUND_Y - cy, 0),
+    ]);
+    this._string.position.set(0, cy, 0);
+  }
+
+  /** Küre içinde rastgele bir nokta (yaklaşık üniform dağılım için küp kökü ölçekleme). */
+  _spawnLocal(sp) {
+    const r = Math.max(0.05, this.radius - sp.radius) * Math.cbrt(Math.random());
+    return new THREE.Vector3().randomDirection().multiplyScalar(r);
+  }
+
+  _buildParticles() {
+    this.species.forEach((sp) => {
+      const geo = new THREE.SphereGeometry(1, 12, 10);
+      const mat = new THREE.MeshStandardMaterial({ color: sp.colorObj, roughness: 0.35, metalness: 0.15, emissive: sp.colorObj, emissiveIntensity: 0.18 });
+      const mesh = new THREE.InstancedMesh(geo, mat, MAX_PARTICLES);
+      mesh.count = 0;
+      this.scene.add(mesh);
+      sp.mesh = mesh;
+      sp.radius = THREE.MathUtils.clamp(0.1 + (sp.molarMass || 20) / 900, 0.1, 0.22);
+      this._syncSpeciesCount(sp);
+    });
+  }
+
+  _syncSpeciesCount(sp) {
+    const target = Math.max(2, Math.min(MAX_PARTICLES, Math.round((sp.n || 1) * PARTICLES_PER_MOL)));
+    while (sp.particles.length < target) {
+      sp.particles.push({ local: this._spawnLocal(sp), dir: new THREE.Vector3().randomDirection(), speedFactor: THREE.MathUtils.randFloat(0.82, 1.18) });
+    }
+    if (sp.particles.length > target) sp.particles.length = target;
+    sp.mesh.count = sp.particles.length;
+  }
+
+  currentSpeed(sp) {
+    const M = sp.molarMass || 20;
+    return SPEED_K * this.speedScale * Math.sqrt(this.temperatureK / M);
+  }
+
+  setTemperature(t) { this.temperatureK = THREE.MathUtils.clamp(t, 50, 1200); }
+  setVolume(v) { this.volumeL = THREE.MathUtils.clamp(v, this.vMin, this.vMax); this._syncGeometry(); }
+  setMolCount(key, n) {
+    const sp = this.species.find(s => s.key === key);
+    if (!sp) return;
+    sp.n = THREE.MathUtils.clamp(n, 0.1, 14);
+    this._syncSpeciesCount(sp);
+  }
+
+  _stepGas(dt) {
+    const dummy = new THREE.Object3D();
+    const cy = this.centerY;
+    this.species.forEach((sp) => {
+      const vBase = this.currentSpeed(sp);
+      const r = sp.radius;
+      const bound = this.radius - r;
+      sp.particles.forEach((p, i) => {
+        const speed = vBase * p.speedFactor;
+        p.local.addScaledVector(p.dir, speed * dt);
+        const dist = p.local.length();
+        if (bound > 0 && dist > bound) {
+          const n = p.local.clone().normalize();
+          p.dir.reflect(n);
+          p.local.copy(n.multiplyScalar(bound));
+        }
+        dummy.position.set(p.local.x, p.local.y + cy, p.local.z);
+        dummy.scale.setScalar(r);
+        dummy.updateMatrix();
+        sp.mesh.setMatrixAt(i, dummy.matrix);
+      });
+      sp.mesh.count = sp.particles.length;
+      sp.mesh.instanceMatrix.needsUpdate = true;
+    });
+    this._resolveCollisions();
+  }
+
+  _resolveCollisions() {
+    const all = [];
+    this.species.forEach(sp => sp.particles.forEach(p => all.push({ p, r: sp.radius, m: sp.molarMass || 20 })));
+    const n = all.length;
+    for (let i = 0; i < n; i++) {
+      for (let j = i + 1; j < n; j++) {
+        const A = all[i], B = all[j];
+        const dx = B.p.local.x - A.p.local.x, dy = B.p.local.y - A.p.local.y, dz = B.p.local.z - A.p.local.z;
+        const dist2 = dx * dx + dy * dy + dz * dz;
+        const minDist = A.r + B.r;
+        if (dist2 > minDist * minDist || dist2 < 1e-6) continue;
+        const dist = Math.sqrt(dist2);
+        const nx = dx / dist, ny = dy / dist, nz = dz / dist;
+        const overlap = (minDist - dist) / 2;
+        A.p.local.x -= nx * overlap; A.p.local.y -= ny * overlap; A.p.local.z -= nz * overlap;
+        B.p.local.x += nx * overlap; B.p.local.y += ny * overlap; B.p.local.z += nz * overlap;
+
+        const va = A.p.dir.clone().multiplyScalar(this.currentSpeed({ molarMass: A.m }) * A.p.speedFactor);
+        const vb = B.p.dir.clone().multiplyScalar(this.currentSpeed({ molarMass: B.m }) * B.p.speedFactor);
+        const rvx = va.x - vb.x, rvy = va.y - vb.y, rvz = va.z - vb.z;
+        const velAlongNormal = rvx * nx + rvy * ny + rvz * nz;
+        if (velAlongNormal > 0) continue;
+        const invA = 1 / A.m, invB = 1 / B.m;
+        const j2 = (-2 * velAlongNormal) / (invA + invB);
+        const ix = j2 * nx, iy = j2 * ny, iz = j2 * nz;
+        va.x += ix * invA; va.y += iy * invA; va.z += iz * invA;
+        vb.x -= ix * invB; vb.y -= iy * invB; vb.z -= iz * invB;
+        const sa = va.length(), sb = vb.length();
+        if (sa > 1e-4) { A.p.dir.copy(va).normalize(); A.p.speedFactor = sa / this.currentSpeed({ molarMass: A.m }); }
+        if (sb > 1e-4) { B.p.dir.copy(vb).normalize(); B.p.speedFactor = sb / this.currentSpeed({ molarMass: B.m }); }
+      }
+    }
+  }
+
+  start() {
+    if (this._raf) return;
+    const loop = () => {
+      this._raf = requestAnimationFrame(loop);
+      const dt = Math.min(this._clock.getDelta(), 0.05);
+      this._stepGas(dt);
+      this.controls.update();
+      this.renderer.render(this.scene, this.camera);
+    };
+    loop();
+  }
+  stop() { if (this._raf) cancelAnimationFrame(this._raf); this._raf = null; }
+  dispose() {
+    this.stop();
+    this._ro.disconnect();
+    this.renderer.dispose();
+    this.host.innerHTML = "";
+  }
+}
+
 // Ders kitabı kısaltılmış dönüşümü kullanır: T(K) = t(°C) + 273.
 export function celsiusToKelvin(c) { return c + 273; }
 export function kelvinToCelsius(k) { return k - 273; }
